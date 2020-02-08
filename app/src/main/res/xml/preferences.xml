@@ -9,6 +9,10 @@
             android:key="englishName"
             android:summary="Show Package names in English"
             android:title="Show English Names" />
+        <Preference
+            android:key="clearTemp"
+            android:summary="Remove packages downloaded halfway"
+            android:title="Clear download cache files" />
         <SwitchPreference
             android:defaultValue="false"
             android:key="allPacks"

@@ -12,13 +12,14 @@
         Please contact developers. The program can still run normally.</string>
     <string name="permission_fail">Write External Storage permission allows us to install routes. Please allow this permission in App Settings.</string>
     <string name="info_download_started">Download started.</string>
-    <string name="info_download_finished">%s\nDownload finished.</string>
-    <string name="info_download_aborted">Download aborted.</string>
-    <string name="info_download_failed">Download failed!\n%s</string>
+    <string name="info_download_finished">%s\nDownload finished.%s</string>
+    <string name="info_download_aborted">%s\nDownload paused.%sTo delete downloaded file, see settings.</string>
+    <string name="info_download_failed">%s\nDownload interrupted!\n%s</string>
     <string name="info_download_start_failed">Unable to start download!</string>
     <string name="info_download_abort_failed">Unable to abort download!</string>
     <string name="info_fetch_text">Fetching remote description…</string>
     <string name="info_fetch_text_fail">Failed fetching remote description!\n%s\n%s</string>
+    <string name="info_clear_temp">Cache cleared.</string>
 
     <string name="action_search">Search</string>
     <string name="action_refresh">Refresh</string>

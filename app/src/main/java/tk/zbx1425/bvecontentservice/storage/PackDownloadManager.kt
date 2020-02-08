@@ -1,11 +1,11 @@
 package tk.zbx1425.bvecontentservice.storage
 
-import android.app.DownloadManager
-import android.content.*
-import android.database.Cursor
-import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import com.liulishuo.okdownload.DownloadTask
+import com.liulishuo.okdownload.StatusUtil
+import com.liulishuo.okdownload.core.cause.EndCause
+import com.liulishuo.okdownload.kotlin.listener.createListener2
 import okhttp3.Credentials
 import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
@@ -16,90 +16,16 @@ import java.io.*
 object PackDownloadManager {
 
     const val LOGCAT_TAG = "BCSDownloadManager"
-    var downloadManager: DownloadManager? = null
-    var contentResolver: ContentResolver? = null
-    val downloadingMap = HashMap<String, Long>()
-
-    private val onDownloadComplete = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent) {
-            val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
-            Log.i(LOGCAT_TAG, "Download completed " + id)
-            val dm: DownloadManager =
-                downloadManager ?: throw NullPointerException("Cannot get downloadManager")
-            val query = DownloadManager.Query()
-            val cursor: Cursor = dm.query(query.setFilterById(id))
-            if (cursor.moveToFirst()) {
-                val targetVSID = downloadingMap.filterValues { it == id }.keys.elementAt(0)
-                val targetFile = PackLocalManager.getLocalPackFile(targetVSID)
-                Log.i(
-                    LOGCAT_TAG,
-                    "Received status " + cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
-                )
-                when (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))) {
-                    DownloadManager.STATUS_SUCCESSFUL -> {
-                        val localFileUri = Uri.parse(
-                            cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI))
-                        )
-                        val localFile = contentResolver?.openInputStream(localFileUri)
-                            ?: throw java.lang.NullPointerException("Failed get ContentResolver")
-                        Log.i(LOGCAT_TAG, "Downloaded file at " + localFileUri.toString())
-                        Log.i(LOGCAT_TAG, "Moving file to " + targetFile.absolutePath)
-                        if (!targetFile.exists()) targetFile.createNewFile()
-                        copy(localFile, targetFile)
-                        Log.i(LOGCAT_TAG, "Removing cache file")
-                        contentResolver!!.delete(localFileUri, null, null)
-                        Log.i(LOGCAT_TAG, "Notifying PackListManager and AdapterManager")
-                        PackListManager.populate()
-                        Toast.makeText(
-                            ApplicationContext.context, String.format(
-                                ApplicationContext.context.resources.getText(R.string.info_download_finished)
-                                    .toString(), targetVSID
-                            ), Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    DownloadManager.STATUS_FAILED -> {
-                        Toast.makeText(
-                            ApplicationContext.context, String.format(
-                                ApplicationContext.context.resources.getText(R.string.info_download_failed)
-                                    .toString(),
-                                cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_REASON))
-                            ), Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-            } else {
-                Log.e(LOGCAT_TAG, "Cannot query DownloadManager Cursor")
-            }
-            downloadingMap.values.remove(id)
-        }
-    }
-
-    fun register(context: Context) {
-        downloadManager =
-            context.applicationContext.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-        contentResolver = context.applicationContext.contentResolver
-        context.applicationContext.registerReceiver(
-            onDownloadComplete,
-            IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
-        )
-        Log.i(LOGCAT_TAG, "Manager and Receiver registered")
-    }
+    val downloadingMap = HashMap<String, DownloadTask>()
 
     fun getProgress(metadata: PackageMetadata): Int {
-        val dm: DownloadManager = downloadManager ?: return -200
         if (downloadingMap.containsKey(metadata.VSID)) {
-            val query = DownloadManager.Query()
-            val cursor: Cursor = dm.query(query.setFilterById(downloadingMap[metadata.VSID]!!))
-            if (cursor.moveToFirst()) {
-                val bytesDownloaded: Long =
-                    cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
-                val bytesTotal: Long =
-                    cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
-                cursor.close()
-                //Log.i(LOGCAT_TAG, "Progress " + (bytesDownloaded * 100 / bytesTotal).toInt())
-                return (bytesDownloaded * 100 / bytesTotal).toInt()
+            val info = downloadingMap[metadata.VSID]!!.info
+            val bytesTotal: Long = info?.totalLength ?: return -100
+            if (bytesTotal > 0) {
+                return (info.totalOffset * 100 / bytesTotal).toInt()
             } else {
-                return -200
+                return 0
             }
         } else {
             return -100
@@ -107,51 +33,91 @@ object PackDownloadManager {
     }
 
     fun startDownload(metadata: PackageMetadata): Boolean {
-        Log.i(LOGCAT_TAG, "Trying download manager...")
-        val dm: DownloadManager = downloadManager ?: return false
-        Log.i(LOGCAT_TAG, "Got download manager")
         if (downloadingMap.containsKey(metadata.VSID)) return true
         Log.i(LOGCAT_TAG, "Not in VSID-db, starting")
         try {
             PackLocalManager.ensureHmmsimDir()
             Log.i(LOGCAT_TAG, metadata.File)
-            val request =
-                DownloadManager.Request(Uri.parse(metadata.File))
-                    .setTitle(metadata.Name) // Title of the Download Notification
-                    .setDescription(metadata.File) // Description of the Download Notification
-                    .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE) // Visibility of the download Notification
-                    //.setDestinationUri(Uri.fromFile(file)) // Uri of the destination file
-                    .setAllowedOverMetered(true) // Set if download is allowed on Mobile network
-                    .setAllowedOverRoaming(true) // Set if download is allowed on roaming network
+            val builder = DownloadTask.Builder(
+                metadata.File,
+                PackLocalManager.getLocalTempFile(metadata.VSID)
+            )
+                .setMinIntervalMillisCallbackProcess(400)
+            builder.addHeader(
+                "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+                        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
+            )
             when (metadata.Source.APIType) {
                 "httpBasicAuth" -> {
                     val credential: String =
                         Credentials.basic(metadata.Source.Username, metadata.Source.Password)
-                    request.addRequestHeader("Authorization", credential)
+                    builder.addHeader("Authorization", credential)
                 }
             }
-            val downloadID = dm.enqueue(request)
-            downloadingMap[metadata.VSID] = downloadID
-            Log.i(LOGCAT_TAG, "Download started " + downloadID)
+            val task = builder.build().addTag(0, metadata.VSID).addTag(1, metadata.Name)
+            downloadingMap[metadata.VSID] = task
+            task.enqueue(createListener2({
+                Log.i(LOGCAT_TAG, "Task started")
+                Toast.makeText(
+                    ApplicationContext.context, String.format(
+                        ApplicationContext.context.resources.getText(R.string.info_download_started)
+                            .toString(), task.getTag(1)
+                    ), Toast.LENGTH_SHORT
+                ).show()
+            }) { dtask: DownloadTask, cause: EndCause, realCause: java.lang.Exception? ->
+                Log.i(LOGCAT_TAG, "Task finished")
+                Toast.makeText(
+                    ApplicationContext.context, String.format(
+                        ApplicationContext.context.resources.getText(
+                            when (cause) {
+                                EndCause.COMPLETED -> R.string.info_download_finished
+                                EndCause.CANCELED -> R.string.info_download_aborted
+                                else -> R.string.info_download_failed
+                            }
+                        ).toString(), dtask.getTag(1), when (cause) {
+                            EndCause.COMPLETED, EndCause.CANCELED -> ""
+                            else -> {
+                                realCause?.printStackTrace(); realCause?.message ?: ""
+                            }
+                        }
+                    ), Toast.LENGTH_LONG
+                ).show()
+                if (cause == EndCause.COMPLETED) {
+                    PackLocalManager.getLocalTempFile(dtask.getTag(0) as String)
+                        .renameTo(PackLocalManager.getLocalPackFile(dtask.getTag(0) as String))
+                    PackListManager.populate()
+                }
+                downloadingMap.remove(dtask.getTag(0) as String)
+            })
+            Log.i(LOGCAT_TAG, "Download started")
             return true
         } catch (ex: Exception) {
-            Log.i(LOGCAT_TAG, ex.message)
+            Log.i(LOGCAT_TAG, ex.message ?: "")
             ex.printStackTrace()
             return false
         }
     }
 
     fun abortDownload(metadata: PackageMetadata): Boolean {
-        val dm: DownloadManager = downloadManager ?: return false
+        discardCompletedTask(metadata)
         if (!downloadingMap.containsKey(metadata.VSID)) return false
         try {
-            dm.remove(downloadingMap[metadata.VSID]!!)
+            //According to the documentation pausing is stopping?
+            downloadingMap[metadata.VSID]!!.cancel()
             downloadingMap.remove(metadata.VSID)
             Log.i(LOGCAT_TAG, "Download aborted " + metadata.VSID)
-            return true
         } catch (ex: Exception) {
             ex.printStackTrace()
             return false
+        }
+        return true
+    }
+
+    private fun discardCompletedTask(metadata: PackageMetadata) {
+        if (downloadingMap.containsKey(metadata.VSID)) {
+            val state = StatusUtil.isCompletedOrUnknown(downloadingMap[metadata.VSID]!!)
+            if (state == StatusUtil.Status.UNKNOWN || state == StatusUtil.Status.COMPLETED)
+                downloadingMap.remove(metadata.VSID)
         }
     }
 

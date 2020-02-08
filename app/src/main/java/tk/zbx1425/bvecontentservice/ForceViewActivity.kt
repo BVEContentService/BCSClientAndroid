@@ -66,11 +66,6 @@ class ForceViewActivity : AppCompatActivity() {
 
     fun startDownload() {
         if (PackDownloadManager.startDownload(metadata)) {
-            Snackbar.make(
-                contentView, ApplicationContext.context.resources.getString(
-                    R.string.info_download_started
-                ), Snackbar.LENGTH_SHORT
-            ).show()
             setResult(Activity.RESULT_OK, null)
         } else {
             Snackbar.make(

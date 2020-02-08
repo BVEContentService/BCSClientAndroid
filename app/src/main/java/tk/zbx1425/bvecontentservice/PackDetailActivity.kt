@@ -14,10 +14,11 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.DecelerateInterpolator
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.snackbar.Snackbar
+import com.liulishuo.okdownload.core.dispatcher.DownloadDispatcher
 import kotlinx.android.synthetic.main.activity_pack_detail.*
 import okhttp3.Credentials
 import tk.zbx1425.bvecontentservice.api.HttpHelper
@@ -38,7 +39,7 @@ class PackDetailActivity : AppCompatActivity() {
 
     var isDownloadBtnShown: Boolean = false
     lateinit var metadata: PackageMetadata
-    val timer = Timer()
+    var timer = Timer()
     var timerRunning: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,10 +47,6 @@ class PackDetailActivity : AppCompatActivity() {
         setContentView(R.layout.activity_pack_detail)
         setSupportActionBar(toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-        }
 
         metadata = intent.getSerializableExtra("metadata") as PackageMetadata
         toolbar_layout.title = metadata.Name
@@ -170,14 +167,18 @@ class PackDetailActivity : AppCompatActivity() {
 
         fab.setOnClickListener { startDownload() }
         downloadButton.setOnClickListener { startDownload() }
+
+        DownloadDispatcher.setMaxParallelRunningCount(1)
     }
 
     override fun onDestroy() {
         timer.cancel(); timer.purge()
+        Log.i("BCSUi", "Timer stopped")
         super.onDestroy()
     }
 
     private fun startDownload() {
+        Log.i("BCSUi", "startDownload called")
         val packState = PackLocalManager.getLocalState(metadata)
         val dlgAlert = AlertDialog.Builder(this)
         dlgAlert.setNegativeButton(android.R.string.no, null)
@@ -207,18 +208,7 @@ class PackDetailActivity : AppCompatActivity() {
             )
             dlgAlert.setPositiveButton(android.R.string.yes) { _: DialogInterface, i: Int ->
                 if (i == DialogInterface.BUTTON_POSITIVE) {
-                    if (PackDownloadManager.startDownload(metadata)) {
-                        Snackbar.make(
-                            app_bar,
-                            R.string.info_download_aborted, Snackbar.LENGTH_SHORT
-                        ).show()
-                        PackDownloadManager.abortDownload(metadata)
-                    } else {
-                        Snackbar.make(
-                            app_bar,
-                            R.string.info_download_abort_failed, Snackbar.LENGTH_SHORT
-                        ).show()
-                    }
+                    PackDownloadManager.abortDownload(metadata)
                 }
             }
             dlgAlert.create().show()
@@ -229,19 +219,17 @@ class PackDetailActivity : AppCompatActivity() {
                 startActivityForResult(intent, 9376)
             } else {
                 if (PackDownloadManager.startDownload(metadata)) {
-                    Snackbar.make(
-                        app_bar,
-                        R.string.info_download_started, Snackbar.LENGTH_SHORT
-                    ).show()
-                    setButtonState()
+                    setResult(Activity.RESULT_OK, null)
                 } else {
-                    Snackbar.make(
-                        app_bar,
-                        R.string.info_download_start_failed, Snackbar.LENGTH_SHORT
+                    Toast.makeText(
+                        this as Context, ApplicationContext.context.resources.getString(
+                            R.string.info_download_start_failed
+                        ), Toast.LENGTH_SHORT
                     ).show()
                 }
             }
         }
+        setButtonState()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -274,18 +262,21 @@ class PackDetailActivity : AppCompatActivity() {
                     else -> 0
                 }
             )
-            animation.duration = 1000 // 1 second
+            animation.duration = 200
             animation.interpolator = DecelerateInterpolator()
             animation.start()
             when {
                 packState <= 100 -> downloadProgress.secondaryProgress = 0
                 packState > 100 -> downloadProgress.secondaryProgress = 100
             }
-            if (packState > 100) {
-                timer.cancel(); timer.purge()
+            Log.i("BCSUi", "Setbuttonstate called")
+            if (packState > 100 || packState < 0) {
+                timer.cancel(); timer.purge(); timer = Timer()
+                Log.i("BCSUi", "Timer stopped")
                 timerRunning = false
             } else if (packState >= 0 && !timerRunning) {
-                timer.schedule(timerTask { setButtonState() }, 0, 1000)
+                timer.schedule(timerTask { setButtonState() }, 0, 500)
+                Log.i("BCSUi", "Timer started")
                 timerRunning = true
             }
         }

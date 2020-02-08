@@ -20,7 +20,7 @@ object PackListManager {
         val localPacks = HashMap(PackLocalManager.getLocalPacks().map {
             val parts = stripExtension(it.nameWithoutExtension).split("_")
             if (parts.count() > 1) {
-                parts[0] to Version(parts[1])
+                parts[0].replace(".bcs.", "") to Version(parts[1])
             } else {
                 it.nameWithoutExtension to Version("0.0")
             }
