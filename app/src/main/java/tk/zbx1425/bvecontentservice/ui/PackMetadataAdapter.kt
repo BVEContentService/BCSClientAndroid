@@ -8,7 +8,6 @@ import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import tk.zbx1425.bvecontentservice.R
-import tk.zbx1425.bvecontentservice.api.DownloadImageTask
 import tk.zbx1425.bvecontentservice.api.PackageMetadata
 import java.text.SimpleDateFormat
 import java.util.*
@@ -23,7 +22,7 @@ class PackMetadataAdapter(context: Context, val values: List<PackageMetadata>) :
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             /*val rowView : View = inflater.inflate(android.R.layout.simple_list_item_1, parent, false)
             val text1 = rowView.findViewById(android.R.id.text1) as TextView
-            text1.text = values[position].Name_LO*/
+            text1.text = values[position].Name*/
             val metadata = values[position]
             val rowView: View = inflater.inflate(R.layout.listitem_route, parent, false)
             val textTitle = rowView.findViewById<View>(R.id.textTitle) as TextView
@@ -31,12 +30,12 @@ class PackMetadataAdapter(context: Context, val values: List<PackageMetadata>) :
             val textVersion = rowView.findViewById(R.id.textVersion) as TextView
             val textTimestamp = rowView.findViewById(R.id.textTimestamp) as TextView
             val imageView: ImageView = rowView.findViewById<View>(R.id.imageThumbnail) as ImageView
-            textTitle.text = metadata.Name_LO
-            textAuthor.text = metadata.Author.Name_LO
+            textTitle.text = metadata.Name
+            textAuthor.text = metadata.Author.Name
             textVersion.text = metadata.Version.get()
             textTimestamp.text = SimpleDateFormat("yyyy-MM-dd", Locale.US)
                 .format(values[position].Timestamp)
-            DownloadImageTask(imageView).execute(metadata.Thumbnail)
+            ImageLoader.setPackImageAsync(imageView, metadata)
             return rowView
         }
         return convertView

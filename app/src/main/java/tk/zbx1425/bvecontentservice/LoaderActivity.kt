@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.activity_loader.*
 import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.storage.PackListManager
@@ -36,13 +37,24 @@ class LoaderActivity : AppCompatActivity() {
             startActivity(intent)
         }
         Thread {
-            val defaultServers = ArrayList<String>()
-            defaultServers.add(
-                "https://zbx1425.gitee.io/bcs-index," +
-                        "https://zbx1425.github.io/bcs-index"
-            )
-            MetadataManager.fetchMetadata(defaultServers) { message ->
-                runOnUiThread { progress(message) }
+            if (PreferenceManager.getDefaultSharedPreferences(this)
+                    .getBoolean("noIndexServer", false)
+            ) {
+                val sourceServers = PreferenceManager.getDefaultSharedPreferences(this)
+                    .getString("sourceServers", "https://api.zbx1425.tk:8953/bcs-src")
+                    ?.split("\n") ?: ArrayList()
+                MetadataManager.fetchMetadataBySource(sourceServers) { message ->
+                    runOnUiThread { progress(message) }
+                }
+            } else {
+                val indexServers = PreferenceManager.getDefaultSharedPreferences(this)
+                    .getString(
+                        "indexServers", "https://zbx1425.gitee.io/bcs-index," +
+                                "https://zbx1425.github.io/bcs-index"
+                    )?.split("\n") ?: ArrayList()
+                MetadataManager.fetchMetadata(indexServers) { message ->
+                    runOnUiThread { progress(message) }
+                }
             }
             runOnUiThread { progress("Populating PackListManager...") }
             PackListManager.populate()

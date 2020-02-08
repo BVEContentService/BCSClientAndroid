@@ -15,22 +15,33 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".PackDetailActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-        <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
             <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
                 <action android:name="android.intent.action.MAIN" />
-
+                <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".LoaderActivity"
             android:label="@string/app_name"
-            android:noHistory="true"></activity>
+            android:noHistory="true" />
+        <activity
+            android:name=".PackDetailActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ForceViewActivity"
+            android:label="@string/text_download"
+            android:noHistory="true" />
+        <activity
+            android:name=".SettingActivity"
+            android:label="@string/action_settings" />
     </application>
 
 </manifest>

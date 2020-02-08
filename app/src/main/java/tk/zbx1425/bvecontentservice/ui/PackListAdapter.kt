@@ -4,19 +4,23 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
+import android.widget.Filterable
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import tk.zbx1425.bvecontentservice.R
-import tk.zbx1425.bvecontentservice.api.DownloadImageTask
 import tk.zbx1425.bvecontentservice.api.PackageMetadata
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 class PackListAdapter(
     private val context: Context, val values: List<PackageMetadata>,
     val onListItemClickListener: (PackageMetadata) -> Unit
-) : RecyclerView.Adapter<PackListAdapter.PackListViewHolder>() {
+) : RecyclerView.Adapter<PackListAdapter.PackListViewHolder>(), Filterable {
+    var valuesFiltered: List<PackageMetadata> = values
+
     class PackListViewHolder(val rowView: View) : RecyclerView.ViewHolder(rowView) {
         val textTitle = rowView.findViewById<View>(R.id.textTitle) as TextView
         val textAuthor = rowView.findViewById(R.id.textAuthor) as TextView
@@ -31,19 +35,49 @@ class PackListAdapter(
     }
 
     override fun getItemCount(): Int {
-        return values.count()
+        return valuesFiltered.count()
     }
 
     override fun onBindViewHolder(holder: PackListViewHolder, position: Int) {
-        val metadata = values[position]
-        holder.textTitle.text = metadata.Name_LO
-        holder.textAuthor.text = metadata.Author.Name_LO
+        val metadata = valuesFiltered[position]
+        holder.textTitle.text = metadata.Name
+        holder.textAuthor.text = metadata.Author.Name
         holder.textVersion.text = metadata.Version.get()
         holder.textTimestamp.text = SimpleDateFormat("yyyy-MM-dd", Locale.US)
             .format(metadata.Timestamp)
-        DownloadImageTask(holder.imageView).execute(metadata.Thumbnail)
+        ImageLoader.setPackImageAsync(holder.imageView, metadata)
         holder.rowView.setOnClickListener {
             onListItemClickListener(values[position])
+        }
+    }
+
+    override fun getFilter(): Filter {
+        return object : Filter() {
+            override fun performFiltering(constraint: CharSequence?): FilterResults {
+                if (constraint == null || constraint == "") {
+                    valuesFiltered = values
+                } else {
+                    val filteredList: ArrayList<PackageMetadata> = ArrayList()
+                    for (metadata in values) {
+                        if (metadata.searchAssistName.contains(
+                                constraint.toString()
+                                    .toLowerCase(Locale.US)
+                            )
+                        ) {
+                            filteredList.add(metadata)
+                        }
+                    }
+                    valuesFiltered = filteredList
+                }
+                val result = FilterResults()
+                result.values = valuesFiltered
+                return result
+            }
+
+            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                valuesFiltered = results?.values as List<PackageMetadata>
+                notifyDataSetChanged()
+            }
         }
     }
 }

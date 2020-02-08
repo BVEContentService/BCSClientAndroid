@@ -3,6 +3,7 @@ package tk.zbx1425.bvecontentservice.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,7 +19,7 @@ import tk.zbx1425.bvecontentservice.storage.PackListManager
 class PackListFragment : Fragment() {
 
     private lateinit var dataList: ArrayList<PackageMetadata>
-    private lateinit var listAdapter: PackListAdapter
+    lateinit var listAdapter: PackListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +35,7 @@ class PackListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Log.i("BCSUi", "onCreateView called")
         listAdapter = PackListAdapter(activity as Context, dataList) { metadata ->
             val intent = Intent(activity as Context, PackDetailActivity::class.java)
             intent.putExtra("metadata", metadata)

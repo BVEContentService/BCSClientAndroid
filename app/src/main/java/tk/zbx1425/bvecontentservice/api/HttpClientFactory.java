@@ -12,6 +12,7 @@ import javax.net.ssl.X509TrustManager;
 import okhttp3.OkHttpClient;
 
 public class HttpClientFactory {
+
     public static OkHttpClient getHttpClient() {
         //This is to ease the load of our server maintainers
         //Because getting a certificate might not be very easy nowadays.

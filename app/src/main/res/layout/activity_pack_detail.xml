@@ -391,6 +391,7 @@
                 </TableRow>
 
                 <TableRow
+                    android:id="@+id/rowIndexHomepage"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
@@ -471,7 +472,6 @@
                 </TableRow>
 
                 <TableRow
-                    android:id="@+id/rowIndexHomepage"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
@@ -521,7 +521,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center_horizontal|center_vertical"
-            android:text="@string/tab_text_download"
+            android:text="@string/text_download"
             android:textColor="@android:color/primary_text_dark"
             android:textSize="24sp"
             android:textStyle="bold" />

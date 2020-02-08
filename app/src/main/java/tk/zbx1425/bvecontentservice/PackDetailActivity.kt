@@ -1,7 +1,10 @@
 package tk.zbx1425.bvecontentservice
 
 import android.animation.ObjectAnimator
+import android.app.Activity
+import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.Html
@@ -16,14 +19,14 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_pack_detail.*
-import okhttp3.Request
-import tk.zbx1425.bvecontentservice.api.DownloadImageTask
-import tk.zbx1425.bvecontentservice.api.MetadataManager
+import okhttp3.Credentials
+import tk.zbx1425.bvecontentservice.api.HttpHelper
 import tk.zbx1425.bvecontentservice.api.PackageMetadata
 import tk.zbx1425.bvecontentservice.storage.PackDownloadManager
 import tk.zbx1425.bvecontentservice.storage.PackListManager
 import tk.zbx1425.bvecontentservice.storage.PackLocalManager
 import tk.zbx1425.bvecontentservice.storage.PackLocalManager.removeLocalPacks
+import tk.zbx1425.bvecontentservice.ui.ImageLoader
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
@@ -49,8 +52,8 @@ class PackDetailActivity : AppCompatActivity() {
         }
 
         metadata = intent.getSerializableExtra("metadata") as PackageMetadata
-        toolbar_layout.title = metadata.Name_LO
-        textPackName.text = metadata.Name_LO
+        toolbar_layout.title = metadata.Name
+        textPackName.text = metadata.Name
 
         app_bar.addOnOffsetChangedListener(object : AppBarLayout.OnOffsetChangedListener {
             override fun onOffsetChanged(appBarLayout: AppBarLayout, verticalOffset: Int) {
@@ -67,7 +70,7 @@ class PackDetailActivity : AppCompatActivity() {
         })
 
         setButtonState()
-        textAuthor.text = metadata.Author.Name_LO
+        textAuthor.text = metadata.Author.Name
         textVersion.text = metadata.Version.get()
         textDate.text = SimpleDateFormat("yyyy-MM-dd", Locale.US)
             .format(metadata.Timestamp)
@@ -85,7 +88,7 @@ class PackDetailActivity : AppCompatActivity() {
             textHomepage2.text = metadata.Author.Homepage
         }
         textSourceAPIURL.text = metadata.Source.APIURL
-        textSourceName.text = metadata.Source.Name_LO
+        textSourceName.text = metadata.Source.Name
         textSourceMaintainer.text = metadata.Source.Maintainer
         textSourceContact.text = metadata.Source.Contact
         if (metadata.Source.Homepage == "") {
@@ -94,7 +97,7 @@ class PackDetailActivity : AppCompatActivity() {
             textSourceHomepage.text = metadata.Source.Homepage
         }
         textIndexAPIURL.text = metadata.Source.Index.APIURL
-        textIndexName.text = metadata.Source.Index.Name_LO
+        textIndexName.text = metadata.Source.Index.Name
         textIndexMaintainer.text = metadata.Source.Index.Maintainer
         textIndexContact.text = metadata.Source.Index.Contact
         if (metadata.Source.Index.Homepage == "") {
@@ -102,19 +105,27 @@ class PackDetailActivity : AppCompatActivity() {
         } else {
             textIndexHomepage.text = metadata.Source.Index.Homepage
         }
-        DownloadImageTask(thumbnailView).execute(metadata.Thumbnail)
+        ImageLoader.setPackImageAsync(thumbnailView, metadata)
 
         val imageGetter = Html.ImageGetter { source: String ->
             try {
                 val drawable: Drawable
-                val url = URL(source)
-                drawable = Drawable.createFromStream(url.openStream(), "")
+                val connection = URL(source).openConnection()
+                when (metadata.Source.APIType) {
+                    "httpBasicAuth" -> {
+                        val credential: String =
+                            Credentials.basic(metadata.Source.Username, metadata.Source.Password)
+                        connection.addRequestProperty("Authorization", credential)
+                    }
+                }
+                drawable = Drawable.createFromStream(connection.inputStream, "")
                 drawable.setBounds(
                     0, 0, drawable.intrinsicWidth, drawable
                         .intrinsicHeight
                 )
                 drawable
             } catch (ex: Exception) {
+                ex.printStackTrace()
                 null
             }
         }
@@ -124,10 +135,9 @@ class PackDetailActivity : AppCompatActivity() {
             textDescription.text = resources.getText(R.string.info_fetch_text)
             Thread {
                 try {
-                    Log.i("BCSDescription", metadata.Description.trim())
-                    val request = Request.Builder().url(metadata.Description.trim()).build()
-                    val response = MetadataManager.client.newCall(request).execute()
-                    val result = response.body()?.string() ?: ""
+                    val result = HttpHelper.fetchNonapiString(metadata.Source, metadata.Description)
+                    Log.i("BCSDescription", metadata.Description)
+                    Log.i("BCSDescription", result)
                     val spanned =
                         if (metadata.Description.trim().toLowerCase(Locale.US).endsWith(".html")) {
                             if (android.os.Build.VERSION.SDK_INT > 24) {
@@ -177,7 +187,7 @@ class PackDetailActivity : AppCompatActivity() {
             dlgAlert.setMessage(
                 String.format(
                     resources.getString(R.string.alert_remove),
-                    metadata.Name_LO
+                    metadata.Name
                 )
             )
             dlgAlert.setPositiveButton(android.R.string.yes) { _: DialogInterface, i: Int ->
@@ -192,7 +202,7 @@ class PackDetailActivity : AppCompatActivity() {
             dlgAlert.setMessage(
                 String.format(
                     resources.getString(R.string.alert_abort),
-                    metadata.Name_LO
+                    metadata.Name
                 )
             )
             dlgAlert.setPositiveButton(android.R.string.yes) { _: DialogInterface, i: Int ->
@@ -213,33 +223,48 @@ class PackDetailActivity : AppCompatActivity() {
             }
             dlgAlert.create().show()
         } else {
-            if (PackDownloadManager.startDownload(metadata)) {
-                Snackbar.make(
-                    app_bar,
-                    R.string.info_download_started, Snackbar.LENGTH_SHORT
-                ).show()
-                setButtonState()
+            if (metadata.AutoOpen) {
+                val intent = Intent(this as Context, ForceViewActivity::class.java)
+                intent.putExtra("metadata", metadata)
+                startActivityForResult(intent, 9376)
             } else {
-                Snackbar.make(
-                    app_bar,
-                    R.string.info_download_start_failed, Snackbar.LENGTH_SHORT
-                ).show()
+                if (PackDownloadManager.startDownload(metadata)) {
+                    Snackbar.make(
+                        app_bar,
+                        R.string.info_download_started, Snackbar.LENGTH_SHORT
+                    ).show()
+                    setButtonState()
+                } else {
+                    Snackbar.make(
+                        app_bar,
+                        R.string.info_download_start_failed, Snackbar.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == 9376 && resultCode == Activity.RESULT_OK) {
+            setButtonState()
+        }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     private fun setButtonState() {
         runOnUiThread {
             val packState = PackLocalManager.getLocalState(metadata)
-            downloadButton.text = resources.getString(
+            downloadButton.text =
                 when {
-                    packState < 0 -> R.string.text_download
-                    packState < 100 -> R.string.text_downloading
-                    packState == 100 -> R.string.text_finishing
-                    packState > 100 -> R.string.text_remove
-                    else -> R.string.dummy
+                    packState < 0 -> String.format(
+                        resources.getString(R.string.text_download),
+                        metadata.FileSize
+                    )
+                    packState < 100 -> resources.getString(R.string.text_downloading)
+                    packState == 100 -> resources.getString(R.string.text_finishing)
+                    packState > 100 -> resources.getString(R.string.text_remove)
+                    else -> resources.getString(R.string.dummy)
                 }
-            )
             val animation = ObjectAnimator.ofInt(
                 downloadProgress,
                 "progress", when {

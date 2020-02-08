@@ -6,6 +6,7 @@ import android.database.Cursor
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import okhttp3.Credentials
 import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.PackageMetadata
@@ -60,7 +61,8 @@ object PackDownloadManager {
                         Toast.makeText(
                             ApplicationContext.context, String.format(
                                 ApplicationContext.context.resources.getText(R.string.info_download_failed)
-                                    .toString(), targetVSID
+                                    .toString(),
+                                cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_REASON))
                             ), Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -94,7 +96,7 @@ object PackDownloadManager {
                 val bytesTotal: Long =
                     cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
                 cursor.close()
-                Log.i(LOGCAT_TAG, "Progress " + (bytesDownloaded * 100 / bytesTotal).toInt())
+                //Log.i(LOGCAT_TAG, "Progress " + (bytesDownloaded * 100 / bytesTotal).toInt())
                 return (bytesDownloaded * 100 / bytesTotal).toInt()
             } else {
                 return -200
@@ -112,14 +114,22 @@ object PackDownloadManager {
         Log.i(LOGCAT_TAG, "Not in VSID-db, starting")
         try {
             PackLocalManager.ensureHmmsimDir()
+            Log.i(LOGCAT_TAG, metadata.File)
             val request =
                 DownloadManager.Request(Uri.parse(metadata.File))
-                    .setTitle(metadata.Name_LO) // Title of the Download Notification
+                    .setTitle(metadata.Name) // Title of the Download Notification
                     .setDescription(metadata.File) // Description of the Download Notification
                     .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE) // Visibility of the download Notification
                     //.setDestinationUri(Uri.fromFile(file)) // Uri of the destination file
                     .setAllowedOverMetered(true) // Set if download is allowed on Mobile network
                     .setAllowedOverRoaming(true) // Set if download is allowed on roaming network
+            when (metadata.Source.APIType) {
+                "httpBasicAuth" -> {
+                    val credential: String =
+                        Credentials.basic(metadata.Source.Username, metadata.Source.Password)
+                    request.addRequestHeader("Authorization", credential)
+                }
+            }
             val downloadID = dm.enqueue(request)
             downloadingMap[metadata.VSID] = downloadID
             Log.i(LOGCAT_TAG, "Download started " + downloadID)

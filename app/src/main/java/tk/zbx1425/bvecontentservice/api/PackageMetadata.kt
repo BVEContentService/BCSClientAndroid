@@ -1,6 +1,8 @@
 package tk.zbx1425.bvecontentservice.api
 
 import org.json.JSONObject
+import tk.zbx1425.bvecontentservice.chooseString
+import tk.zbx1425.bvecontentservice.tryString
 import java.io.Serializable
 import java.util.*
 
@@ -8,6 +10,7 @@ data class PackageMetadata(
     var ID: String,
     var Version: Version,
     var File: String,
+    var FileSize: String,
     var Author: AuthorMetadata,
     var Name_LO: String,
     var Name_EN: String,
@@ -24,15 +27,16 @@ data class PackageMetadata(
     var Source: SourceMetadata
 ) : Comparable<PackageMetadata>, Serializable {
 
-    val searchAssistName: String = Name_LO + Name_EN + Name_SA +
-            Author.Name_LO + Author.Name_EN + Author.Name_SA
+    val searchAssistName: String = (Name_LO + Name_EN + Name_SA +
+            Author.Name_LO + Author.Name_EN + Author.Name_SA).toLowerCase()
 
     val VSID: String = this.ID + "_" + this.Version.get()
 
     constructor (src: JSONObject, manager: MetadataManager, source: SourceMetadata) : this(
         src.getString("ID"),
         Version(src.getString("Version")),
-        src.getString("File_H2"),
+        src.tryString("File_H2"),
+        src.tryString("FileSize_H2"),
         manager.getAuthor(src.tryString("Author")),
         src.tryString("Name_LO"),
         src.tryString("Name_EN"),
@@ -43,8 +47,8 @@ data class PackageMetadata(
         src.tryString("Homepage"),
         src.tryString("Description"),
         src.tryString("Thumbnail"),
-        src.tryString("AutoOpen").equals("true", true),
-        src.tryString("ForceView").equals("true", true),
+        src.tryString("AutoOpen").equals("1", true),
+        src.tryString("ForceView").equals("1", true),
         Date(src.getLong("TimeStamp") * 1000),
         source
     ) {
@@ -59,4 +63,9 @@ data class PackageMetadata(
     override fun compareTo(other: PackageMetadata): Int {
         return compareValuesBy(this, other, PackageMetadata::Timestamp)
     }
+
+    val Name: String
+        get() {
+            return chooseString(Name_LO, Name_EN)
+        }
 }

@@ -1,24 +1,57 @@
 package tk.zbx1425.bvecontentservice.api
 
 import org.json.JSONObject
+import tk.zbx1425.bvecontentservice.chooseString
+import tk.zbx1425.bvecontentservice.tryString
 import java.io.Serializable
 
 data class SourceMetadata(
-    var Name_LO: String,
-    var Name_EN: String,
-    var APIURL: String,
-    var Maintainer: String,
-    var Homepage: String,
-    var Contact: String,
-    var Index: IndexMetadata
+    val Name_LO: String,
+    val Name_EN: String,
+    val APIURL: String,
+    val APIType: String,
+    val Maintainer_LO: String,
+    val Maintainer_EN: String,
+    val Homepage: String,
+    val Contact: String,
+    val Username: String,
+    val Password: String,
+    val Index: IndexMetadata
 ) : Serializable {
     constructor (src: JSONObject, index: IndexMetadata) : this(
         src.getString("Name_LO"),
         src.getString("Name_EN"),
         src.getString("APIURL"),
-        src.getString("Maintainer"),
+        src.getString("APIType"),
+        src.getString("Maintainer_LO"),
+        src.getString("Maintainer_EN"),
         src.tryString("Homepage"),
         src.getString("Contact"),
+        src.tryString("Username"),
+        src.tryString("Password"),
         index
     )
+
+    constructor (url: String) : this(
+        "手动设定源服务器",
+        "Source Server Manually Specified",
+        url,
+        "httpSimple",
+        "未知",
+        "Unknown",
+        "",
+        "Unknown",
+        "",
+        "",
+        IndexMetadata()
+    )
+
+    val Name: String
+        get() {
+            return chooseString(Name_LO, Name_EN)
+        }
+    val Maintainer: String
+        get() {
+            return chooseString(Maintainer_LO, Maintainer_EN)
+        }
 }

@@ -6,6 +6,8 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
+        <item name="actionOverflowMenuStyle">@style/OverflowMenu</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -19,7 +21,12 @@
 
     <style name="CollapsingToolbarLayoutExpandedTextStyle" parent="AppTheme">
         <item name="android:textColor">@android:color/transparent</item>
-        <item name="android:textSize">0.1sp</item>
+        <item name="android:textSize">1sp</item>
+    </style>
+
+    <style name="OverflowMenu" parent="Widget.AppCompat.PopupMenu.Overflow">
+        <item name="overlapAnchor">false</item>
+        <item name="android:dropDownVerticalOffset">4.0dip</item>
     </style>
 
 </resources>

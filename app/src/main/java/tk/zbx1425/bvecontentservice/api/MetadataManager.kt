@@ -1,7 +1,6 @@
 package tk.zbx1425.bvecontentservice.api
 
 import okhttp3.Request
-import org.json.JSONArray
 import org.json.JSONObject
 
 object MetadataManager {
@@ -17,13 +16,14 @@ object MetadataManager {
     var packs: ArrayList<PackageMetadata> = ArrayList()
     var packMap: HashMap<String, PackageMetadata> = HashMap()
 
-    fun fetchMetadata(indexServers: ArrayList<String>, progress: (String) -> Unit) {
-        progress("BCS Protocol v1.1 Client v1.2\nBy zbx1425, 2020-2-6.")
+    fun fetchMetadata(indexServers: List<String>, progress: (String) -> Unit) {
+        progress("BCS Protocol v1.2 Client v1.2\nBy zbx1425, 2020-2-6.")
         this.initialized = true
-        this.indexServers = indexServers
+        this.indexServers = ArrayList(indexServers)
         sourceServers.clear()
         authors.clear()
         packs.clear()
+        packMap.clear()
         fetchServers(progress)
         if (sourceServers.count() == 0) {
             progress(
@@ -31,6 +31,22 @@ object MetadataManager {
                         "Check your network connection, or replace index server!"
             )
             return
+        }
+        fetchAuthors(progress)
+        fetchPackages(progress)
+        progress("Fetching Finished.")
+    }
+
+    fun fetchMetadataBySource(sourceServers: List<String>, progress: (String) -> Unit) {
+        progress("BCS Protocol v1.2 Client v1.2\nRunning in SourceServer Mode.")
+        this.initialized = true
+        this.indexServers = arrayListOf("")
+        this.sourceServers.clear()
+        authors.clear()
+        packs.clear()
+        packMap.clear()
+        for (sourceServer in sourceServers) {
+            this.sourceServers.add(SourceMetadata((sourceServer)))
         }
         fetchAuthors(progress)
         fetchPackages(progress)
@@ -47,9 +63,9 @@ object MetadataManager {
                         Request.Builder().url(indexServerURL.trim() + API_SUB_INDEX).build()
                     val response = client.newCall(request).execute()
                     val result = response.body()?.string() ?: continue
-                    val indexServerJSON = JSONObject(result)
-                    val indexServerJSONArray = indexServerJSON.getJSONArray("Servers")
-                    var indexServer = IndexMetadata(indexServerJSON, indexServerURL.trim())
+                    val indexServerTotalJSON = JSONObject(result)
+                    val indexServerJSONArray = indexServerTotalJSON.getJSONArray("Servers")
+                    val indexServer = IndexMetadata(indexServerTotalJSON, indexServerURL.trim())
                     for (i in 0 until indexServerJSONArray.length()) {
                         try {
                             val indexServerJSON: JSONObject =
@@ -83,13 +99,10 @@ object MetadataManager {
     private fun fetchAuthors(progress: (String) -> Unit) {
         progress("MetaMan: Author Fetching started")
         for (sourceServer in sourceServers) {
-            progress("MMNetwork: Fetching Authors from " + sourceServer.APIURL.trim() + API_SUB_AUTHOR)
+            progress("MMNetwork: Fetching Authors from " + sourceServer.APIURL.trim())
             try {
-                val request =
-                    Request.Builder().url(sourceServer.APIURL.trim() + API_SUB_AUTHOR).build()
-                val response = client.newCall(request).execute()
-                val result = response.body()?.string() ?: continue
-                val authorJSONArray = JSONArray(result)
+                val authorJSONArray =
+                    HttpHelper.fetchArray(sourceServer, API_SUB_AUTHOR) ?: continue
                 for (i in 0 until authorJSONArray.length()) {
                     try {
                         val authorJSON: JSONObject = authorJSONArray[i] as? JSONObject ?: continue
@@ -109,18 +122,15 @@ object MetadataManager {
     private fun fetchPackages(progress: (String) -> Unit) {
         progress("MetaMan: Package Fetching started")
         for (sourceServer in sourceServers) {
-            progress("MMNetwork: Fetching Packages from " + sourceServer.APIURL.trim() + API_SUB_PACK)
+            progress("MMNetwork: Fetching Packages from " + sourceServer.APIURL.trim())
             try {
-                val request =
-                    Request.Builder().url(sourceServer.APIURL.trim() + API_SUB_PACK).build()
-                val response = client.newCall(request).execute()
-                val result = response.body()?.string() ?: continue
-                val packJSONArray = JSONArray(result)
+                val packJSONArray = HttpHelper.fetchArray(sourceServer, API_SUB_PACK) ?: continue
                 for (i in 0 until packJSONArray.length()) {
                     try {
                         val packJSON: JSONObject = packJSONArray[i] as? JSONObject ?: continue
                         progress("MMParser: Got Pack " + packJSON.getString("ID"))
                         val metadata = PackageMetadata(packJSON, this, sourceServer)
+                        if (metadata.File == "") continue
                         packs.add(metadata)
                         if (!packMap.containsKey(metadata.ID) ||
                             packMap[metadata.ID]?.Version ?: Version("0.0") < metadata.Version

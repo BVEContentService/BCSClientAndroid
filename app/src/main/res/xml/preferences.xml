@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory android:title="General">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="englishName"
+            android:summary="Show Package names in English"
+            android:title="Show English Names" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="allPacks"
+            android:summary="Including the outdated ones"
+            android:title="Show Historial Packages" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Servers">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="noIndexServer"
+            android:summary="Fetch directly from sources manually specified"
+            android:title="Do not use a Index Server" />
+        <EditTextPreference
+            android:defaultValue="https://zbx1425.gitee.io/bcs-index,https://zbx1425.github.io/bcs-index"
+            android:key="indexServers"
+            android:selectAllOnFocus="true"
+            android:singleLine="false"
+            android:summary="Servers used to fetch Source Servers"
+            android:title="Edit Index Servers" />
+        <EditTextPreference
+            android:defaultValue="https://api.zbx1425.tk:8953/bcs-src"
+            android:key="sourceServers"
+            android:selectAllOnFocus="true"
+            android:singleLine="false"
+            android:summary="Servers used to fetch Packages"
+            android:title="Edit Source Servers"
+            app:enabled="false" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Advanced">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="useWebView"
+            android:summary="Use WebView for package description"
+            android:title="WebView instead of TextView" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="disableValidate"
+            android:summary="Allow fetching from untrusted servers"
+            android:title="Disable Certificate Validation" />
+    </PreferenceCategory>
+</PreferenceScreen>

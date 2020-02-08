@@ -1,6 +1,8 @@
 package tk.zbx1425.bvecontentservice.api
 
 import org.json.JSONObject
+import tk.zbx1425.bvecontentservice.chooseString
+import tk.zbx1425.bvecontentservice.tryString
 import java.io.Serializable
 
 
@@ -20,4 +22,9 @@ data class AuthorMetadata(
         src.tryString("Homepage"),
         src.tryString("Description")
     )
+
+    val Name: String
+        get() {
+            return chooseString(Name_LO, Name_EN)
+        }
 }
