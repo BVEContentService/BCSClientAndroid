@@ -1,11 +1,13 @@
 package tk.zbx1425.bvecontentservice
 
+import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.activity_loader.*
@@ -57,10 +59,29 @@ class LoaderActivity : AppCompatActivity() {
                 }
             }
             runOnUiThread { progress("Populating PackListManager...") }
-            PackListManager.populate()
-            runOnUiThread { progress("Pack List is ready. Thank you!") }
+            val updateCnt = PackListManager.populate()
             runOnUiThread {
+                progress("Pack List is ready. Thank you!")
                 progressBar.visibility = View.GONE
+                if (updateCnt > 0) {
+                    val dlgAlert = AlertDialog.Builder(this)
+                    dlgAlert.setCancelable(true)
+                    dlgAlert.setTitle(R.string.app_name)
+                    dlgAlert.setMessage(
+                        String.format(
+                            resources.getString(R.string.info_update_avail),
+                            updateCnt
+                        )
+                    )
+                    dlgAlert.setPositiveButton(android.R.string.ok) { _: DialogInterface, _: Int ->
+                        if (errorCount == 0) {
+                            val intent = Intent(this, MainActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                            startActivity(intent)
+                        }
+                    }
+                    dlgAlert.create().show()
+                }
                 if (errorCount > 0) {
                     adapterData.add("")
                     adapterData.add("Fetching finished with " + errorList.count() + " Errors:")
@@ -72,7 +93,7 @@ class LoaderActivity : AppCompatActivity() {
                     adapter.notifyDataSetChanged()
                     currentStep.setTextColor(Color.RED)
                     continueButton.visibility = View.VISIBLE
-                } else {
+                } else if (updateCnt == 0) {
                     val intent = Intent(this, MainActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
                     startActivity(intent)

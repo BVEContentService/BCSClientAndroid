@@ -253,7 +253,20 @@ class PackDetailActivity : AppCompatActivity() {
         dlgAlert.setCancelable(true)
         dlgAlert.setTitle(R.string.app_name)
         setButtonState()
-        if (packState > 100) {
+        if (metadata.UpdateAvailable) {
+            PackLocalManager.removeLocalPacks(metadata.ID)
+            if (PackDownloadManager.startDownload(metadata)) {
+                setResult(Activity.RESULT_OK, null)
+                timer = Timer()
+                timer.schedule(timerTask { setButtonState(true) }, 500, 500)
+            } else {
+                Toast.makeText(
+                    this as Context, ApplicationContext.context.resources.getString(
+                        R.string.info_download_start_failed
+                    ), Toast.LENGTH_SHORT
+                ).show()
+            }
+        } else if (packState > 100) {
             dlgAlert.setMessage(
                 String.format(
                     resources.getString(R.string.alert_remove),
@@ -316,10 +329,19 @@ class PackDetailActivity : AppCompatActivity() {
             val packState = PackLocalManager.getLocalState(metadata)
             downloadButton.text =
                 when {
-                    packState < 0 -> String.format(
-                        resources.getString(R.string.text_download),
-                        metadata.FileSize
-                    )
+                    packState < 0 -> {
+                        if (metadata.UpdateAvailable) {
+                            String.format(
+                                resources.getString(R.string.text_update),
+                                metadata.FileSize
+                            )
+                        } else {
+                            String.format(
+                                resources.getString(R.string.text_download),
+                                metadata.FileSize
+                            )
+                        }
+                    }
                     packState < 100 -> resources.getString(R.string.text_downloading)
                     packState == 100 -> resources.getString(R.string.text_finishing)
                     packState > 100 -> resources.getString(R.string.text_remove)

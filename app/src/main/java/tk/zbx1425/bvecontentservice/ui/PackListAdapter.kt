@@ -1,6 +1,7 @@
 package tk.zbx1425.bvecontentservice.ui
 
 import android.content.Context
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -42,7 +43,15 @@ class PackListAdapter(
         val metadata = valuesFiltered[position]
         holder.textTitle.text = metadata.Name
         holder.textAuthor.text = metadata.Author.Name
-        holder.textVersion.text = metadata.Version.get()
+        if (metadata.UpdateAvailable) {
+            holder.textVersion.text = String.format(
+                context.resources.getString(R.string.text_update_avail), metadata.Version.get()
+            )
+            holder.textVersion.setTextColor(Color.rgb(255, 140, 0))
+        } else {
+            holder.textVersion.text = metadata.Version.get()
+            holder.textVersion.setTextColor(Color.BLACK)
+        }
         holder.textTimestamp.text = SimpleDateFormat("yyyy-MM-dd", Locale.US)
             .format(metadata.Timestamp)
         ImageLoader.setPackImageAsync(holder.imageView, metadata)

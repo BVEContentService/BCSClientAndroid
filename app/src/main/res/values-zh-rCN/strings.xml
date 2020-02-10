@@ -22,7 +22,7 @@
     <string name="tab_text_download">下载</string>
     <string name="tab_text_manage">管理</string>
     <string name="text_abuse">如出现侵权或其他不法行为，请联系上传者。如果您的诉求未被重视，您可联系服务器维护团队：</string>
-    <string name="text_apiurl">API网址</string>
+    <string name="text_apiurl">API</string>
     <string name="text_author">作者</string>
     <string name="text_contact">联系</string>
     <string name="text_continue_download">前往下载</string>
@@ -35,7 +35,7 @@
     <string name="text_maintainer">维护</string>
     <string name="text_remove">卸载</string>
     <string name="text_ugc">评论</string>
-    <string name="text_update">更新</string>
+    <string name="text_update">更新 %s</string>
     <string name="text_version">版本</string>
     <string name="pref_ugc_custom">自定义来源</string>
     <string name="pref_ugc_disable">不显示评论</string>
@@ -64,4 +64,6 @@
     <string name="pref_usewebview_sum">用WebView显示线路包描述信息</string>
     <string name="pref_rproxy">启用反向代理</string>
     <string name="pref_rproxy_sum">如连接缓慢可尝试打开</string>
+    <string name="text_update_avail">更新: %s</string>
+    <string name="info_update_avail">有 %d 个路线可以更新！\n详见管理页。</string>
 </resources>

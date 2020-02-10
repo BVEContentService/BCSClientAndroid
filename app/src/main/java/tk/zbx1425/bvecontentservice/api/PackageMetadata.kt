@@ -26,7 +26,8 @@ data class PackageMetadata(
     var AutoOpen: Boolean,
     var ForceView: Boolean,
     var Timestamp: Date,
-    var Source: SourceMetadata
+    var Source: SourceMetadata,
+    var UpdateAvailable: Boolean = false
 ) : Comparable<PackageMetadata>, Serializable {
 
     val searchAssistName: String = (Name_LO + Name_EN + Name_SA +

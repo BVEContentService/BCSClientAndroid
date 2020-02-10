@@ -39,9 +39,9 @@ class UGCActivity : AppCompatActivity() {
         webView.settings.setSupportMultipleWindows(true)
         webView.loadUrl(
             String.format(
-                "%s?pkg=%s&ver=%s",
+                "%s?pkg=%s&ver=%s&author=%s",
                 MetadataManager.getActiveUGCServer()?.APIURL,
-                metadata.ID, metadata.Version.get()
+                metadata.ID, metadata.Version.get(), metadata.Author.ID
             )
         )
         webView.webChromeClient = MultiPageChromeClient(this)
@@ -53,6 +53,17 @@ class UGCActivity : AppCompatActivity() {
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 loadingProgress.visibility = View.GONE
+                if (url != null && url.startsWith("https://github.com/login/oauth/authorize")) {
+                    // Utterances github authorization hack.
+                    // For some reason this button simply does not get enabled.
+                    // So I used this to manually fix that.
+                    view?.loadUrl(
+                        "javascript:(function(){" +
+                                "document.getElementById('js-oauth-authorize-btn').disabled = false;" +
+                                "document.getElementById('js-oauth-authorize-btn').click();" +
+                                "})()"
+                    )
+                }
                 super.onPageFinished(view, url)
             }
         }

@@ -20,7 +20,9 @@
     <string name="info_fetch_text">Fetching remote description…</string>
     <string name="info_fetch_text_fail">Failed fetching remote description!\n%s\n%s</string>
     <string name="info_clear_temp">Cache cleared.</string>
+    <string name="info_update_avail">Update is available for %d packages!\nPlease see Manage page for detail.</string>
 
+    <string name="text_update_avail">Updated: %s</string>
     <string name="action_search">Search</string>
     <string name="action_refresh">Refresh</string>
     <string name="action_settings">Settings</string>
@@ -39,7 +41,7 @@
     <string name="text_continue_download">Continue to Download</string>
     <string name="text_downloading">Downloading…</string>
     <string name="text_finishing">Finishing up…</string>
-    <string name="text_update">Update</string>
+    <string name="text_update">Update %s</string>
     <string name="text_remove">Remove</string>
 
     <string name="pref_ugc_disable">Disable UGC</string>
