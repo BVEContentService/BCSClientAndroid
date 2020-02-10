@@ -37,8 +37,8 @@ class LoaderActivity : AppCompatActivity() {
             startActivity(intent)
         }
         Thread {
-            if (PreferenceManager.getDefaultSharedPreferences(this)
-                    .getBoolean("noIndexServer", false)
+            if (!PreferenceManager.getDefaultSharedPreferences(this)
+                    .getBoolean("useIndexServer", true)
             ) {
                 val sourceServers = PreferenceManager.getDefaultSharedPreferences(this)
                     .getString("sourceServers", "https://api.zbx1425.tk:8953/bcs-src")

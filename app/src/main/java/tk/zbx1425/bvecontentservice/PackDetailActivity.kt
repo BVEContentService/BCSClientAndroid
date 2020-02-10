@@ -13,15 +13,21 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
+import android.webkit.JavascriptInterface
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.PreferenceManager
 import com.google.android.material.appbar.AppBarLayout
-import com.liulishuo.okdownload.core.dispatcher.DownloadDispatcher
 import kotlinx.android.synthetic.main.activity_pack_detail.*
 import okhttp3.Credentials
 import tk.zbx1425.bvecontentservice.api.HttpHelper
+import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.api.PackageMetadata
 import tk.zbx1425.bvecontentservice.storage.PackDownloadManager
 import tk.zbx1425.bvecontentservice.storage.PackListManager
@@ -39,7 +45,7 @@ class PackDetailActivity : AppCompatActivity() {
 
     var isDownloadBtnShown: Boolean = false
     lateinit var metadata: PackageMetadata
-    var timer = Timer()
+    var timer: Timer = Timer()
     var timerRunning: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,7 +53,7 @@ class PackDetailActivity : AppCompatActivity() {
         setContentView(R.layout.activity_pack_detail)
         setSupportActionBar(toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-
+        //region Uninteresting silly one-by-one content setting, fucking ungraceful
         metadata = intent.getSerializableExtra("metadata") as PackageMetadata
         toolbar_layout.title = metadata.Name
         textPackName.text = metadata.Name
@@ -75,10 +81,10 @@ class PackDetailActivity : AppCompatActivity() {
         if (metadata.Homepage == "" && metadata.Author.Homepage == "") {
             rowHomepage.visibility = View.GONE
         } else if (metadata.Homepage == "") {
-            textHomepage.text = metadata.Homepage
+            textHomepage.text = metadata.Author.Homepage
             textHomepage2.visibility = View.GONE
         } else if (metadata.Author.Homepage == "") {
-            textHomepage.text = metadata.Author.Homepage
+            textHomepage.text = metadata.Homepage
             textHomepage2.visibility = View.GONE
         } else {
             textHomepage.text = metadata.Homepage
@@ -86,7 +92,7 @@ class PackDetailActivity : AppCompatActivity() {
         }
         textSourceAPIURL.text = metadata.Source.APIURL
         textSourceName.text = metadata.Source.Name
-        textSourceMaintainer.text = metadata.Source.Maintainer
+        textSourceMaintainer.text = metadata.Source.Author
         textSourceContact.text = metadata.Source.Contact
         if (metadata.Source.Homepage == "") {
             rowSourceHomepage.visibility = View.GONE
@@ -95,7 +101,7 @@ class PackDetailActivity : AppCompatActivity() {
         }
         textIndexAPIURL.text = metadata.Source.Index.APIURL
         textIndexName.text = metadata.Source.Index.Name
-        textIndexMaintainer.text = metadata.Source.Index.Maintainer
+        textIndexMaintainer.text = metadata.Source.Index.Author
         textIndexContact.text = metadata.Source.Index.Contact
         if (metadata.Source.Index.Homepage == "") {
             rowIndexHomepage.visibility = View.GONE
@@ -103,72 +109,134 @@ class PackDetailActivity : AppCompatActivity() {
             textIndexHomepage.text = metadata.Source.Index.Homepage
         }
         ImageLoader.setPackImageAsync(thumbnailView, metadata)
-
-        val imageGetter = Html.ImageGetter { source: String ->
-            try {
-                val drawable: Drawable
-                val connection = URL(source).openConnection()
-                when (metadata.Source.APIType) {
-                    "httpBasicAuth" -> {
-                        val credential: String =
-                            Credentials.basic(metadata.Source.Username, metadata.Source.Password)
-                        connection.addRequestProperty("Authorization", credential)
-                    }
-                }
-                drawable = Drawable.createFromStream(connection.inputStream, "")
-                drawable.setBounds(
-                    0, 0, drawable.intrinsicWidth, drawable
-                        .intrinsicHeight
-                )
-                drawable
-            } catch (ex: Exception) {
-                ex.printStackTrace()
-                null
-            }
-        }
-        if (metadata.Description.trim().startsWith("http://") ||
-            metadata.Description.trim().startsWith("https://")
+        //endregion
+        if (PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context).getBoolean(
+                "useWebView", false
+            )
         ) {
-            textDescription.text = resources.getText(R.string.info_fetch_text)
-            Thread {
-                try {
-                    val result = HttpHelper.fetchNonapiString(metadata.Source, metadata.Description)
-                    Log.i("BCSDescription", metadata.Description)
-                    Log.i("BCSDescription", result)
-                    val spanned =
-                        if (metadata.Description.trim().toLowerCase(Locale.US).endsWith(".html")) {
-                            if (android.os.Build.VERSION.SDK_INT > 24) {
-                                Html.fromHtml(
-                                    result, FROM_HTML_MODE_COMPACT,
-                                    imageGetter, null
-                                )
-                            } else {
-                                Html.fromHtml(result, imageGetter, null)
-                            }
-                        } else {
-                            result
-                        }
-                    runOnUiThread {
-                        textDescription.text = spanned
-                    }
-                } catch (ex: Exception) {
-                    runOnUiThread {
-                        ex.printStackTrace()
-                        textDescription.text = String.format(
-                            resources.getText(R.string.info_fetch_text_fail)
-                                .toString(), metadata.Description.trim(), ex.message
+            if (metadata.Description.trim().startsWith("http://") ||
+                metadata.Description.trim().startsWith("https://")
+            ) {
+                val parent: ViewGroup = textDescription.parent as ViewGroup
+                val index = parent.indexOfChild(textDescription)
+                parent.removeViewAt(index)
+                val webView = WebView(this)
+                webView.settings.javaScriptEnabled =
+                    PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context)
+                        .getBoolean(
+                            "enableJavascript", true
                         )
+                webView.webViewClient = object : WebViewClient() {
+                    override fun onPageFinished(view: WebView, url: String) {
+                        webView.loadUrl("javascript:bcs.resize(document.body.getBoundingClientRect().height+10)")
+                        super.onPageFinished(view, url)
                     }
                 }
-            }.start()
+                webView.addJavascriptInterface(object : ResizeInterface() {
+                    @JavascriptInterface
+                    override fun resize(height: Float) {
+                        runOnUiThread {
+                            webView.layoutParams = LinearLayout.LayoutParams(
+                                resources.displayMetrics.widthPixels,
+                                (height * resources.displayMetrics.density).toInt()
+                            )
+                        }
+                    }
+                }, "bcs")
+                parent.addView(webView, index)
+                if (metadata.Source.APIType == "httpBasicAuth") {
+                    val credential: String =
+                        Credentials.basic(metadata.Source.Username, metadata.Source.Password)
+                    webView.loadUrl(
+                        metadata.Description.trim(),
+                        mapOf(Pair("Authorization", credential))
+                    )
+                } else {
+                    webView.loadUrl(metadata.Description.trim())
+                }
+            } else {
+                textDescription.text = metadata.Description
+            }
         } else {
-            textDescription.text = metadata.Description
+            val imageGetter = Html.ImageGetter { source: String ->
+                try {
+                    val drawable: Drawable
+                    val connection = URL(source).openConnection()
+                    when (metadata.Source.APIType) {
+                        "httpBasicAuth" -> {
+                            val credential: String =
+                                Credentials.basic(
+                                    metadata.Source.Username,
+                                    metadata.Source.Password
+                                )
+                            connection.addRequestProperty("Authorization", credential)
+                        }
+                    }
+                    drawable = Drawable.createFromStream(connection.inputStream, "")
+                    drawable.setBounds(
+                        0, 0, drawable.intrinsicWidth, drawable
+                            .intrinsicHeight
+                    )
+                    drawable
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+                    null
+                }
+            }
+            if (metadata.Description.trim().startsWith("http://") ||
+                metadata.Description.trim().startsWith("https://")
+            ) {
+                textDescription.text = resources.getText(R.string.info_fetch_text)
+                Thread {
+                    try {
+                        val result =
+                            HttpHelper.fetchNonapiString(metadata.Source, metadata.Description)
+                        Log.i("BCSDescription", metadata.Description)
+                        Log.i("BCSDescription", result)
+                        val spanned =
+                            if (metadata.Description.trim().toLowerCase(Locale.US).endsWith(".html")) {
+                                if (android.os.Build.VERSION.SDK_INT > 24) {
+                                    Html.fromHtml(
+                                        result, FROM_HTML_MODE_COMPACT,
+                                        imageGetter, null
+                                    )
+                                } else {
+                                    Html.fromHtml(result, imageGetter, null)
+                                }
+                            } else {
+                                result
+                            }
+                        runOnUiThread {
+                            textDescription.text = spanned
+                        }
+                    } catch (ex: Exception) {
+                        runOnUiThread {
+                            ex.printStackTrace()
+                            textDescription.text = String.format(
+                                resources.getText(R.string.info_fetch_text_fail)
+                                    .toString(), metadata.Description.trim(), ex.message
+                            )
+                        }
+                    }
+                }.start()
+            } else {
+                textDescription.text = metadata.Description
+            }
         }
 
         fab.setOnClickListener { startDownload() }
         downloadButton.setOnClickListener { startDownload() }
+        if (MetadataManager.getActiveUGCServer() == null) ugcButton.visibility = View.GONE
+        ugcButton.setOnClickListener {
+            val intent = Intent(this as Context, UGCActivity::class.java)
+            intent.putExtra("metadata", metadata)
+            startActivity(intent)
+        }
+    }
 
-        DownloadDispatcher.setMaxParallelRunningCount(1)
+    abstract class ResizeInterface {
+        @JavascriptInterface
+        abstract fun resize(height: Float)
     }
 
     override fun onDestroy() {
@@ -184,6 +252,7 @@ class PackDetailActivity : AppCompatActivity() {
         dlgAlert.setNegativeButton(android.R.string.no, null)
         dlgAlert.setCancelable(true)
         dlgAlert.setTitle(R.string.app_name)
+        setButtonState()
         if (packState > 100) {
             dlgAlert.setMessage(
                 String.format(
@@ -220,6 +289,8 @@ class PackDetailActivity : AppCompatActivity() {
             } else {
                 if (PackDownloadManager.startDownload(metadata)) {
                     setResult(Activity.RESULT_OK, null)
+                    timer = Timer()
+                    timer.schedule(timerTask { setButtonState(true) }, 500, 500)
                 } else {
                     Toast.makeText(
                         this as Context, ApplicationContext.context.resources.getString(
@@ -229,17 +300,18 @@ class PackDetailActivity : AppCompatActivity() {
                 }
             }
         }
-        setButtonState()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == 9376 && resultCode == Activity.RESULT_OK) {
-            setButtonState()
+            timer = Timer()
+            timer.schedule(timerTask { setButtonState(true) }, 500, 500)
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun setButtonState() {
+    private fun setButtonState(onTimer: Boolean = false) {
+        if (onTimer) timerRunning = true
         runOnUiThread {
             val packState = PackLocalManager.getLocalState(metadata)
             downloadButton.text =
@@ -269,15 +341,15 @@ class PackDetailActivity : AppCompatActivity() {
                 packState <= 100 -> downloadProgress.secondaryProgress = 0
                 packState > 100 -> downloadProgress.secondaryProgress = 100
             }
-            Log.i("BCSUi", "Setbuttonstate called")
-            if (packState > 100 || packState < 0) {
-                timer.cancel(); timer.purge(); timer = Timer()
+            Log.i("BCSUi", "PackState: " + packState)
+            if ((packState > 100 || packState < 0) && timerRunning) {
+                timer.cancel(); timer.purge()
                 Log.i("BCSUi", "Timer stopped")
                 timerRunning = false
             } else if (packState >= 0 && !timerRunning) {
-                timer.schedule(timerTask { setButtonState() }, 0, 500)
+                timer = Timer()
+                timer.schedule(timerTask { setButtonState(true) }, 0, 500)
                 Log.i("BCSUi", "Timer started")
-                timerRunning = true
             }
         }
     }

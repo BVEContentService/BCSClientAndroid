@@ -2,57 +2,73 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory android:title="General">
+    <PreferenceCategory android:title="@string/pref_general">
 
         <SwitchPreference
             android:defaultValue="false"
             android:key="englishName"
-            android:summary="Show Package names in English"
-            android:title="Show English Names" />
+            android:summary="@string/pref_engname_sum"
+            android:title="@string/pref_engname" />
         <Preference
             android:key="clearTemp"
-            android:summary="Remove packages downloaded halfway"
-            android:title="Clear download cache files" />
+            android:summary="@string/pref_cleartemp_sum"
+            android:title="@string/pref_cleartemp" />
         <SwitchPreference
             android:defaultValue="false"
             android:key="allPacks"
-            android:summary="Including the outdated ones"
-            android:title="Show Historial Packages" />
+            android:summary="@string/pref_allpacks_sum"
+            android:title="@string/pref_allpacks"
+            app:enabled="false" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="Servers">
+    <PreferenceCategory android:title="@string/pref_server">
 
         <SwitchPreference
             android:defaultValue="false"
-            android:key="noIndexServer"
-            android:summary="Fetch directly from sources manually specified"
-            android:title="Do not use a Index Server" />
+            android:key="reverseProxy"
+            android:summary="@string/pref_rproxy_sum"
+            android:title="@string/pref_rproxy" />
+        <ListPreference
+            android:key="listUGCSource"
+            android:summary="@string/pref_listugc_sum"
+            android:title="@string/pref_listugc" />
+        <EditTextPreference
+            android:key="customUGCSource"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:summary="@string/pref_customugc_sum"
+            android:title="@string/pref_customugc" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="useIndexServer"
+            android:summary="@string/pref_useindex_sum"
+            android:title="@string/pref_useindex" />
         <EditTextPreference
             android:defaultValue="https://zbx1425.gitee.io/bcs-index,https://zbx1425.github.io/bcs-index"
             android:key="indexServers"
             android:selectAllOnFocus="true"
             android:singleLine="false"
-            android:summary="Servers used to fetch Source Servers"
-            android:title="Edit Index Servers" />
+            android:summary="@string/pref_index_sum"
+            android:title="@string/pref_index" />
         <EditTextPreference
             android:defaultValue="https://api.zbx1425.tk:8953/bcs-src"
             android:key="sourceServers"
             android:selectAllOnFocus="true"
             android:singleLine="false"
-            android:summary="Servers used to fetch Packages"
-            android:title="Edit Source Servers"
+            android:summary="@string/pref_source_sum"
+            android:title="@string/pref_source"
             app:enabled="false" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="Advanced">
+    <PreferenceCategory android:title="@string/pref_advanced">
 
         <SwitchPreference
             android:defaultValue="false"
             android:key="useWebView"
-            android:summary="Use WebView for package description"
-            android:title="WebView instead of TextView" />
+            android:summary="@string/pref_usewebview_sum"
+            android:title="@string/pref_usewebview" />
         <SwitchPreference
-            android:defaultValue="false"
-            android:key="disableValidate"
-            android:summary="Allow fetching from untrusted servers"
-            android:title="Disable Certificate Validation" />
+            android:defaultValue="true"
+            android:key="enableJavascript"
+            android:summary="@string/pref_javascript_sum"
+            android:title="@string/pref_javascript" />
     </PreferenceCategory>
 </PreferenceScreen>

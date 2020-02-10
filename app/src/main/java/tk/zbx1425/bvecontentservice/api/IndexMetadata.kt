@@ -9,8 +9,8 @@ data class IndexMetadata(
     var Name_LO: String,
     var Name_EN: String,
     var APIURL: String,
-    var Maintainer_LO: String,
-    var Maintainer_EN: String,
+    var Author_LO: String,
+    var Author_EN: String,
     var Homepage: String,
     var Contact: String
 ) : Serializable {
@@ -18,8 +18,8 @@ data class IndexMetadata(
         src.getString("Name_LO"),
         src.getString("Name_EN"),
         APIURL,
-        src.getString("Maintainer_LO"),
-        src.getString("Maintainer_EN"),
+        src.getString("Author_LO"),
+        src.getString("Author_EN"),
         src.tryString("Homepage"),
         src.getString("Contact")
     )
@@ -34,12 +34,22 @@ data class IndexMetadata(
         "None"
     )
 
+    constructor(APIURL: String) : this(
+        "手动设定",
+        "Manually Specified",
+        APIURL,
+        "未知",
+        "Unknown",
+        "",
+        "Unknown"
+    )
+
     val Name: String
         get() {
             return chooseString(Name_LO, Name_EN)
         }
-    val Maintainer: String
+    val Author: String
         get() {
-            return chooseString(Maintainer_LO, Maintainer_EN)
+            return chooseString(Author_LO, Author_EN)
         }
 }

@@ -1,8 +1,10 @@
 package tk.zbx1425.bvecontentservice.api
 
+import androidx.preference.PreferenceManager
 import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONObject
+import tk.zbx1425.bvecontentservice.ApplicationContext
 
 object HttpHelper {
     val client = HttpClientFactory.getHttpClient()!!
@@ -16,9 +18,16 @@ object HttpHelper {
     }
 
     fun fetchString(source: SourceMetadata, sub: String): String? {
-        val request = Request.Builder()
-            .url(source.APIURL.trim() + sub)
-            .build()
+        val request =
+            if (PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context).getBoolean(
+                    "reverseProxy", false
+                ) && source.APIRProxy != ""
+            ) {
+                //Log.i("BCSHttpHelper", "Built request with RPROXY "+source.APIRProxy)
+                Request.Builder().url(source.APIRProxy.trim() + sub).build()
+            } else {
+                Request.Builder().url(source.APIURL.trim() + sub).build()
+            }
         val response = getSourceClient(source).newCall(request).execute()
         return response.body()?.string() ?: return null
     }

@@ -7,8 +7,9 @@ import android.view.View
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.snackbar.Snackbar
+import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.activity_webview.*
 import tk.zbx1425.bvecontentservice.api.PackageMetadata
 import tk.zbx1425.bvecontentservice.storage.PackDownloadManager
@@ -26,6 +27,10 @@ class ForceViewActivity : AppCompatActivity() {
         continueButton.setOnClickListener {
             startDownload()
         }
+        webView.settings.javaScriptEnabled =
+            PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context).getBoolean(
+                "enableJavascript", true
+            )
         webView.loadUrl(metadata.Homepage)
         webView.webChromeClient = object : WebChromeClient() {
             override fun onReceivedTitle(view: WebView?, title: String?) {
@@ -68,10 +73,10 @@ class ForceViewActivity : AppCompatActivity() {
         if (PackDownloadManager.startDownload(metadata)) {
             setResult(Activity.RESULT_OK, null)
         } else {
-            Snackbar.make(
-                contentView, ApplicationContext.context.resources.getString(
+            Toast.makeText(
+                this, ApplicationContext.context.resources.getString(
                     R.string.info_download_start_failed
-                ), Snackbar.LENGTH_SHORT
+                ), Toast.LENGTH_SHORT
             ).show()
             setResult(Activity.RESULT_CANCELED, null)
         }

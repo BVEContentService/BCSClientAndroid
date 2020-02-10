@@ -37,7 +37,11 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ForceViewActivity"
-            android:label="@string/text_download"
+            android:label="@string/tab_text_download"
+            android:noHistory="true" />
+        <activity
+            android:name=".UGCActivity"
+            android:label="@string/text_ugc"
             android:noHistory="true" />
         <activity
             android:name=".SettingActivity"

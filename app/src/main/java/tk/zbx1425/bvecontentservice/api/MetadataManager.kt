@@ -1,7 +1,12 @@
 package tk.zbx1425.bvecontentservice.api
 
+import androidx.preference.PreferenceManager
 import okhttp3.Request
 import org.json.JSONObject
+import tk.zbx1425.bvecontentservice.ApplicationContext
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 object MetadataManager {
     const val API_SUB_INDEX = "/sources.json"
@@ -12,15 +17,17 @@ object MetadataManager {
     var initialized: Boolean = false
     var indexServers: ArrayList<String> = ArrayList()
     var sourceServers: ArrayList<SourceMetadata> = ArrayList()
+    var ugcServers: ArrayList<IndexMetadata> = ArrayList()
     var authors: ArrayList<AuthorMetadata> = ArrayList()
     var packs: ArrayList<PackageMetadata> = ArrayList()
     var packMap: HashMap<String, PackageMetadata> = HashMap()
 
     fun fetchMetadata(indexServers: List<String>, progress: (String) -> Unit) {
-        progress("BCS Protocol v1.2 Client v1.2\nBy zbx1425, 2020-2-6.")
+        progress("BCS Protocol v1.3 Client v1.0\nBy zbx1425, 2020-2-10.")
         this.initialized = true
         this.indexServers = ArrayList(indexServers)
         sourceServers.clear()
+        ugcServers.clear()
         authors.clear()
         packs.clear()
         packMap.clear()
@@ -42,11 +49,25 @@ object MetadataManager {
         this.initialized = true
         this.indexServers = arrayListOf("")
         this.sourceServers.clear()
+        ugcServers.clear()
         authors.clear()
         packs.clear()
         packMap.clear()
         for (sourceServer in sourceServers) {
-            this.sourceServers.add(SourceMetadata((sourceServer)))
+            if (sourceServer.trim().toLowerCase(Locale.US).endsWith(".json")) {
+                try {
+                    val request =
+                        Request.Builder().url(sourceServer.trim()).build()
+                    val response = client.newCall(request).execute()
+                    val result = response.body()?.string() ?: continue
+                    val sourceServerJSON = JSONObject(result)
+                    this.sourceServers.add(SourceMetadata(sourceServerJSON, IndexMetadata()))
+                } catch (ex: java.lang.Exception) {
+                    progress("ERROR! MMNetwork: " + ex.message)
+                }
+            } else {
+                this.sourceServers.add(SourceMetadata((sourceServer.trim())))
+            }
         }
         fetchAuthors(progress)
         fetchPackages(progress)
@@ -70,18 +91,32 @@ object MetadataManager {
                         try {
                             val indexServerJSON: JSONObject =
                                 indexServerJSONArray[i] as? JSONObject ?: continue
-                            if (indexServerJSON.getString("Type") == "Index") {
-                                progress(
-                                    "MMParser: Got Index Server " + indexServerJSON.getString("APIURL")
-                                )
-                                if (indexServerJSON.getString("APIURL") !in indexServers) {
-                                    indexServers.add(indexServerJSON.getString("APIURL"))
+                            when (indexServerJSON.getString("Type")) {
+                                "Index" -> {
+                                    progress(
+                                        "MMParser: Got Index Server " + indexServerJSON.getString("APIURL")
+                                    )
+                                    if (indexServerJSON.getString("APIURL") !in indexServers) {
+                                        indexServers.add(indexServerJSON.getString("APIURL"))
+                                    }
                                 }
-                            } else {
-                                progress(
-                                    "MMParser: Got Source Server " + indexServerJSON.getString("APIURL")
-                                )
-                                sourceServers.add(SourceMetadata(indexServerJSON, indexServer))
+                                "Source" -> {
+                                    progress(
+                                        "MMParser: Got Source Server " + indexServerJSON.getString("APIURL")
+                                    )
+                                    sourceServers.add(SourceMetadata(indexServerJSON, indexServer))
+                                }
+                                "UGC" -> {
+                                    progress(
+                                        "MMParser: Got UGC Server " + indexServerJSON.getString("APIURL")
+                                    )
+                                    ugcServers.add(
+                                        IndexMetadata(
+                                            indexServerJSON,
+                                            indexServerJSON.getString("APIURL")
+                                        )
+                                    )
+                                }
                             }
                         } catch (ex: Exception) {
                             progress("ERROR! MMParser: SSq " + i.toString() + " : " + ex.message)
@@ -93,7 +128,8 @@ object MetadataManager {
                 }
             }
         }
-        sourceServers = sourceServers.distinctBy { it.APIURL } as ArrayList<SourceMetadata>
+        sourceServers =
+            sourceServers.distinctBy { Pair(it.APIURL, it.Username) } as ArrayList<SourceMetadata>
     }
 
     private fun fetchAuthors(progress: (String) -> Unit) {
@@ -160,5 +196,19 @@ object MetadataManager {
 
     fun getPacksByAuthor(id: String): List<PackageMetadata> {
         return packs.filter { it.Author.ID == id }
+    }
+
+    fun getActiveUGCServer(): IndexMetadata? {
+        val ugcSrc = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context)
+            .getString("listUGCSource", "********")
+        val customUgc = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context)
+            .getString("customUGCSource", "")
+        return when (ugcSrc) {
+            "" -> null
+            "########" -> IndexMetadata(customUgc ?: return null)
+            "********" -> if (ugcServers.count() > 0) ugcServers[0]
+            else IndexMetadata(customUgc ?: return null)
+            else -> ugcServers.find { it.APIURL == ugcSrc }
+        }
     }
 }

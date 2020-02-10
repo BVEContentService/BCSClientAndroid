@@ -34,10 +34,39 @@
     <string name="text_abuse">For abuse or copyright claims, please contact the uploader.
     If your demand is not satisfied, you can contact server maintainers:</string>
     <string name="text_developer">BVE Content Service Client</string>
+    <string name="text_ugc">Comments</string>
     <string name="text_download">Download %s</string>
     <string name="text_continue_download">Continue to Download</string>
     <string name="text_downloading">Downloading…</string>
     <string name="text_finishing">Finishing up…</string>
     <string name="text_update">Update</string>
     <string name="text_remove">Remove</string>
+
+    <string name="pref_ugc_disable">Disable UGC</string>
+    <string name="pref_ugc_custom">Custom Source</string>
+    <string name="pref_engname">Show English Names</string>
+    <string name="pref_engname_sum">Show Package names in English</string>
+    <string name="pref_cleartemp">Clear download cache files</string>
+    <string name="pref_cleartemp_sum">Remove packages downloaded halfway</string>
+    <string name="pref_allpacks">Show Historical Packages</string>
+    <string name="pref_allpacks_sum">Including the outdated ones</string>
+    <string name="pref_rproxy">Use Reverse Proxy</string>
+    <string name="pref_rproxy_sum">Try if slow connection is experienced</string>
+    <string name="pref_listugc">UGC Source</string>
+    <string name="pref_listugc_sum">Choose, customize or disable comment</string>
+    <string name="pref_customugc">Custom UGC Source</string>
+    <string name="pref_customugc_sum">Manually specify a UGC server that you prefer</string>
+    <string name="pref_useindex">Use Index Servers</string>
+    <string name="pref_useindex_sum">Fetch source server list from index servers</string>
+    <string name="pref_index">Edit Index Servers</string>
+    <string name="pref_index_sum">Servers used to fetch Source Servers</string>
+    <string name="pref_source">Edit Source Servers</string>
+    <string name="pref_source_sum">Servers used to fetch Packages</string>
+    <string name="pref_usewebview">WebView instead of TextView</string>
+    <string name="pref_usewebview_sum">Use WebView for package description</string>
+    <string name="pref_javascript">Enable Javascript in WebView</string>
+    <string name="pref_javascript_sum">Balance usability and security yourself</string>
+    <string name="pref_general">General</string>
+    <string name="pref_server">Server</string>
+    <string name="pref_advanced">Advanced</string>
 </resources>
