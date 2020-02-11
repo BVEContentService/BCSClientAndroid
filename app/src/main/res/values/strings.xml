@@ -48,8 +48,11 @@
     <string name="pref_ugc_custom">Custom Source</string>
     <string name="pref_engname">Show English Names</string>
     <string name="pref_engname_sum">Show Package names in English</string>
-    <string name="pref_cleartemp">Clear download cache files</string>
-    <string name="pref_cleartemp_sum">Remove packages downloaded halfway</string>
+    <string name="pref_cleartemp">Clear all cache files</string>
+    <string name="pref_cleartemp_sum">Remove download and image cache</string>
+    <string name="pref_disklru">Set DiskLru Size (MB)</string>
+    <string name="pref_disklru_sum">Space used to cache images locally</string>
+    <string name="pref_disklru_err">%s is not an valid number!</string>
     <string name="pref_allpacks">Show Historical Packages</string>
     <string name="pref_allpacks_sum">Including the outdated ones</string>
     <string name="pref_rproxy">Use Reverse Proxy</string>
@@ -60,6 +63,8 @@
     <string name="pref_customugc_sum">Manually specify a UGC server that you prefer</string>
     <string name="pref_useindex">Use Index Servers</string>
     <string name="pref_useindex_sum">Fetch source server list from index servers</string>
+    <string name="pref_usespider">Use Source Spider</string>
+    <string name="pref_usespider_sum">Metadata merged to speed up loading</string>
     <string name="pref_index">Edit Index Servers</string>
     <string name="pref_index_sum">Servers used to fetch Source Servers</string>
     <string name="pref_source">Edit Source Servers</string>
@@ -71,4 +76,33 @@
     <string name="pref_general">General</string>
     <string name="pref_server">Server</string>
     <string name="pref_advanced">Advanced</string>
+
+    <string name="about_info">
+BVE Content Service Client (BCSC)\
+Designed &amp; Programmed by zbx1425\
+Contact me at zbx1425@outlook.com.\
+Visit my website at www.zbx1425.tk!\
+\
+BCSC is an open-source software licensed under GPLv3.\
+You may copy, modify or redistribute this software under this license.\
+For more info on the constraints of GPLv3, please see https://www.gnu.org/licenses/gpl-3.0.html.\
+To acquire the source code of this software, please see https://github.com/BVEContentService/BCSClientAndroid.\
+\
+BCSC uses OkHttp for networking.\
+OkHttp is a nice HTTP client for Android.\
+Thanks Square Open Source Inc.\
+Licensed under Apache 2.0.\
+\
+BCSC uses OkDownload for multi-thread downloading.\
+OkDownload is a awesome reliable, flexible, fast and powerful download engine.\
+Thanks LAIX Inc. for such a generous project.\
+Licensed under Apache 2.0.\
+\
+BCSC uses DiskLruCache for image caching.\
+DiskLruCache is an easy-to-use disk-based LRU cache.\
+Thanks Jake Wharton for such a beautiful library.\
+Licensed under Apache 2.0.\
+\
+Quite a few other open-source programs and resources have been used during the development of BCSC, which cannot be completely listed here.
+I will pay my personal respect to all the collaborators of the open source community.</string>
 </resources>

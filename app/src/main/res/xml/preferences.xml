@@ -13,6 +13,15 @@
             android:key="clearTemp"
             android:summary="@string/pref_cleartemp_sum"
             android:title="@string/pref_cleartemp" />
+        <EditTextPreference
+            android:defaultValue="10"
+            android:digits="0123456789"
+            android:inputType="numberDecimal"
+            android:key="cacheSize"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:summary="@string/pref_disklru_sum"
+            android:title="@string/pref_disklru" />
         <SwitchPreference
             android:defaultValue="false"
             android:key="allPacks"
@@ -42,6 +51,11 @@
             android:key="useIndexServer"
             android:summary="@string/pref_useindex_sum"
             android:title="@string/pref_useindex" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="useSourceSpider"
+            android:summary="@string/pref_usespider_sum"
+            android:title="@string/pref_usespider" />
         <EditTextPreference
             android:defaultValue="https://zbx1425.gitee.io/bcs-index,https://zbx1425.github.io/bcs-index"
             android:key="indexServers"
@@ -61,7 +75,7 @@
     <PreferenceCategory android:title="@string/pref_advanced">
 
         <SwitchPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="useWebView"
             android:summary="@string/pref_usewebview_sum"
             android:title="@string/pref_usewebview" />

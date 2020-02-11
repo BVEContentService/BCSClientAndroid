@@ -27,6 +27,8 @@ data class PackageMetadata(
     var ForceView: Boolean,
     var Timestamp: Date,
     var Source: SourceMetadata,
+    var SpiderSourceURL: String = "",
+    var SpiderSourceUsername: String = "",
     var UpdateAvailable: Boolean = false
 ) : Comparable<PackageMetadata>, Serializable {
 
@@ -35,7 +37,10 @@ data class PackageMetadata(
 
     val VSID: String = this.ID + "_" + this.Version.get()
 
-    constructor (src: JSONObject, manager: MetadataManager, source: SourceMetadata) : this(
+    constructor (
+        src: JSONObject, manager: MetadataManager, source: SourceMetadata
+        , bySpider: Boolean = false
+    ) : this(
         src.getString("ID"),
         Version(src.getString("Version")),
         src.tryString("File_H2"),
@@ -53,13 +58,21 @@ data class PackageMetadata(
         src.tryString("AutoOpen").equals("1", true),
         src.tryString("ForceView").equals("1", true),
         Date(src.getLong("TimeStamp") * 1000),
-        source
+        source,
+        src.tryString("SourceURL"),
+        src.tryString("SourceUsername")
     ) {
         if (this.Origin_LO != "" || this.Origin_EN != "") {
             Author = Author.copy() //Dynamic repost author
             Author.Name_LO = Origin_LO/* + " & " + Author.Name_LO */
             Author.Name_EN = Origin_EN/* + " & " + Author.Name_EN */
             Author.Name_SA = Origin_SA/* + " & " + Author.Name_SA */
+        }
+        if (bySpider) {
+            Source = manager.sourceServers.find {
+                it.APIURL == SpiderSourceURL &&
+                        it.Username == SpiderSourceUsername
+            } ?: throw NullPointerException("Bad Spider Source!")
         }
     }
 
@@ -77,7 +90,7 @@ data class PackageMetadata(
             return url
         } else if (PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context).getBoolean(
                 "reverseProxy", true
-            )
+            ) && Source.APIRProxy != ""
         ) {
             return Source.APIRProxy + url
         } else {

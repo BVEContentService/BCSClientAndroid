@@ -8,31 +8,37 @@ import java.io.IOException
 import java.util.*
 
 object PackLocalManager {
-    val BCS_SUFFIX = "." + encodeInvisibleString("bcs")
     val BCS_DELIMITER = 0x200D.toChar()
+    val BCS_MAGIC_CHAR = arrayOf(
+        0x200B.toChar(), 0x200C.toChar(), 0x2060.toChar(), 0xFEFF.toChar(),
+        0x2411.toChar(), 0x2412.toChar(), 0x2413.toChar(), 0x2414.toChar()
+    )
+    val BCS_SUFFIX = "." + encodeInvisibleString("bcs")
     val hmmDir = File(Environment.getExternalStorageDirectory(), "Hmmsim")
 
     fun encodeInvisibleString(src: String): String {
         val builder = StringBuilder()
         for (c in src.toCharArray()) {
-            val toString = Integer.toString(c.toInt(), 2)
-            builder.append(
-                String.format("%08d", Integer.parseInt(toString))
-                    .replace('0', 0x200B.toChar()).replace('1', 0x200C.toChar())
-            )
+            var str = String.format("%02d", Integer.parseInt(Integer.toString(c.toInt(), 8)))
+            for (i in BCS_MAGIC_CHAR.indices) {
+                str = str.replace((0x30 + i).toChar(), BCS_MAGIC_CHAR[i])
+            }
+            builder.append(str)
         }
         return builder.toString()
     }
 
     fun decodeInvisibleString(src: String): String {
-        val chars = CharArray(src.length / 8)
+        val chars = CharArray(src.length / 2)
         var i = 0
         while (i < src.length) {
-            val str = src.substring(i, i + 8)
-                .replace(0x200B.toChar(), '0').replace(0x200C.toChar(), '1')
-            val nb = Integer.parseInt(str, 2)
-            chars[i / 8] = nb.toChar()
-            i += 8
+            var str = src.substring(i, i + 2)
+            for (i in BCS_MAGIC_CHAR.indices) {
+                str = str.replace(BCS_MAGIC_CHAR[i], (0x30 + i).toChar())
+            }
+            val nb = Integer.parseInt(str, 8)
+            chars[i / 2] = nb.toChar()
+            i += 2
         }
         return String(chars)
     }

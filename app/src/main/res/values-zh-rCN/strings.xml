@@ -42,8 +42,8 @@
     <string name="pref_advanced">高级</string>
     <string name="pref_allpacks">显示历史版本</string>
     <string name="pref_allpacks_sum">在列表中显示过期线路包</string>
-    <string name="pref_cleartemp">清除下载缓存</string>
-    <string name="pref_cleartemp_sum">删除下载到一半的临时文件</string>
+    <string name="pref_cleartemp">清除所有缓存</string>
+    <string name="pref_cleartemp_sum">删除下载缓存和图片缓存</string>
     <string name="pref_customugc">自定义UGC源</string>
     <string name="pref_customugc_sum">手动指定所需的评论源服务器</string>
     <string name="pref_listugc">UGC评论源</string>
@@ -66,4 +66,38 @@
     <string name="pref_rproxy_sum">如连接缓慢可尝试打开</string>
     <string name="text_update_avail">更新: %s</string>
     <string name="info_update_avail">有 %d 个路线可以更新！\n详见管理页。</string>
+    <string name="pref_disklru">设定磁盘缓存大小 (MB)</string>
+    <string name="pref_disklru_sum">用于本地缓存图片的空间</string>
+    <string name="pref_usespider">使用源抓取数据</string>
+    <string name="pref_usespider_sum">下载已合并的数据以加速加载</string>
+    <string name="pref_disklru_err">%s 不是有效数字！</string>
+
+    <string name="about_info">
+BVE 内容服务客户端 (BCSC)\
+由 zbx1425 设计、编程\
+联系方式: zbx1425@outlook.com\
+个人网站: www.zbx1425.tk\
+\
+BCSC 是开放源代码软件，以 GPLv3 开源许可证授权。\
+您可在 GPLv3 协议的范围内对软件进行一切形式的复制、修改、再分发。\
+有关 GPLv3 协议的详细法律约束，请参见 https://www.gnu.org/licenses/gpl-3.0.html。\
+如需获取本软件源代码，请前往 https://github.com/BVEContentService/BCSClientAndroid。\
+\
+BCSC 使用 OkHttp 进行网络通讯。\
+OkHttp 是个简单省事的 HTTP 客户端。\
+感谢 Square 开源公司强劲的生产力。\
+此为公共版权软件，以 Apache 2.0 开源许可证授权。\
+\
+BCSC 使用 OkDownload 进行多线程下载。\
+OkDownload 是个极好、可靠、灵活、快速而强大的下载引擎。\
+感谢上海流利说信息技术有限公司的慷慨奉献。\
+此为公共版权软件，以 Apache 2.0 开源许可证授权。\
+\
+BCSC 使用 DiskLruCache 进行图片缓存。\
+DiskLruCache 是个简单易用的本地LRU算法缓存库。\
+感谢 Jake Wharton 大佬。\
+此为公共版权软件，以 Apache 2.0 开源许可证授权。\
+\
+BCSC的开发过程中还用到了数不胜数的开源程序与资源，在此限于篇幅无法一一列出。
+个人在此谨向所有开源社区的合作者们致以最崇高的敬意。</string>
 </resources>
