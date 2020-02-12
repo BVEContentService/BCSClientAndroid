@@ -23,6 +23,7 @@ data class PackageMetadata(
     var Homepage: String,
     var Description_REL: String,
     var Thumbnail_REL: String,
+    var ThumbnailLQ_REL: String,
     var AutoOpen: Boolean,
     var ForceView: Boolean,
     var Timestamp: Date,
@@ -55,6 +56,7 @@ data class PackageMetadata(
         src.tryString("Homepage"),
         src.tryString("Description"),
         src.tryString("Thumbnail"),
+        src.tryString("ThumbnailLQ"),
         src.tryString("AutoOpen").equals("1", true),
         src.tryString("ForceView").equals("1", true),
         Date(src.getLong("TimeStamp") * 1000),
@@ -105,6 +107,10 @@ data class PackageMetadata(
     val Thumbnail: String
         get() {
             return processRelUrl(Thumbnail_REL)
+        }
+    val ThumbnailLQ: String
+        get() {
+            return processRelUrl(ThumbnailLQ_REL)
         }
     val Description: String
         get() {

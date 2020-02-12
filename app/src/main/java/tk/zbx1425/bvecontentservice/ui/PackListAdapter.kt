@@ -54,7 +54,7 @@ class PackListAdapter(
         }
         holder.textTimestamp.text = SimpleDateFormat("yyyy-MM-dd", Locale.US)
             .format(metadata.Timestamp)
-        ImageLoader.setPackImageAsync(holder.imageView, metadata)
+        ImageLoader.setPackThumbImageAsync(holder.imageView, metadata)
         holder.rowView.setOnClickListener {
             onListItemClickListener(values[position])
         }

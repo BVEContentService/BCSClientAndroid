@@ -138,6 +138,14 @@ object ImageLoader {
         ImageTask(bmImage, this, metadata.Thumbnail, metadata.Source).execute()
     }
 
+    fun setPackThumbImageAsync(bmImage: ImageView, metadata: PackageMetadata) {
+        if (metadata.ThumbnailLQ != "") {
+            ImageTask(bmImage, this, metadata.ThumbnailLQ, metadata.Source).execute()
+        } else {
+            ImageTask(bmImage, this, metadata.Thumbnail, metadata.Source).execute()
+        }
+    }
+
     class ImageTask(
         var bmImage: ImageView, val loader: ImageLoader,
         val url: String, val source: SourceMetadata? = null

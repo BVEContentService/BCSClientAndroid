@@ -57,7 +57,7 @@
             android:summary="@string/pref_usespider_sum"
             android:title="@string/pref_usespider" />
         <EditTextPreference
-            android:defaultValue="https://zbx1425.gitee.io/bcs-index,https://zbx1425.github.io/bcs-index"
+            android:defaultValue="https://bvecontentservice.gitee.io/bcs-index,https://bvecontentservice.github.io/bcs-index"
             android:key="indexServers"
             android:selectAllOnFocus="true"
             android:singleLine="false"

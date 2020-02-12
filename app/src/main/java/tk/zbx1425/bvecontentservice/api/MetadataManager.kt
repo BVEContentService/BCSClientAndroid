@@ -23,7 +23,7 @@ object MetadataManager {
     var packMap: HashMap<String, PackageMetadata> = HashMap()
 
     fun fetchMetadata(indexServers: List<String>, progress: (String) -> Unit) {
-        progress("BCS Protocol v1.3 Client v1.0\nBy zbx1425, 2020-2-10.")
+        progress("BCS Protocol v1.4\nBy zbx1425, 2020-2-10.")
         this.initialized = true
         this.indexServers = ArrayList(indexServers)
         sourceServers.clear()
