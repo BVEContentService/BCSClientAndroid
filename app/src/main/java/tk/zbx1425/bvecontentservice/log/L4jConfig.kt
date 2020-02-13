@@ -1,3 +1,18 @@
+//  This file is part of BVE Content Service Client (BCSC).
+//
+//  BCSC is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  BCSC is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with BCSC.  If not, see <https://www.gnu.org/licenses/>.
+
 package tk.zbx1425.bvecontentservice.log
 
 import android.os.Environment
@@ -8,7 +23,7 @@ import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.BuildConfig
 
 
-object L4jConfigure {
+object L4jConfig {
     private const val MAX_FILE_SIZE = 1024 * 1024 * 10L
     private const val DEFAULT_LOG_DIR = "/bveContentService"
     private const val DEFAULT_LOG_FILE_NAME = "/log.txt"
