@@ -28,7 +28,8 @@
     <string name="text_apiurl">API</string>
     <string name="text_author">作者</string>
     <string name="text_noinfo">没有公告。</string>
-    <string name="text_contact">联系</string>
+    <string name="text_contact">联络</string>
+    <string name="text_uploader">上传</string>
     <string name="text_continue_download">前往下载</string>
     <string name="text_date">日期</string>
     <string name="text_developer">BVE内容服务 客户端</string>

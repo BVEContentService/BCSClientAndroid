@@ -37,6 +37,9 @@
             android:name=".ui.activity.PackDetailActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".ui.activity.AuthorActivity"
+            android:label="@string/text_author" />
+        <activity
             android:name=".ui.activity.ForceViewActivity"
             android:label="@string/tab_text_download"
             android:noHistory="true" />

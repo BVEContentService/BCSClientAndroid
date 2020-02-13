@@ -37,6 +37,7 @@
     <string name="text_date">Date</string>
     <string name="text_homepage">Homepage</string>
     <string name="text_contact">Contact</string>
+    <string name="text_uploader">Uploader</string>
     <string name="text_apiurl">API Url</string>
     <string name="text_noinfo">There is no announcement.</string>
     <string name="text_abuse">For abuse or copyright claims, please contact the uploader.

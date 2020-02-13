@@ -272,9 +272,8 @@ object MetadataManager {
             ?: throw IllegalArgumentException("Author cannot be found")
     }
 
-    fun getAuthor(id: String): AuthorMetadata {
+    fun getAuthor(id: String): AuthorMetadata? {
         return authors.find { it.ID == id }
-            ?: throw IllegalArgumentException("Author cannot be found")
     }
 
     fun getPacksByAuthor(id: String): List<PackageMetadata> {

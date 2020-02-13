@@ -5,39 +5,30 @@ import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.text.Html
-import android.text.Html.FROM_HTML_MODE_COMPACT
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import android.webkit.JavascriptInterface
-import android.webkit.WebView
-import android.webkit.WebViewClient
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.preference.PreferenceManager
 import com.google.android.material.appbar.AppBarLayout
 import kotlinx.android.synthetic.main.activity_pack_detail.*
-import okhttp3.Credentials
 import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
-import tk.zbx1425.bvecontentservice.api.HttpHelper
 import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.log.Log
+import tk.zbx1425.bvecontentservice.replaceView
 import tk.zbx1425.bvecontentservice.storage.ImageLoader
 import tk.zbx1425.bvecontentservice.storage.PackDownloadManager
 import tk.zbx1425.bvecontentservice.storage.PackListManager
 import tk.zbx1425.bvecontentservice.storage.PackLocalManager
 import tk.zbx1425.bvecontentservice.storage.PackLocalManager.removeLocalPacks
+import tk.zbx1425.bvecontentservice.ui.component.DescriptionView
 import tk.zbx1425.bvecontentservice.ui.component.MetadataView
-import java.net.URL
 import java.util.*
 import kotlin.concurrent.timerTask
 import kotlin.math.abs
@@ -75,127 +66,19 @@ class PackDetailActivity : AppCompatActivity() {
         })
 
         setButtonState()
-        textPackName.text = metadata.Name
-        packMetadataPlaceholder.addView(MetadataView(this, metadata))
-        sourceMetadataPlaceholder.addView(MetadataView(this, metadata.Source))
-        indexMetadataPlaceholder.addView(MetadataView(this, metadata.Source.Index))
-        appMetadataPlaceholder.addView((MetadataView(this)))
+        val packMetadataView = MetadataView(this, metadata, object : View.OnClickListener {
+            override fun onClick(v: View?) {
+                val intent = Intent(this@PackDetailActivity, AuthorActivity::class.java)
+                intent.putExtra("aid", metadata.Author.ID)
+                startActivity(intent)
+            }
+        })
+        packMetadataPlaceholder.replaceView(packMetadataView)
+        sourceMetadataPlaceholder.replaceView(MetadataView(this, metadata.Source))
+        indexMetadataPlaceholder.replaceView(MetadataView(this, metadata.Source.Index))
+        appMetadataPlaceholder.replaceView((MetadataView(this)))
+        descriptionPlaceholder.replaceView(DescriptionView(this, metadata))
         ImageLoader.setPackImageAsync(thumbnailView, metadata)
-        if (PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context).getBoolean(
-                "useWebView", false
-            )
-        ) {
-            if (metadata.Description.trim().startsWith("http://") ||
-                metadata.Description.trim().startsWith("https://")
-            ) {
-                val parent: ViewGroup = textDescription.parent as ViewGroup
-                val index = parent.indexOfChild(textDescription)
-                parent.removeViewAt(index)
-                val webView = WebView(this)
-                webView.settings.javaScriptEnabled =
-                    PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context)
-                        .getBoolean(
-                            "enableJavascript", true
-                        )
-                webView.webViewClient = object : WebViewClient() {
-                    override fun onPageFinished(view: WebView, url: String) {
-                        webView.loadUrl("javascript:bcs.resize(document.body.getBoundingClientRect().height+10)")
-                        super.onPageFinished(view, url)
-                    }
-                }
-                webView.addJavascriptInterface(object : ResizeInterface() {
-                    @JavascriptInterface
-                    override fun resize(height: Float) {
-                        runOnUiThread {
-                            webView.layoutParams = LinearLayout.LayoutParams(
-                                resources.displayMetrics.widthPixels,
-                                (height * resources.displayMetrics.density).toInt()
-                            )
-                        }
-                    }
-                }, "bcs")
-                parent.addView(webView, index)
-                if (metadata.Source.APIType == "httpBasicAuth") {
-                    val credential: String =
-                        Credentials.basic(metadata.Source.Username, metadata.Source.Password)
-                    webView.loadUrl(
-                        metadata.Description.trim(),
-                        mapOf(Pair("Authorization", credential))
-                    )
-                } else {
-                    webView.loadUrl(metadata.Description.trim())
-                }
-            } else {
-                textDescription.text = metadata.Description
-            }
-        } else {
-            val imageGetter = Html.ImageGetter { source: String ->
-                try {
-                    val drawable: Drawable
-                    val connection = URL(source).openConnection()
-                    when (metadata.Source.APIType) {
-                        "httpBasicAuth" -> {
-                            val credential: String =
-                                Credentials.basic(
-                                    metadata.Source.Username,
-                                    metadata.Source.Password
-                                )
-                            connection.addRequestProperty("Authorization", credential)
-                        }
-                    }
-                    drawable = Drawable.createFromStream(connection.inputStream, "")
-                    drawable.setBounds(
-                        0, 0, drawable.intrinsicWidth, drawable
-                            .intrinsicHeight
-                    )
-                    drawable
-                } catch (ex: Exception) {
-                    Log.e("BCSUi", "Cannot get image", ex)
-                    ex.printStackTrace()
-                    null
-                }
-            }
-            if (metadata.Description.trim().startsWith("http://") ||
-                metadata.Description.trim().startsWith("https://")
-            ) {
-                textDescription.text = resources.getText(R.string.info_fetch_text)
-                Thread {
-                    try {
-                        val result =
-                            HttpHelper.fetchNonapiString(metadata.Source, metadata.Description)
-                        Log.i("BCSDescription", metadata.Description)
-                        Log.i("BCSDescription", result ?: "")
-                        val spanned =
-                            if (metadata.Description.trim().toLowerCase(Locale.US).endsWith(".html")) {
-                                if (android.os.Build.VERSION.SDK_INT > 24) {
-                                    Html.fromHtml(
-                                        result, FROM_HTML_MODE_COMPACT,
-                                        imageGetter, null
-                                    )
-                                } else {
-                                    Html.fromHtml(result, imageGetter, null)
-                                }
-                            } else {
-                                result
-                            }
-                        runOnUiThread {
-                            textDescription.text = spanned
-                        }
-                    } catch (ex: Exception) {
-                        runOnUiThread {
-                            ex.printStackTrace()
-                            Log.e("BCSUi", "Cannot fetch description", ex)
-                            textDescription.text = String.format(
-                                resources.getText(R.string.info_fetch_text_fail)
-                                    .toString(), metadata.Description.trim(), ex.message
-                            )
-                        }
-                    }
-                }.start()
-            } else {
-                textDescription.text = metadata.Description
-            }
-        }
 
         fab.setOnClickListener { startDownload() }
         downloadButton.setOnClickListener { startDownload() }

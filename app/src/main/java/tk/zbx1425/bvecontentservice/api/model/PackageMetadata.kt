@@ -52,7 +52,7 @@ data class PackageMetadata(
             src.tryString(
                 "Author"
             )
-        ),
+        ) ?: AuthorMetadata(source),
         src.tryString("Name_LO"),
         src.tryString("Name_EN"),
         src.tryString("Name_SA"),
@@ -70,12 +70,6 @@ data class PackageMetadata(
         src.tryString("SourceURL"),
         src.tryString("SourceUsername")
     ) {
-        if (this.Origin_LO != "" || this.Origin_EN != "") {
-            Author = Author.copy() //Dynamic repost author
-            Author.Name_LO = Origin_LO/* + " & " + Author.Name_LO */
-            Author.Name_EN = Origin_EN/* + " & " + Author.Name_EN */
-            Author.Name_SA = Origin_SA/* + " & " + Author.Name_SA */
-        }
         if (bySpider) {
             Source = MetadataManager.sourceServers.find {
                 it.APIURL == SpiderSourceURL &&
@@ -91,6 +85,10 @@ data class PackageMetadata(
     val Name: String
         get() {
             return chooseString(Name_LO, Name_EN)
+        }
+    val Origin: String
+        get() {
+            return chooseString(Origin_LO, Origin_EN)
         }
 
     private fun processRelUrl(url: String): String {

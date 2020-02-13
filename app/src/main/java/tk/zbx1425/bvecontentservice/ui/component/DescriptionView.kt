@@ -8,7 +8,6 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.preference.PreferenceManager
 import okhttp3.Credentials
@@ -32,7 +31,7 @@ class DescriptionView(context: Context) : FrameLayout(context) {
 
     constructor(context: Context, url: String, source: SourceMetadata) : this(context) {
         val textDescription = TextView(context)
-        textDescription.layoutParams = LinearLayout.LayoutParams(
+        textDescription.layoutParams = LayoutParams(
             LayoutParams.MATCH_PARENT,
             LayoutParams.WRAP_CONTENT
         )
@@ -59,8 +58,8 @@ class DescriptionView(context: Context) : FrameLayout(context) {
                     @JavascriptInterface
                     override fun resize(height: Float) {
                         (context as Activity).runOnUiThread {
-                            webView.layoutParams = LinearLayout.LayoutParams(
-                                resources.displayMetrics.widthPixels,
+                            webView.layoutParams = LayoutParams(
+                                LayoutParams.MATCH_PARENT,
                                 (height * resources.displayMetrics.density).toInt()
                             )
                         }

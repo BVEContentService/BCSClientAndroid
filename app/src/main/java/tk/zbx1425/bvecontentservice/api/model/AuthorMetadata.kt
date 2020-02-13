@@ -25,6 +25,16 @@ data class AuthorMetadata(
         source
     )
 
+    constructor(source: SourceMetadata) : this(
+        "Unknown",
+        "Unknown",
+        "Unknown",
+        "Unknown",
+        "",
+        "",
+        source
+    )
+
     val Name: String
         get() {
             return chooseString(Name_LO, Name_EN)

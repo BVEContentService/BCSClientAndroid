@@ -1,6 +1,8 @@
 package tk.zbx1425.bvecontentservice.ui.component
 
 import android.content.Context
+import android.text.Html
+import android.text.Spanned
 import android.view.View
 import android.widget.TableLayout
 import kotlinx.android.synthetic.main.view_metadata.view.*
@@ -22,14 +24,25 @@ class MetadataView : TableLayout {
             .format(BuildConfig.BUILD_TIME)
     }
 
-    constructor(context: Context, metadata: PackageMetadata) : this(context) {
+    constructor(
+        context: Context, metadata: PackageMetadata,
+        clickListener: OnClickListener? = null
+    ) : this(context) {
         rowAPIURL.visibility = View.GONE
         rowMaintainer.visibility = View.GONE
         textName.visibility = View.GONE
-        textAuthor.text = metadata.Author.Name
         textVersion.text = metadata.Version.get()
         textDate.text = SimpleDateFormat("yyyy-MM-dd", Locale.US)
             .format(metadata.Timestamp)
+        if (metadata.Origin == "") {
+            textAuthor.text = linkedText(metadata.Author.Name)
+            textAuthor.setOnClickListener(clickListener)
+        } else {
+            textAuthor.text = metadata.Origin
+            rowUploader.visibility = View.VISIBLE
+            textUploader.text = linkedText(metadata.Author.Name)
+            textUploader.setOnClickListener(clickListener)
+        }
         textContact.text = metadata.Author.ID
         if (metadata.Homepage == "" && metadata.Author.Homepage == "") {
             rowHomepage.visibility = View.GONE
@@ -49,9 +62,9 @@ class MetadataView : TableLayout {
         rowAPIURL.visibility = View.GONE
         rowMaintainer.visibility = View.GONE
         textName.visibility = View.GONE
-        textAuthor.visibility = View.GONE
-        textVersion.visibility = View.GONE
-        textDate.visibility = View.GONE
+        rowAuthor.visibility = View.GONE
+        rowVersion.visibility = View.GONE
+        rowDate.visibility = View.GONE
         textContact.text = metadata.ID
         textHomepage2.visibility = View.GONE
         if (metadata.Homepage == "") {
@@ -94,6 +107,24 @@ class MetadataView : TableLayout {
             rowHomepage.visibility = View.GONE
         } else {
             textHomepage.text = metadata.Homepage
+        }
+    }
+
+    private fun linkedText(text: String): Spanned {
+        return if (android.os.Build.VERSION.SDK_INT > 24) {
+            Html.fromHtml(
+                String.format(
+                    "<a href='#'>%s</a>",
+                    Html.escapeHtml(text)
+                ), Html.FROM_HTML_MODE_COMPACT
+            )
+        } else {
+            Html.fromHtml(
+                String.format(
+                    "<a href='#'>%s</a>",
+                    Html.escapeHtml(text)
+                )
+            )
         }
     }
 

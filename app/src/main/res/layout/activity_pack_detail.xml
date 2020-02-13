@@ -56,6 +56,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingBottom="70dp"
             android:orientation="vertical">
 
             <TextView
@@ -80,8 +81,8 @@
 
             </FrameLayout>
 
-            <TextView
-                android:id="@+id/textDescription"
+            <FrameLayout
+                android:id="@+id/descriptionPlaceholder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
@@ -141,11 +142,12 @@
                 android:id="@+id/appMetadataPlaceholder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="50dp"
                 android:paddingLeft="20dp"
                 android:paddingTop="0dp"
                 android:paddingRight="20dp"
-                android:paddingBottom="5dp"></FrameLayout>
+                android:paddingBottom="5dp">
+
+            </FrameLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
