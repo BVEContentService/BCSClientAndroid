@@ -1,8 +1,8 @@
-package tk.zbx1425.bvecontentservice
+package tk.zbx1425.bvecontentservice.ui.activity
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import tk.zbx1425.bvecontentservice.ui.SettingFragment
+import tk.zbx1425.bvecontentservice.ui.component.SettingFragment
 
 
 class SettingActivity : AppCompatActivity() {
@@ -11,7 +11,10 @@ class SettingActivity : AppCompatActivity() {
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         if (supportFragmentManager.findFragmentById(android.R.id.content) == null) {
             supportFragmentManager.beginTransaction()
-                .add(android.R.id.content, SettingFragment())
+                .add(
+                    android.R.id.content,
+                    SettingFragment()
+                )
                 .commit()
         }
     }

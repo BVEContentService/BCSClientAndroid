@@ -1,4 +1,4 @@
-package tk.zbx1425.bvecontentservice.api
+package tk.zbx1425.bvecontentservice.api.model
 
 import org.json.JSONObject
 import tk.zbx1425.bvecontentservice.chooseString
@@ -12,15 +12,17 @@ data class AuthorMetadata(
     var Name_EN: String,
     var Name_SA: String,
     var Homepage: String,
-    var Description: String
+    var Description: String,
+    var Source: SourceMetadata
 ) : Serializable {
-    constructor (src: JSONObject) : this(
+    constructor (src: JSONObject, source: SourceMetadata) : this(
         src.getString("ID"),
         src.getString("Name_LO"),
         src.getString("Name_EN"),
         src.tryString("Name_SA"),
         src.tryString("Homepage"),
-        src.tryString("Description")
+        src.tryString("Description"),
+        source
     )
 
     val Name: String

@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="tk.zbx1425.bvecontentservice.PackDetailActivity">
+    tools:context="tk.zbx1425.bvecontentservice.ui.activity.PackDetailActivity">
     <item
         android:id="@+id/action_download"
         android:icon="@drawable/ic_cloud_download_white_24dp"

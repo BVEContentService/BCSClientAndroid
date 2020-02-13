@@ -1,4 +1,4 @@
-package tk.zbx1425.bvecontentservice
+package tk.zbx1425.bvecontentservice.ui.activity
 
 import android.app.Activity
 import android.graphics.Bitmap
@@ -11,7 +11,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.activity_webview.*
-import tk.zbx1425.bvecontentservice.api.PackageMetadata
+import tk.zbx1425.bvecontentservice.ApplicationContext
+import tk.zbx1425.bvecontentservice.R
+import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.storage.PackDownloadManager
 
 class ForceViewActivity : AppCompatActivity() {

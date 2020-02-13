@@ -6,6 +6,8 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.MetadataManager
+import tk.zbx1425.bvecontentservice.ui.component.InfoFragment
+import tk.zbx1425.bvecontentservice.ui.component.PackListFragment
 
 /**
  * A [FragmentPagerAdapter] that returns a fragment corresponding to

@@ -1,4 +1,4 @@
-package tk.zbx1425.bvecontentservice.ui
+package tk.zbx1425.bvecontentservice.ui.component
 
 import android.content.Context
 import android.view.View
@@ -6,9 +6,10 @@ import android.widget.TableLayout
 import kotlinx.android.synthetic.main.view_metadata.view.*
 import tk.zbx1425.bvecontentservice.BuildConfig
 import tk.zbx1425.bvecontentservice.R
-import tk.zbx1425.bvecontentservice.api.IndexMetadata
-import tk.zbx1425.bvecontentservice.api.PackageMetadata
-import tk.zbx1425.bvecontentservice.api.SourceMetadata
+import tk.zbx1425.bvecontentservice.api.model.AuthorMetadata
+import tk.zbx1425.bvecontentservice.api.model.IndexMetadata
+import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
+import tk.zbx1425.bvecontentservice.api.model.SourceMetadata
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -41,6 +42,22 @@ class MetadataView : TableLayout {
         } else {
             textHomepage.text = metadata.Homepage
             textHomepage2.text = metadata.Author.Homepage
+        }
+    }
+
+    constructor(context: Context, metadata: AuthorMetadata) : this(context) {
+        rowAPIURL.visibility = View.GONE
+        rowMaintainer.visibility = View.GONE
+        textName.visibility = View.GONE
+        textAuthor.visibility = View.GONE
+        textVersion.visibility = View.GONE
+        textDate.visibility = View.GONE
+        textContact.text = metadata.ID
+        textHomepage2.visibility = View.GONE
+        if (metadata.Homepage == "") {
+            rowHomepage.visibility = View.GONE
+        } else {
+            textHomepage.text = metadata.Homepage
         }
     }
 

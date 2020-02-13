@@ -1,4 +1,4 @@
-package tk.zbx1425.bvecontentservice.api
+package tk.zbx1425.bvecontentservice.api.model
 
 import org.json.JSONObject
 import tk.zbx1425.bvecontentservice.chooseString

@@ -1,8 +1,8 @@
 package tk.zbx1425.bvecontentservice.storage
 
 import tk.zbx1425.bvecontentservice.api.MetadataManager
-import tk.zbx1425.bvecontentservice.api.PackageMetadata
 import tk.zbx1425.bvecontentservice.api.Version
+import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.log.Log
 import tk.zbx1425.bvecontentservice.storage.PackLocalManager.decodeInvisibleString
 

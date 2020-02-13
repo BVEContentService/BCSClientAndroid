@@ -1,4 +1,4 @@
-package tk.zbx1425.bvecontentservice
+package tk.zbx1425.bvecontentservice.ui.activity
 
 import android.animation.ObjectAnimator
 import android.app.Activity
@@ -25,16 +25,18 @@ import androidx.preference.PreferenceManager
 import com.google.android.material.appbar.AppBarLayout
 import kotlinx.android.synthetic.main.activity_pack_detail.*
 import okhttp3.Credentials
+import tk.zbx1425.bvecontentservice.ApplicationContext
+import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.HttpHelper
 import tk.zbx1425.bvecontentservice.api.MetadataManager
-import tk.zbx1425.bvecontentservice.api.PackageMetadata
+import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.log.Log
+import tk.zbx1425.bvecontentservice.storage.ImageLoader
 import tk.zbx1425.bvecontentservice.storage.PackDownloadManager
 import tk.zbx1425.bvecontentservice.storage.PackListManager
 import tk.zbx1425.bvecontentservice.storage.PackLocalManager
 import tk.zbx1425.bvecontentservice.storage.PackLocalManager.removeLocalPacks
-import tk.zbx1425.bvecontentservice.ui.ImageLoader
-import tk.zbx1425.bvecontentservice.ui.MetadataView
+import tk.zbx1425.bvecontentservice.ui.component.MetadataView
 import java.net.URL
 import java.util.*
 import kotlin.concurrent.timerTask
@@ -77,7 +79,7 @@ class PackDetailActivity : AppCompatActivity() {
         packMetadataPlaceholder.addView(MetadataView(this, metadata))
         sourceMetadataPlaceholder.addView(MetadataView(this, metadata.Source))
         indexMetadataPlaceholder.addView(MetadataView(this, metadata.Source.Index))
-        appMetadataPlaceholder.addView(MetadataView(this))
+        appMetadataPlaceholder.addView((MetadataView(this)))
         ImageLoader.setPackImageAsync(thumbnailView, metadata)
         if (PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context).getBoolean(
                 "useWebView", false

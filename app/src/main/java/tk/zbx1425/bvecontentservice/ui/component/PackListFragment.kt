@@ -1,4 +1,4 @@
-package tk.zbx1425.bvecontentservice.ui
+package tk.zbx1425.bvecontentservice.ui.component
 
 import android.content.Context
 import android.content.Intent
@@ -9,11 +9,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import tk.zbx1425.bvecontentservice.PackDetailActivity
 import tk.zbx1425.bvecontentservice.R
-import tk.zbx1425.bvecontentservice.api.PackageMetadata
+import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.log.Log
 import tk.zbx1425.bvecontentservice.storage.PackListManager
+import tk.zbx1425.bvecontentservice.ui.PackListAdapter
+import tk.zbx1425.bvecontentservice.ui.activity.PackDetailActivity
 
 
 class PackListFragment : Fragment() {
@@ -36,7 +37,10 @@ class PackListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         Log.i("BCSUi", "onCreateView called")
-        listAdapter = PackListAdapter(activity as Context, dataList) { metadata ->
+        listAdapter = PackListAdapter(
+            activity as Context,
+            dataList
+        ) { metadata ->
             val intent = Intent(activity as Context, PackDetailActivity::class.java)
             intent.putExtra("metadata", metadata)
             startActivity(intent)

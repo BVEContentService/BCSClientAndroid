@@ -1,7 +1,7 @@
 package tk.zbx1425.bvecontentservice.storage
 
 import android.os.Environment
-import tk.zbx1425.bvecontentservice.api.PackageMetadata
+import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.log.Log
 import java.io.File
 import java.io.IOException

@@ -5,9 +5,10 @@ import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONObject
 import tk.zbx1425.bvecontentservice.ApplicationContext
+import tk.zbx1425.bvecontentservice.api.model.SourceMetadata
 
 object HttpHelper {
-    val client = HttpClientFactory.getHttpClient()!!
+    val client = OkHttpClient()
 
     fun fetchArray(source: SourceMetadata, sub: String): JSONArray? {
         return JSONArray(fetchString(source, sub) ?: return null)

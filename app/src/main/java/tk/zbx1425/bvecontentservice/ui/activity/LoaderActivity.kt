@@ -1,4 +1,4 @@
-package tk.zbx1425.bvecontentservice
+package tk.zbx1425.bvecontentservice.ui.activity
 
 import android.content.DialogInterface
 import android.content.Intent
@@ -10,6 +10,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.activity_loader.*
+import tk.zbx1425.bvecontentservice.MainActivity
+import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.log.Log
 import tk.zbx1425.bvecontentservice.storage.PackListManager

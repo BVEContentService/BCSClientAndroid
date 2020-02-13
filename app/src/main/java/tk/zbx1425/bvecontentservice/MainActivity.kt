@@ -18,6 +18,9 @@ import kotlinx.android.synthetic.main.activity_main.*
 import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.log.Log
 import tk.zbx1425.bvecontentservice.ui.SectionsPagerAdapter
+import tk.zbx1425.bvecontentservice.ui.activity.AboutActivity
+import tk.zbx1425.bvecontentservice.ui.activity.LoaderActivity
+import tk.zbx1425.bvecontentservice.ui.activity.SettingActivity
 import java.io.File
 
 

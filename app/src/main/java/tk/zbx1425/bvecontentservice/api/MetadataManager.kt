@@ -1,10 +1,15 @@
 package tk.zbx1425.bvecontentservice.api
 
 import androidx.preference.PreferenceManager
+import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
 import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
+import tk.zbx1425.bvecontentservice.api.model.AuthorMetadata
+import tk.zbx1425.bvecontentservice.api.model.IndexMetadata
+import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
+import tk.zbx1425.bvecontentservice.api.model.SourceMetadata
 import tk.zbx1425.bvecontentservice.log.Log
 import java.util.*
 import kotlin.collections.ArrayList
@@ -17,7 +22,7 @@ object MetadataManager {
     const val API_SUB_AUTHOR = "/index/authors.json"
     const val API_SUB_PACK = "/index/packs.json"
 
-    val client = HttpClientFactory.getHttpClient()!!
+    val client = OkHttpClient()
     var initialized: Boolean = false
     var indexServers: ArrayList<String> = ArrayList()
     var sourceServers: ArrayList<SourceMetadata> = ArrayList()
@@ -66,7 +71,10 @@ object MetadataManager {
                     val response = client.newCall(request).execute()
                     val result = response.body()?.string() ?: continue
                     val sourceServerJSON = JSONObject(result)
-                    SourceMetadata(sourceServerJSON, IndexMetadata())
+                    SourceMetadata(
+                        sourceServerJSON,
+                        IndexMetadata()
+                    )
                 } catch (ex: java.lang.Exception) {
                     progress("ERROR! MMNetwork: " + ex.message)
                     null
@@ -98,7 +106,11 @@ object MetadataManager {
                     val result = response.body()?.string() ?: continue
                     val indexServerTotalJSON = JSONObject(result)
                     val indexServerJSONArray = indexServerTotalJSON.getJSONArray("Servers")
-                    val indexServer = IndexMetadata(indexServerTotalJSON, indexServerURL.trim())
+                    val indexServer =
+                        IndexMetadata(
+                            indexServerTotalJSON,
+                            indexServerURL.trim()
+                        )
                     var spiderServer: SourceMetadata? = null
                     if (indexServer.Homepage != "") {
                         Log.i("BCSDebug", indexServer.APIURL)
@@ -132,13 +144,21 @@ object MetadataManager {
                                     progress(
                                         "MMParser: Got Source Spider " + indexServerJSON.getString("APIURL")
                                     )
-                                    spiderServer = SourceMetadata(indexServerJSON, indexServer)
+                                    spiderServer =
+                                        SourceMetadata(
+                                            indexServerJSON,
+                                            indexServer
+                                        )
                                 }
                                 "Source" -> {
                                     progress(
                                         "MMParser: Got Source Server " + indexServerJSON.getString("APIURL")
                                     )
-                                    val newServer = SourceMetadata(indexServerJSON, indexServer)
+                                    val newServer =
+                                        SourceMetadata(
+                                            indexServerJSON,
+                                            indexServer
+                                        )
                                     if (sourceServers.find {
                                             it.APIURL == newServer.APIURL &&
                                                     it.Username == newServer.Username
@@ -196,7 +216,11 @@ object MetadataManager {
                 try {
                     val authorJSON: JSONObject = authorJSONArray[i] as? JSONObject ?: continue
                     progress("MMParser: Got Author " + authorJSON.getString("ID"))
-                    authors.add(AuthorMetadata(authorJSON))
+                    authors.add(
+                        AuthorMetadata(
+                            authorJSON, sourceServer
+                        )
+                    )
                 } catch (ex: Exception) {
                     progress("ERROR! MMParser: ASq " + i.toString() + " : " + ex.message)
                 }
@@ -219,7 +243,13 @@ object MetadataManager {
                 try {
                     val packJSON: JSONObject = packJSONArray[i] as? JSONObject ?: continue
                     progress("MMParser: Got Pack " + packJSON.getString("ID"))
-                    val metadata = PackageMetadata(packJSON, this, sourceServer, bySpider)
+                    val metadata =
+                        PackageMetadata(
+                            packJSON,
+                            this,
+                            sourceServer,
+                            bySpider
+                        )
                     if (metadata.File == "") continue
                     packs.add(metadata)
                     if (!packMap.containsKey(metadata.ID) ||
@@ -258,9 +288,13 @@ object MetadataManager {
             .getString("customUGCSource", "")
         return when (ugcSrc) {
             "" -> null
-            "########" -> IndexMetadata(customUgc ?: return null)
+            "########" -> IndexMetadata(
+                customUgc ?: return null
+            )
             "********" -> if (ugcServers.count() > 0) ugcServers[0]
-            else IndexMetadata(customUgc ?: return null)
+            else IndexMetadata(
+                customUgc ?: return null
+            )
             else -> ugcServers.find { it.APIURL == ugcSrc }
         }
     }

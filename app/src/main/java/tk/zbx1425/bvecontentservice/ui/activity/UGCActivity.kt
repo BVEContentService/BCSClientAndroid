@@ -1,4 +1,4 @@
-package tk.zbx1425.bvecontentservice
+package tk.zbx1425.bvecontentservice.ui.activity
 
 import android.graphics.Bitmap
 import android.os.Bundle
@@ -12,8 +12,10 @@ import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.activity_webview.*
+import tk.zbx1425.bvecontentservice.ApplicationContext
+import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.MetadataManager
-import tk.zbx1425.bvecontentservice.api.PackageMetadata
+import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.log.Log
 
 
@@ -44,7 +46,10 @@ class UGCActivity : AppCompatActivity() {
                 metadata.ID, metadata.Version.get(), metadata.Author.ID
             )
         )
-        webView.webChromeClient = MultiPageChromeClient(this)
+        webView.webChromeClient =
+            MultiPageChromeClient(
+                this
+            )
         webView.webViewClient = object : WebViewClient() {
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 loadingProgress.visibility = View.VISIBLE
@@ -104,7 +109,10 @@ class UGCActivity : AppCompatActivity() {
             transport.webView = webView
             resultMsg.sendToTarget()
             webView.webViewClient = WebViewClient()
-            webView.webChromeClient = MultiPageChromeClient(activity)
+            webView.webChromeClient =
+                MultiPageChromeClient(
+                    activity
+                )
             return true
         }
 

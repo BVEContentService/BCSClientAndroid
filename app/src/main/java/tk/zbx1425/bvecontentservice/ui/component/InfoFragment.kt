@@ -1,4 +1,4 @@
-package tk.zbx1425.bvecontentservice.ui
+package tk.zbx1425.bvecontentservice.ui.component
 
 import android.graphics.Bitmap
 import android.os.Bundle

@@ -1,4 +1,4 @@
-package tk.zbx1425.bvecontentservice.ui
+package tk.zbx1425.bvecontentservice.storage
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -16,8 +16,8 @@ import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.HttpHelper
 import tk.zbx1425.bvecontentservice.api.MetadataManager
-import tk.zbx1425.bvecontentservice.api.PackageMetadata
-import tk.zbx1425.bvecontentservice.api.SourceMetadata
+import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
+import tk.zbx1425.bvecontentservice.api.model.SourceMetadata
 import tk.zbx1425.bvecontentservice.log.Log
 import java.io.File
 import java.io.InputStream
@@ -58,15 +58,25 @@ object ImageLoader {
 
     fun getBitmap(url: String, source: SourceMetadata? = null): Bitmap? {
         if (url == "") return null
-        val memoryBitmap = lruCache.get(hashKeyForDisk(url))
+        val memoryBitmap = lruCache.get(
+            hashKeyForDisk(url)
+        )
         if (memoryBitmap != null) {
             Log.i(LOGCAT_TAG, "Used Memory Bitmap for " + url)
             return memoryBitmap
         }
         if (!diskLruCache.isClosed) {
-            val diskBitmap = diskLruCache.get(hashKeyForDisk(url))
+            val diskBitmap = diskLruCache.get(
+                hashKeyForDisk(
+                    url
+                )
+            )
             if (diskBitmap != null) {
-                Log.i(LOGCAT_TAG, "Used Disk Bitmap for " + hashKeyForDisk(url))
+                Log.i(
+                    LOGCAT_TAG, "Used Disk Bitmap for " + hashKeyForDisk(
+                        url
+                    )
+                )
                 return BitmapFactory.decodeStream(diskBitmap.getInputStream(0))
             }
         }
@@ -83,13 +93,29 @@ object ImageLoader {
                     ?.byteStream() ?: return null
                 }
             networkBitmap = BitmapFactory.decodeStream(inStream) ?: return null
-            Log.i(LOGCAT_TAG, "Put image in memory: " + hashKeyForDisk(url))
-            lruCache.put(hashKeyForDisk(url), networkBitmap)
-            val editor = diskLruCache.edit(hashKeyForDisk(url))
+            Log.i(
+                LOGCAT_TAG, "Put image in memory: " + hashKeyForDisk(
+                    url
+                )
+            )
+            lruCache.put(
+                hashKeyForDisk(
+                    url
+                ), networkBitmap
+            )
+            val editor = diskLruCache.edit(
+                hashKeyForDisk(
+                    url
+                )
+            )
             if (editor != null) {
                 val outputStream: OutputStream = editor.newOutputStream(0)
                 if (networkBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)) {
-                    Log.i(LOGCAT_TAG, "Put image in disk: " + hashKeyForDisk(url))
+                    Log.i(
+                        LOGCAT_TAG, "Put image in disk: " + hashKeyForDisk(
+                            url
+                        )
+                    )
                     editor.commit()
                 } else {
                     editor.abort()
@@ -109,7 +135,9 @@ object ImageLoader {
         cacheKey = try {
             val mDigest: MessageDigest = MessageDigest.getInstance("MD5")
             mDigest.update(key.toByteArray())
-            bytesToHexString(mDigest.digest())
+            bytesToHexString(
+                mDigest.digest()
+            )
         } catch (e: NoSuchAlgorithmException) {
             key.hashCode().toString()
         }
@@ -129,22 +157,45 @@ object ImageLoader {
     }
 
     fun isInCache(url: String): Boolean {
-        return lruCache.get(hashKeyForDisk(url)) != null || diskLruCache.get(hashKeyForDisk(url)) != null
+        return lruCache.get(
+            hashKeyForDisk(url)
+        ) != null || diskLruCache.get(
+            hashKeyForDisk(url)
+        ) != null
     }
 
     fun setImageAsync(bmImage: ImageView, uri: String) {
-        ImageTask(bmImage, this, uri).execute()
+        ImageTask(
+            bmImage,
+            this,
+            uri
+        ).execute()
     }
 
     fun setPackImageAsync(bmImage: ImageView, metadata: PackageMetadata) {
-        ImageTask(bmImage, this, metadata.Thumbnail, metadata.Source).execute()
+        ImageTask(
+            bmImage,
+            this,
+            metadata.Thumbnail,
+            metadata.Source
+        ).execute()
     }
 
     fun setPackThumbImageAsync(bmImage: ImageView, metadata: PackageMetadata) {
         if (metadata.ThumbnailLQ_REL != "") {
-            ImageTask(bmImage, this, metadata.ThumbnailLQ, metadata.Source).execute()
+            ImageTask(
+                bmImage,
+                this,
+                metadata.ThumbnailLQ,
+                metadata.Source
+            ).execute()
         } else {
-            ImageTask(bmImage, this, metadata.Thumbnail, metadata.Source).execute()
+            ImageTask(
+                bmImage,
+                this,
+                metadata.Thumbnail,
+                metadata.Source
+            ).execute()
         }
     }
 
@@ -176,7 +227,10 @@ object ImageLoader {
 
         override fun doInBackground(vararg urls: String?): Bitmap? {
             if (url == "") return null
-            return loader.getBitmap(url, source)
+            return getBitmap(
+                url,
+                source
+            )
         }
 
         override fun onPostExecute(result: Bitmap?) {

@@ -1,4 +1,4 @@
-package tk.zbx1425.bvecontentservice.ui
+package tk.zbx1425.bvecontentservice.ui.component
 
 import android.content.Context
 import android.os.Bundle
@@ -7,6 +7,7 @@ import androidx.preference.*
 import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.MetadataManager
+import tk.zbx1425.bvecontentservice.storage.ImageLoader
 import tk.zbx1425.bvecontentservice.storage.PackLocalManager
 
 class SettingFragment : PreferenceFragmentCompat() {

@@ -1,8 +1,10 @@
-package tk.zbx1425.bvecontentservice.api
+package tk.zbx1425.bvecontentservice.api.model
 
 import androidx.preference.PreferenceManager
 import org.json.JSONObject
 import tk.zbx1425.bvecontentservice.ApplicationContext
+import tk.zbx1425.bvecontentservice.api.MetadataManager
+import tk.zbx1425.bvecontentservice.api.Version
 import tk.zbx1425.bvecontentservice.chooseString
 import tk.zbx1425.bvecontentservice.tryString
 import java.io.Serializable
@@ -46,7 +48,11 @@ data class PackageMetadata(
         Version(src.getString("Version")),
         src.tryString("File_H2"),
         src.tryString("FileSize_H2"),
-        manager.getAuthor(src.tryString("Author")),
+        MetadataManager.getAuthor(
+            src.tryString(
+                "Author"
+            )
+        ),
         src.tryString("Name_LO"),
         src.tryString("Name_EN"),
         src.tryString("Name_SA"),
@@ -71,7 +77,7 @@ data class PackageMetadata(
             Author.Name_SA = Origin_SA/* + " & " + Author.Name_SA */
         }
         if (bySpider) {
-            Source = manager.sourceServers.find {
+            Source = MetadataManager.sourceServers.find {
                 it.APIURL == SpiderSourceURL &&
                         it.Username == SpiderSourceUsername
             } ?: throw NullPointerException("Bad Spider Source!")
