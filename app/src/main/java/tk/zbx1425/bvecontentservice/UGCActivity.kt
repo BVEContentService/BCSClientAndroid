@@ -3,7 +3,6 @@ package tk.zbx1425.bvecontentservice
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Message
-import android.util.Log
 import android.view.View
 import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
@@ -15,6 +14,7 @@ import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.activity_webview.*
 import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.api.PackageMetadata
+import tk.zbx1425.bvecontentservice.log.Log
 
 
 class UGCActivity : AppCompatActivity() {

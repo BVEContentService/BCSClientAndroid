@@ -6,14 +6,15 @@
     <TableRow
         android:id="@+id/rowName"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:stretchColumns="1">
 
         <TextView
             android:id="@+id/textName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_span="2"
-            android:text=""
+            android:text="@string/app_name"
             android:textSize="18sp"
             android:textStyle="bold" />
     </TableRow>
@@ -34,7 +35,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dp"
-            android:text="" />
+            android:text="zbx1425" />
     </TableRow>
 
     <TableRow
@@ -78,7 +79,8 @@
     <TableRow
         android:id="@+id/rowAPIURL"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:visibility="gone">
 
         <TextView
             android:layout_width="wrap_content"
@@ -98,7 +100,8 @@
     <TableRow
         android:id="@+id/rowMaintainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:visibility="gone">
 
         <TextView
             android:layout_width="wrap_content"
@@ -130,7 +133,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dp"
-            android:text="" />
+            android:text="zbx1425@outlook.com" />
     </TableRow>
 
     <TableRow
@@ -155,7 +158,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="15dp"
                 android:autoLink="web"
-                android:text="" />
+                android:text="https://bvecontentservice.gitee.io" />
 
             <TextView
                 android:id="@+id/textHomepage2"
@@ -163,7 +166,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="15dp"
                 android:autoLink="web"
-                android:text="" />
+                android:text="https://www.zbx1425.tk" />
         </LinearLayout>
 
     </TableRow>

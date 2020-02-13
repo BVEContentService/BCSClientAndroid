@@ -3,7 +3,6 @@ package tk.zbx1425.bvecontentservice.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import tk.zbx1425.bvecontentservice.PackDetailActivity
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.PackageMetadata
+import tk.zbx1425.bvecontentservice.log.Log
 import tk.zbx1425.bvecontentservice.storage.PackListManager
 
 
@@ -52,6 +52,11 @@ class PackListFragment : Fragment() {
         listAdapter.notifyDataSetChanged()
         super.onResume()
     }
+
+    val isAdapterInitialized: Boolean
+        get() {
+            return ::listAdapter.isInitialized
+        }
 
     companion object {
         private const val ARG_SECTION_NUMBER = "section_number"

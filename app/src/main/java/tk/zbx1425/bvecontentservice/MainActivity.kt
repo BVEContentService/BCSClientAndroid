@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -17,6 +16,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import tk.zbx1425.bvecontentservice.api.MetadataManager
+import tk.zbx1425.bvecontentservice.log.Log
 import tk.zbx1425.bvecontentservice.ui.SectionsPagerAdapter
 import java.io.File
 
@@ -82,8 +82,9 @@ class MainActivity : AppCompatActivity() {
                 val intent = Intent(this, SettingActivity::class.java)
                 startActivity(intent)
             }
-            R.id.action_search -> {
-
+            R.id.about -> {
+                val intent = Intent(this, AboutActivity::class.java)
+                startActivity(intent)
             }
         }
         return super.onOptionsItemSelected(item)
@@ -101,7 +102,7 @@ class MainActivity : AppCompatActivity() {
                 "Write External Storage permission allows us to do store images. Please allow this permission in App Settings.",
                 Toast.LENGTH_LONG
             ).show()
-            Log.wtf("ZBX", "You fucking careless bastard!")
+            Log.e("ZBX", "You fucking careless bastard!")
             finishAffinity()
         } else {
             ActivityCompat.requestPermissions(this, arrayOf(perm), 810)
@@ -115,7 +116,7 @@ class MainActivity : AppCompatActivity() {
     ) {
         if (requestCode == 810) {
             if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Log.wtf("ZBX", "You fucking stubborn bastard!")
+                Log.e("ZBX", "You fucking stubborn bastard!")
                 finishAffinity()
             }
         }

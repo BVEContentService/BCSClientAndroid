@@ -9,7 +9,6 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.Html
 import android.text.Html.FROM_HTML_MODE_COMPACT
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -29,13 +28,14 @@ import okhttp3.Credentials
 import tk.zbx1425.bvecontentservice.api.HttpHelper
 import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.api.PackageMetadata
+import tk.zbx1425.bvecontentservice.log.Log
 import tk.zbx1425.bvecontentservice.storage.PackDownloadManager
 import tk.zbx1425.bvecontentservice.storage.PackListManager
 import tk.zbx1425.bvecontentservice.storage.PackLocalManager
 import tk.zbx1425.bvecontentservice.storage.PackLocalManager.removeLocalPacks
 import tk.zbx1425.bvecontentservice.ui.ImageLoader
+import tk.zbx1425.bvecontentservice.ui.MetadataView
 import java.net.URL
-import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.concurrent.timerTask
 import kotlin.math.abs
@@ -73,43 +73,12 @@ class PackDetailActivity : AppCompatActivity() {
         })
 
         setButtonState()
-        textAuthor.text = metadata.Author.Name
-        textVersion.text = metadata.Version.get()
-        textDate.text = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-            .format(metadata.Timestamp)
-        textContact.text = metadata.Author.ID
-        if (metadata.Homepage == "" && metadata.Author.Homepage == "") {
-            rowHomepage.visibility = View.GONE
-        } else if (metadata.Homepage == "") {
-            textHomepage.text = metadata.Author.Homepage
-            textHomepage2.visibility = View.GONE
-        } else if (metadata.Author.Homepage == "") {
-            textHomepage.text = metadata.Homepage
-            textHomepage2.visibility = View.GONE
-        } else {
-            textHomepage.text = metadata.Homepage
-            textHomepage2.text = metadata.Author.Homepage
-        }
-        textSourceAPIURL.text = metadata.Source.APIURL
-        textSourceName.text = metadata.Source.Name
-        textSourceMaintainer.text = metadata.Source.Author
-        textSourceContact.text = metadata.Source.Contact
-        if (metadata.Source.Homepage == "") {
-            rowSourceHomepage.visibility = View.GONE
-        } else {
-            textSourceHomepage.text = metadata.Source.Homepage
-        }
-        textIndexAPIURL.text = metadata.Source.Index.APIURL
-        textIndexName.text = metadata.Source.Index.Name
-        textIndexMaintainer.text = metadata.Source.Index.Author
-        textIndexContact.text = metadata.Source.Index.Contact
-        if (metadata.Source.Index.Homepage == "") {
-            rowIndexHomepage.visibility = View.GONE
-        } else {
-            textIndexHomepage.text = metadata.Source.Index.Homepage
-        }
+        textPackName.text = metadata.Name
+        packMetadataPlaceholder.addView(MetadataView(this, metadata))
+        sourceMetadataPlaceholder.addView(MetadataView(this, metadata.Source))
+        indexMetadataPlaceholder.addView(MetadataView(this, metadata.Source.Index))
+        appMetadataPlaceholder.addView(MetadataView(this))
         ImageLoader.setPackImageAsync(thumbnailView, metadata)
-        //endregion
         if (PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context).getBoolean(
                 "useWebView", false
             )
@@ -179,6 +148,7 @@ class PackDetailActivity : AppCompatActivity() {
                     )
                     drawable
                 } catch (ex: Exception) {
+                    Log.e("BCSUi", "Cannot get image", ex)
                     ex.printStackTrace()
                     null
                 }
@@ -192,7 +162,7 @@ class PackDetailActivity : AppCompatActivity() {
                         val result =
                             HttpHelper.fetchNonapiString(metadata.Source, metadata.Description)
                         Log.i("BCSDescription", metadata.Description)
-                        Log.i("BCSDescription", result)
+                        Log.i("BCSDescription", result ?: "")
                         val spanned =
                             if (metadata.Description.trim().toLowerCase(Locale.US).endsWith(".html")) {
                                 if (android.os.Build.VERSION.SDK_INT > 24) {
@@ -212,6 +182,7 @@ class PackDetailActivity : AppCompatActivity() {
                     } catch (ex: Exception) {
                         runOnUiThread {
                             ex.printStackTrace()
+                            Log.e("BCSUi", "Cannot fetch description", ex)
                             textDescription.text = String.format(
                                 resources.getText(R.string.info_fetch_text_fail)
                                     .toString(), metadata.Description.trim(), ex.message

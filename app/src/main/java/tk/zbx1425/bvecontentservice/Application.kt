@@ -8,4 +8,5 @@ class Application : Application() {
         super.onCreate()
         ApplicationContext.initialize(this)
     }
+
 }

@@ -1,6 +1,7 @@
 <resources>
     <string name="dummy">What a terrible failure!</string>
     <string name="app_name">BVE Content Service</string>
+    <string name="tab_text_info">Bulletin</string>
     <string name="tab_text_download">Download</string>
     <string name="tab_text_manage">Manage</string>
 
@@ -10,6 +11,9 @@
 
     <string name="fetch_error_message">Fetching finished with %d Errors.\n
         Please contact developers. The program can still run normally.</string>
+    <string name="fetch_err_nosrc">ERROR: Cannot get any server!\
+        Check your network connection, or contact developer!</string>
+    <string name="fetch_err_update">ERROR: Your client is outdated! Please update to at least %s!</string>
     <string name="permission_fail">Write External Storage permission allows us to install routes. Please allow this permission in App Settings.</string>
     <string name="info_download_started">Download started.</string>
     <string name="info_download_finished">%s\nDownload finished.%s</string>
@@ -26,6 +30,7 @@
     <string name="action_search">Search</string>
     <string name="action_refresh">Refresh</string>
     <string name="action_settings">Settings</string>
+    <string name="action_about">About</string>
     <string name="text_author">Author</string>
     <string name="text_maintainer">Maintainer</string>
     <string name="text_version">Version</string>
@@ -33,6 +38,7 @@
     <string name="text_homepage">Homepage</string>
     <string name="text_contact">Contact</string>
     <string name="text_apiurl">API Url</string>
+    <string name="text_noinfo">There is no announcement.</string>
     <string name="text_abuse">For abuse or copyright claims, please contact the uploader.
     If your demand is not satisfied, you can contact server maintainers:</string>
     <string name="text_developer">BVE Content Service Client</string>
@@ -81,7 +87,8 @@
 BVE Content Service Client (BCSC)\
 Designed &amp; Programmed by zbx1425\
 Contact me at zbx1425@outlook.com.\
-Visit my website at www.zbx1425.tk!\
+Visit project website at https://bvecontentservice.github.io or https://bvecontentservice.gitee.io\
+Visit my website at https://www.zbx1425.tk\
 \
 BCSC is an open-source software licensed under GPLv3.\
 You may copy, modify or redistribute this software under this license.\
@@ -92,17 +99,21 @@ BCSC uses OkHttp for networking.\
 OkHttp is a nice HTTP client for Android.\
 Thanks Square Open Source Inc.\
 Licensed under Apache 2.0.\
+https://square.github.io/okhttp\
 \
 BCSC uses OkDownload for multi-thread downloading.\
 OkDownload is a awesome reliable, flexible, fast and powerful download engine.\
 Thanks LAIX Inc. for such a generous project.\
 Licensed under Apache 2.0.\
+https://github.com/lingochamp/okdownload\
 \
 BCSC uses DiskLruCache for image caching.\
 DiskLruCache is an easy-to-use disk-based LRU cache.\
 Thanks Jake Wharton for such a beautiful library.\
 Licensed under Apache 2.0.\
+https://github.com/JakeWharton/DiskLruCache\
 \
+Thanks Asnacinjar, Tucson, and CSSSC for their support during the developing of this program.
 Quite a few other open-source programs and resources have been used during the development of BCSC, which cannot be completely listed here.
 I will pay my personal respect to all the collaborators of the open source community.</string>
 </resources>

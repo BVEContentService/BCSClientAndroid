@@ -65,127 +65,20 @@
                 android:layout_marginLeft="20dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginRight="20dp"
-                android:text="TextView"
+                android:text=""
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
-            <TableLayout
+            <FrameLayout
+                android:id="@+id/packMetadataPlaceholder"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:paddingLeft="20dp"
                 android:paddingTop="20dp"
                 android:paddingRight="20dp"
-                android:paddingBottom="5dp"
-                android:stretchColumns="1">
+                android:paddingBottom="5dp">
 
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/text_author"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/textAuthor"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="15dp"
-                        android:text="" />
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/text_version"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/textVersion"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="15dp"
-                        android:text="" />
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/text_date"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/textDate"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="15dp"
-                        android:text="" />
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/text_contact"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/textContact"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="15dp"
-                        android:text="" />
-                </TableRow>
-
-                <TableRow
-                    android:id="@+id/rowHomepage"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/text_homepage"
-                        android:textStyle="bold" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/textHomepage"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="15dp"
-                            android:autoLink="web"
-                            android:text="" />
-
-                        <TextView
-                            android:id="@+id/textHomepage2"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="15dp"
-                            android:autoLink="web"
-                            android:text="" />
-                    </LinearLayout>
-
-                </TableRow>
-            </TableLayout>
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/textDescription"
@@ -222,286 +115,37 @@
                 android:layout_marginBottom="10dp"
                 android:text="@string/text_abuse" />
 
-            <TableLayout
+            <FrameLayout
+                android:id="@+id/sourceMetadataPlaceholder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingLeft="20dp"
                 android:paddingTop="0dp"
                 android:paddingRight="20dp"
-                android:paddingBottom="5dp"
-                android:stretchColumns="1">
+                android:paddingBottom="5dp">
 
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+            </FrameLayout>
 
-                    <TextView
-                        android:id="@+id/textSourceName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_span="2"
-                        android:text=""
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/text_apiurl"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/textSourceAPIURL"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="15dp"
-                        android:autoLink="web" />
-
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/text_maintainer"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/textSourceMaintainer"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="15dp"
-                        android:text="" />
-
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/text_contact"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/textSourceContact"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="15dp"
-                        android:text="" />
-                </TableRow>
-
-                <TableRow
-                    android:id="@+id/rowSourceHomepage"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/text_homepage"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/textSourceHomepage"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="15dp"
-                        android:autoLink="web"
-                        android:text="" />
-
-                </TableRow>
-            </TableLayout>
-
-            <TableLayout
+            <FrameLayout
+                android:id="@+id/indexMetadataPlaceholder"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:paddingLeft="20dp"
                 android:paddingTop="0dp"
                 android:paddingRight="20dp"
-                android:paddingBottom="5dp"
-                android:stretchColumns="1">
+                android:paddingBottom="5dp">
 
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+            </FrameLayout>
 
-                    <TextView
-                        android:id="@+id/textIndexName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_span="2"
-                        android:text=""
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/text_apiurl"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/textIndexAPIURL"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="15dp"
-                        android:autoLink="web" />
-
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/text_maintainer"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/textIndexMaintainer"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="15dp"
-                        android:text="" />
-
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/text_contact"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/textIndexContact"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="15dp"
-                        android:text="" />
-                </TableRow>
-
-                <TableRow
-                    android:id="@+id/rowIndexHomepage"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/text_homepage"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/textIndexHomepage"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="15dp"
-                        android:autoLink="web"
-                        android:text="" />
-
-                </TableRow>
-            </TableLayout>
-
-            <TableLayout
+            <FrameLayout
+                android:id="@+id/appMetadataPlaceholder"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginBottom="50dp"
                 android:paddingLeft="20dp"
                 android:paddingTop="0dp"
                 android:paddingRight="20dp"
-                android:paddingBottom="5dp"
-                android:stretchColumns="1">
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_span="2"
-                        android:text="@string/text_developer"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/text_maintainer"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="15dp"
-                        android:text="zbx1425" />
-
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/text_contact"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/textIndexContent"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="15dp"
-                        android:text="zbx1425@outlook.com" />
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/text_homepage"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="15dp"
-                        android:autoLink="web"
-                        android:text="https://zbx1425.tk" />
-
-                </TableRow>
-            </TableLayout>
+                android:paddingBottom="5dp"></FrameLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
@@ -513,7 +157,7 @@
         android:layout_margin="@dimen/fab_margin"
         app:layout_anchor="@id/app_bar"
         app:layout_anchorGravity="bottom|end"
-        app:srcCompat="@android:drawable/stat_sys_download" />
+        app:srcCompat="@drawable/ic_cloud_download_white_24dp" />
 
     <FrameLayout
         android:layout_width="match_parent"

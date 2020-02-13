@@ -45,6 +45,7 @@ class SettingFragment : PreferenceFragmentCompat() {
             }
             "clearTemp" -> {
                 PackLocalManager.flushCache()
+                ImageLoader.lruCache.evictAll()
                 ImageLoader.diskLruCache.delete()
                 Toast.makeText(
                     ApplicationContext.context,
@@ -78,7 +79,7 @@ class SettingFragment : PreferenceFragmentCompat() {
         entryValues.add("########")
         listUGCSource.entries = entries.toArray(arrayOf<CharSequence>())
         listUGCSource.entryValues = entryValues.toArray(arrayOf<CharSequence>())
-        if (listUGCSource.value == null) {
+        if (listUGCSource.value == null || listUGCSource.value == "") {
             listUGCSource.setValueIndex(1)
         }
         customUGCSource.isEnabled = listUGCSource.value == "########"

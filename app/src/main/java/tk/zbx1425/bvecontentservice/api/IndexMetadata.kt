@@ -12,7 +12,8 @@ data class IndexMetadata(
     var Author_LO: String,
     var Author_EN: String,
     var Homepage: String,
-    var Contact: String
+    var Contact: String,
+    var Protocol: String = ""
 ) : Serializable {
     constructor (src: JSONObject, APIURL: String) : this(
         src.getString("Name_LO"),
@@ -21,7 +22,8 @@ data class IndexMetadata(
         src.getString("Author_LO"),
         src.getString("Author_EN"),
         src.tryString("Homepage"),
-        src.getString("Contact")
+        src.getString("Contact"),
+        src.tryString("Protocol")
     )
 
     constructor() : this(

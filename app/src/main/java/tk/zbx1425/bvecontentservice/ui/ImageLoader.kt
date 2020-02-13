@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory
 import android.os.AsyncTask
 import android.os.Environment
 import android.os.Environment.isExternalStorageRemovable
-import android.util.Log
 import android.util.LruCache
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
@@ -19,6 +18,7 @@ import tk.zbx1425.bvecontentservice.api.HttpHelper
 import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.api.PackageMetadata
 import tk.zbx1425.bvecontentservice.api.SourceMetadata
+import tk.zbx1425.bvecontentservice.log.Log
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -63,10 +63,12 @@ object ImageLoader {
             Log.i(LOGCAT_TAG, "Used Memory Bitmap for " + url)
             return memoryBitmap
         }
-        val diskBitmap = diskLruCache.get(hashKeyForDisk(url))
-        if (diskBitmap != null) {
-            Log.i(LOGCAT_TAG, "Used Disk Bitmap for " + hashKeyForDisk(url))
-            return BitmapFactory.decodeStream(diskBitmap.getInputStream(0))
+        if (!diskLruCache.isClosed) {
+            val diskBitmap = diskLruCache.get(hashKeyForDisk(url))
+            if (diskBitmap != null) {
+                Log.i(LOGCAT_TAG, "Used Disk Bitmap for " + hashKeyForDisk(url))
+                return BitmapFactory.decodeStream(diskBitmap.getInputStream(0))
+            }
         }
         var networkBitmap: Bitmap? = null
         try {
@@ -96,7 +98,7 @@ object ImageLoader {
             }
             return networkBitmap
         } catch (e: Exception) {
-            Log.e(LOGCAT_TAG, "Fetch Fail:" + e.message)
+            Log.e(LOGCAT_TAG, "Fetch Fail", e)
             e.printStackTrace()
             return null
         }
@@ -139,7 +141,7 @@ object ImageLoader {
     }
 
     fun setPackThumbImageAsync(bmImage: ImageView, metadata: PackageMetadata) {
-        if (metadata.ThumbnailLQ != "") {
+        if (metadata.ThumbnailLQ_REL != "") {
             ImageTask(bmImage, this, metadata.ThumbnailLQ, metadata.Source).execute()
         } else {
             ImageTask(bmImage, this, metadata.Thumbnail, metadata.Source).execute()

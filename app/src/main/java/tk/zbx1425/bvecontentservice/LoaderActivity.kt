@@ -4,7 +4,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AlertDialog
@@ -12,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.activity_loader.*
 import tk.zbx1425.bvecontentservice.api.MetadataManager
+import tk.zbx1425.bvecontentservice.log.Log
 import tk.zbx1425.bvecontentservice.storage.PackListManager
 import java.util.*
 
@@ -51,8 +51,8 @@ class LoaderActivity : AppCompatActivity() {
             } else {
                 val indexServers = PreferenceManager.getDefaultSharedPreferences(this)
                     .getString(
-                        "indexServers", "https://zbx1425.gitee.io/bcs-index," +
-                                "https://zbx1425.github.io/bcs-index"
+                        "indexServers", "https://bvecontentservice.gitee.io/bcs-index," +
+                                "https://bvecontentservice.github.io/bcs-index"
                     )?.split("\n") ?: ArrayList()
                 MetadataManager.fetchMetadata(indexServers) { message ->
                     runOnUiThread { progress(message) }
@@ -103,12 +103,14 @@ class LoaderActivity : AppCompatActivity() {
     }
 
     fun progress(message: String) {
-        Log.i("BCSFetch", message)
         currentStep.text = message
         adapterData.add(message)
         if ("ERROR" in message) {
             errorCount++
             errorList.add(message)
+            Log.e("BCSFetch", message)
+        } else {
+            Log.i("BCSFetch", message)
         }
         adapter.notifyDataSetChanged()
     }

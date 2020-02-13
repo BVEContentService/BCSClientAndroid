@@ -4,11 +4,15 @@ import androidx.preference.PreferenceManager
 import okhttp3.Request
 import org.json.JSONObject
 import tk.zbx1425.bvecontentservice.ApplicationContext
+import tk.zbx1425.bvecontentservice.R
+import tk.zbx1425.bvecontentservice.log.Log
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 object MetadataManager {
+    const val PROTOCOL_VER = "1.4"
+    const val PROTOCOL_DATE = "2020-2-10"
     const val API_SUB_INDEX = "/sources.json"
     const val API_SUB_AUTHOR = "/index/authors.json"
     const val API_SUB_PACK = "/index/packs.json"
@@ -22,10 +26,13 @@ object MetadataManager {
     var packs: ArrayList<PackageMetadata> = ArrayList()
     var packMap: HashMap<String, PackageMetadata> = HashMap()
 
+    var indexHomepage: String = ""
+
     fun fetchMetadata(indexServers: List<String>, progress: (String) -> Unit) {
-        progress("BCS Protocol v1.4\nBy zbx1425, 2020-2-10.")
+        progress(String.format("BCS Protocol v%s\nBy zbx1425, %s.", PROTOCOL_VER, PROTOCOL_DATE))
         this.initialized = true
         this.indexServers = ArrayList(indexServers)
+        indexHomepage = ""
         sourceServers.clear()
         ugcServers.clear()
         authors.clear()
@@ -34,8 +41,7 @@ object MetadataManager {
         fetchServers(progress)
         if (sourceServers.count() == 0) {
             progress(
-                "ERROR: Cannot get any server!\n" +
-                        "Check your network connection, or replace index server!"
+                ApplicationContext.context.resources.getString(R.string.fetch_err_nosrc)
             )
             return
         }
@@ -43,10 +49,11 @@ object MetadataManager {
     }
 
     fun fetchMetadataBySource(sourceServers: List<String>, progress: (String) -> Unit) {
-        progress("BCS Protocol v1.2 Client v1.2\nRunning in SourceServer Mode.")
+        progress(String.format("BCS Protocol v%s\nBy zbx1425, %s.", PROTOCOL_VER, PROTOCOL_DATE))
         this.initialized = true
         this.indexServers = arrayListOf("")
         this.sourceServers.clear()
+        indexHomepage = ""
         ugcServers.clear()
         authors.clear()
         packs.clear()
@@ -93,6 +100,21 @@ object MetadataManager {
                     val indexServerJSONArray = indexServerTotalJSON.getJSONArray("Servers")
                     val indexServer = IndexMetadata(indexServerTotalJSON, indexServerURL.trim())
                     var spiderServer: SourceMetadata? = null
+                    if (indexServer.Homepage != "") {
+                        Log.i("BCSDebug", indexServer.APIURL)
+                        indexHomepage = indexServer.Homepage
+                    }
+                    if (indexServer.Protocol != "" &&
+                        Version(indexServer.Protocol) > Version(PROTOCOL_VER)
+                    ) {
+                        progress(
+                            String.format(
+                                ApplicationContext.context.resources
+                                    .getString(R.string.fetch_err_update), indexServer.Protocol
+                            )
+                        )
+                        continue
+                    }
                     for (i in 0 until indexServerJSONArray.length()) {
                         try {
                             val indexServerJSON: JSONObject =

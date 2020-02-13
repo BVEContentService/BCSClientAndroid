@@ -1,6 +1,5 @@
 package tk.zbx1425.bvecontentservice.storage
 
-import android.util.Log
 import android.widget.Toast
 import com.liulishuo.okdownload.DownloadTask
 import com.liulishuo.okdownload.StatusUtil
@@ -10,6 +9,7 @@ import okhttp3.Credentials
 import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.PackageMetadata
+import tk.zbx1425.bvecontentservice.log.Log
 import java.io.*
 
 
@@ -92,7 +92,7 @@ object PackDownloadManager {
             Log.i(LOGCAT_TAG, "Download started")
             return true
         } catch (ex: Exception) {
-            Log.i(LOGCAT_TAG, ex.message ?: "")
+            Log.e(LOGCAT_TAG, "Download Fail", ex)
             ex.printStackTrace()
             return false
         }
@@ -107,6 +107,7 @@ object PackDownloadManager {
             downloadingMap.remove(metadata.VSID)
             Log.i(LOGCAT_TAG, "Download aborted " + metadata.VSID)
         } catch (ex: Exception) {
+            Log.e(LOGCAT_TAG, "Cannot abort", ex)
             ex.printStackTrace()
             return false
         }

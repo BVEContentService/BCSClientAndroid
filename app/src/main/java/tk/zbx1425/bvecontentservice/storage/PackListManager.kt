@@ -1,9 +1,9 @@
 package tk.zbx1425.bvecontentservice.storage
 
-import android.util.Log
 import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.api.PackageMetadata
 import tk.zbx1425.bvecontentservice.api.Version
+import tk.zbx1425.bvecontentservice.log.Log
 import tk.zbx1425.bvecontentservice.storage.PackLocalManager.decodeInvisibleString
 
 object PackListManager {
@@ -51,6 +51,7 @@ object PackListManager {
             Log.i(LOGCAT_TAG, "Non-indexed pack " + pack.key)
             //localList.add(PackageMetadata(pack.key))
         }
+        onlineList.sortByDescending { it.Timestamp }
         localList.sortByDescending { it.UpdateAvailable }
         return updateCount
     }
