@@ -58,7 +58,11 @@ class PackListAdapter(
     override fun onBindViewHolder(holder: PackListViewHolder, position: Int) {
         val metadata = valuesFiltered[position]
         holder.textTitle.text = metadata.Name
-        holder.textAuthor.text = metadata.Author.Name
+        if (metadata.Origin == "") {
+            holder.textAuthor.text = metadata.Author.Name
+        } else {
+            holder.textAuthor.text = metadata.Origin
+        }
         if (metadata.UpdateAvailable) {
             holder.textVersion.text = String.format(
                 context.resources.getString(R.string.text_update_avail), metadata.Version.get()

@@ -48,7 +48,7 @@ class AuthorActivity : AppCompatActivity() {
         authorMetadataPlaceholder.replaceView(MetadataView(this, metadata))
         descriptionPlaceholder.replaceView(DescriptionView(this, metadata))
         val dataList = MetadataManager.getPacksByAuthor(metadata.ID)
-            .sortedBy { it.Timestamp }
+            .sortedByDescending { it.Timestamp }
         listAdapter = PackListAdapter(this, dataList) { metadata ->
             val intent = Intent(this, PackDetailActivity::class.java)
             intent.putExtra("metadata", metadata)

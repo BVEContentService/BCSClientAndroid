@@ -18,6 +18,7 @@ package tk.zbx1425.bvecontentservice
 import android.Manifest
 import android.app.SearchManager
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -25,10 +26,12 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
 import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.log.Log
@@ -36,7 +39,6 @@ import tk.zbx1425.bvecontentservice.ui.SectionsPagerAdapter
 import tk.zbx1425.bvecontentservice.ui.activity.AboutActivity
 import tk.zbx1425.bvecontentservice.ui.activity.LoaderActivity
 import tk.zbx1425.bvecontentservice.ui.activity.SettingActivity
-import java.io.File
 
 
 class MainActivity : AppCompatActivity() {
@@ -61,9 +63,29 @@ class MainActivity : AppCompatActivity() {
         tabs.setupWithViewPager(view_pager)
         view_pager.adapter = sectionsPagerAdapter
         fab.setOnClickListener {
-            val directory = File("/storage/emulated/0/")
-            Log.i("ZBX", directory.absolutePath)
-            Log.i("ZBX", directory.listFiles()?.joinToString(",") ?: "")
+            val launchIntent =
+                packageManager.getLaunchIntentForPackage("com.Jeminie.Hmmsim2")
+                    ?: packageManager.getLaunchIntentForPackage("com.Jeminie.Hmmsim")
+            if (launchIntent == null) {
+                Snackbar.make(
+                    findViewById(android.R.id.content),
+                    R.string.info_hmmsim_fail,
+                    Snackbar.LENGTH_SHORT
+                )
+            } else {
+                val dlgAlert = AlertDialog.Builder(this)
+                dlgAlert.setNegativeButton(android.R.string.no, null)
+                dlgAlert.setCancelable(true)
+                dlgAlert.setTitle(R.string.app_name)
+                dlgAlert.setMessage(R.string.alert_hmmsim)
+                dlgAlert.setPositiveButton(android.R.string.yes) { _: DialogInterface, i: Int ->
+                    if (i == DialogInterface.BUTTON_POSITIVE) {
+                        startActivity(launchIntent)
+                        finishAffinity()
+                    }
+                }
+                dlgAlert.create().show()
+            }
         }
     }
 

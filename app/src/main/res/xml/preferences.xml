@@ -27,7 +27,7 @@
             android:key="allPacks"
             android:summary="@string/pref_allpacks_sum"
             android:title="@string/pref_allpacks"
-            app:enabled="false" />
+            app:enabled="true" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_server">
 
@@ -57,14 +57,14 @@
             android:summary="@string/pref_usespider_sum"
             android:title="@string/pref_usespider" />
         <EditTextPreference
-            android:defaultValue="https://bvecontentservice.gitee.io/bcs-index,https://bvecontentservice.github.io/bcs-index"
+            android:defaultValue="@string/default_index"
             android:key="indexServers"
             android:selectAllOnFocus="true"
             android:singleLine="false"
             android:summary="@string/pref_index_sum"
             android:title="@string/pref_index" />
         <EditTextPreference
-            android:defaultValue="https://api.zbx1425.tk:8953/bcs-src"
+            android:defaultValue="@string/default_src"
             android:key="sourceServers"
             android:selectAllOnFocus="true"
             android:singleLine="false"

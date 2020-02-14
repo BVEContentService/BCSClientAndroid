@@ -25,7 +25,7 @@ import tk.zbx1425.bvecontentservice.BuildConfig
 
 object L4jConfig {
     private const val MAX_FILE_SIZE = 1024 * 1024 * 10L
-    private const val DEFAULT_LOG_DIR = "/bveContentService"
+    private const val FILE_DIR = "/bveContentService"
     private const val DEFAULT_LOG_FILE_NAME = "/log.txt"
     private const val DEFAULT_ERR_FILE_NAME = "/err.txt"
     private const val TAG = "Log4jConfigure"
@@ -35,7 +35,7 @@ object L4jConfig {
         val logConfigurator = LogConfigurator()
         try {
             val logDir = if (isSdcardMounted()) {
-                Environment.getExternalStorageDirectory().toString() + DEFAULT_LOG_DIR
+                Environment.getExternalStorageDirectory().toString() + FILE_DIR
             } else {
                 ApplicationContext.context.filesDir.path
             }
@@ -48,10 +48,10 @@ object L4jConfig {
             logConfigurator.isUseLogCatAppender = true
             logConfigurator.fileName = logDir + DEFAULT_LOG_FILE_NAME
             logConfigurator.configure()
-            logConfigurator.rootLevel = Level.ERROR
+            /*logConfigurator.rootLevel = Level.ERROR
             logConfigurator.isUseLogCatAppender = false
             logConfigurator.fileName = logDir + DEFAULT_ERR_FILE_NAME
-            logConfigurator.configure()
+            logConfigurator.configure()*/
             Log.i(TAG, "Log4j config finish")
         } catch (throwable: Throwable) {
             logConfigurator.isResetConfiguration = true

@@ -15,6 +15,8 @@
 
 package tk.zbx1425.bvecontentservice.storage
 
+import androidx.preference.PreferenceManager
+import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.api.Version
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
@@ -65,6 +67,12 @@ object PackListManager {
         for (pack in localPacks) {
             Log.i(LOGCAT_TAG, "Non-indexed pack " + pack.key)
             //localList.add(PackageMetadata(pack.key))
+        }
+        if (PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context).getBoolean(
+                "allPacks", false
+            )
+        ) {
+            onlineList = MetadataManager.packs
         }
         onlineList.sortByDescending { it.Timestamp }
         localList.sortByDescending { it.UpdateAvailable }

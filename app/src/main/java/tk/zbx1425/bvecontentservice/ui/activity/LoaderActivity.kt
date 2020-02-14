@@ -60,7 +60,7 @@ class LoaderActivity : AppCompatActivity() {
                     .getBoolean("useIndexServer", true)
             ) {
                 val sourceServers = PreferenceManager.getDefaultSharedPreferences(this)
-                    .getString("sourceServers", "https://api.zbx1425.tk:8953/bcs-src")
+                    .getString("sourceServers", resources.getString(R.string.default_src))
                     ?.split("\n") ?: ArrayList()
                 MetadataManager.fetchMetadataBySource(sourceServers) { message ->
                     runOnUiThread { progress(message) }
@@ -68,8 +68,7 @@ class LoaderActivity : AppCompatActivity() {
             } else {
                 val indexServers = PreferenceManager.getDefaultSharedPreferences(this)
                     .getString(
-                        "indexServers", "https://bvecontentservice.gitee.io/bcs-index," +
-                                "https://bvecontentservice.github.io/bcs-index"
+                        "indexServers", resources.getString(R.string.default_index)
                     )?.split("\n") ?: ArrayList()
                 MetadataManager.fetchMetadata(indexServers) { message ->
                     runOnUiThread { progress(message) }

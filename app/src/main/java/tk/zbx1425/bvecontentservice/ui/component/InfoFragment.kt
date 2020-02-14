@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
@@ -42,6 +43,7 @@ class InfoFragment : Fragment() {
             PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context).getBoolean(
                 "enableJavascript", true
             )
+        newView.webView.settings.cacheMode = WebSettings.LOAD_NO_CACHE
         newView.webView.loadUrl(MetadataManager.indexHomepage)
         newView.webView.webViewClient = object : WebViewClient() {
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {

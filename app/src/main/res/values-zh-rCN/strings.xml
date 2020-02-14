@@ -7,11 +7,12 @@
     <string name="alert_abort">暂停安装线路？\n%s</string>
     <string name="alert_install">安装这个线路？\n%s</string>
     <string name="alert_remove">卸载这个线路？\n%s</string>
+    <string name="alert_hmmsim">启动Hmmsim吗？</string>
     <string name="dummy">有啥坏了</string>
     <string name="fetch_error_message">抓取结束，发生 %d 个错误。\n请联系维护人员, 程序仍能正常运行。</string>
     <string name="fetch_err_nosrc">ERROR: 获取不到任何源服务器！\
         请检查网络连接，如无问题请联系维护人员！</string>
-    <string name="fetch_err_update">ERROR: 您的客户端程序版本过低！请更新到至少 %s！</string>
+    <string name="fetch_err_update">ERROR: 您的客户端程序版本过低！请更新！最低协议版本: %s</string>
     <string name="info_clear_temp">下载缓存已清空。</string>
     <string name="info_download_abort_failed">无法停止下载！</string>
     <string name="info_download_aborted">%s\n下载已暂停。%s在设置中可删除已下载的部分文件。</string>
@@ -21,6 +22,7 @@
     <string name="info_download_started">下载已开始。</string>
     <string name="info_fetch_text">正获取描述信息……</string>
     <string name="info_fetch_text_fail">未能获取描述信息！\n%s\n%s</string>
+    <string name="info_hmmsim_fail">未安装 Hmmsim。</string>
     <string name="permission_fail">为安装线路，本程序必须获得外部存储写入权限。请到系统设置中打开。</string>
     <string name="tab_text_download">下载</string>
     <string name="tab_text_manage">管理</string>
@@ -84,10 +86,10 @@ BVE 内容服务客户端 (BCSC)\
 欢迎访问项目网站: https://bvecontentservice.gitee.io 或 https://bvecontentservice.github.io\
 欢迎光临个人网站: https://www.zbx1425.tk\
 \
-BCSC 是开放源代码软件，以 GPLv3 开源许可证授权。\
-您可在 GPLv3 协议的范围内对软件进行一切形式的复制、修改、再分发。\
-有关 GPLv3 协议的详细法律约束，请参见 https://www.gnu.org/licenses/gpl-3.0.html。\
-如需获取本软件源代码，请前往 https://github.com/BVEContentService/BCSClientAndroid。\
+本程序为自由软件；您可依据自由软件基金会所发表的GNU通用公共授权条款，对本程序再次发布和/或修改；无论您依据的是此授权的第三版，或（您可选的）任一此后发行的版本。\
+本程序是基于使用目的而加以发布，然而不负任何担保责任；亦无对适售性或特定目的适用性所为的默示性担保。详情请参照GNU通用公共授权。\
+您应已收到附随于本程序的GNU通用公共授权的副本；如没有，请参照 http://www.gnu.org/licenses/。\
+如需获取本程序源代码的副本，您可参见 https://github.com/BVEContentService/BCSClientAndroid。\
 \
 BCSC 使用 OkHttp 进行网络通讯。\
 OkHttp 是个简单省事的 HTTP 客户端。\
