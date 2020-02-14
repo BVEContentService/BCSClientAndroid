@@ -61,8 +61,7 @@ class SettingFragment : PreferenceFragmentCompat() {
             }
             "clearTemp" -> {
                 PackLocalManager.flushCache()
-                ImageLoader.lruCache.evictAll()
-                ImageLoader.diskLruCache.delete()
+                ImageLoader.initCache()
                 Toast.makeText(
                     ApplicationContext.context,
                     R.string.info_clear_temp,

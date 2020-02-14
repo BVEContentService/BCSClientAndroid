@@ -24,9 +24,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.fragment_main.view.*
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
-import tk.zbx1425.bvecontentservice.log.Log
 import tk.zbx1425.bvecontentservice.storage.PackListManager
 import tk.zbx1425.bvecontentservice.ui.PackListAdapter
 import tk.zbx1425.bvecontentservice.ui.activity.PackDetailActivity
@@ -51,7 +51,6 @@ class PackListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.i("BCSUi", "onCreateView called")
         listAdapter = PackListAdapter(
             activity as Context,
             dataList
@@ -64,6 +63,12 @@ class PackListFragment : Fragment() {
         val rv: RecyclerView = view.findViewById(R.id.recyclerView)
         rv.layoutManager = LinearLayoutManager(activity as Context)
         rv.adapter = listAdapter
+        listAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onChanged() {
+                view.emptyTextView.visibility =
+                    if (listAdapter.itemCount > 0) View.GONE else View.VISIBLE
+            }
+        })
         return view
     }
 

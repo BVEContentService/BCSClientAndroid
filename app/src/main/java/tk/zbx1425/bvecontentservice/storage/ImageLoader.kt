@@ -44,20 +44,27 @@ import java.security.NoSuchAlgorithmException
 object ImageLoader {
     const val LOGCAT_TAG = "BCSImage"
 
-    val lruCache = object : LruCache<String, Bitmap>
-        ((Runtime.getRuntime().maxMemory() / 1024 / 8).toInt()) {
-        override fun sizeOf(key: String, bitmap: Bitmap): Int {
-            return bitmap.byteCount / 1024
+    lateinit var lruCache: LruCache<String, Bitmap>
+    lateinit var diskLruCache: DiskLruCache
+
+    fun initCache() {
+        if (::lruCache.isInitialized) lruCache.evictAll()
+        if (::diskLruCache.isInitialized) diskLruCache.delete()
+        lruCache = object : LruCache<String, Bitmap>
+            ((Runtime.getRuntime().maxMemory() / 1024 / 8).toInt()) {
+            override fun sizeOf(key: String, bitmap: Bitmap): Int {
+                return bitmap.byteCount / 1024
+            }
         }
+        diskLruCache = DiskLruCache.open(
+            getDiskCacheDir(
+                ApplicationContext.context,
+                "thumb"
+            ), 1, 1,
+            (PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context)
+                .getString("cacheSize", "10")?.toLongOrNull() ?: 10) * 1024 * 1024
+        )
     }
-    val diskLruCache: DiskLruCache = DiskLruCache.open(
-        getDiskCacheDir(
-            ApplicationContext.context,
-            "thumb"
-        ), 1, 1,
-        (PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context)
-            .getString("cacheSize", "10")?.toLongOrNull() ?: 10) * 1024 * 1024
-    )
 
     fun getDiskCacheDir(context: Context, uniqueName: String): File? {
         val cachePath: String =
@@ -87,11 +94,7 @@ object ImageLoader {
                 )
             )
             if (diskBitmap != null) {
-                Log.i(
-                    LOGCAT_TAG, "Used Disk Bitmap for " + hashKeyForDisk(
-                        url
-                    )
-                )
+                Log.i(LOGCAT_TAG, "Used Disk Bitmap for " + url)
                 return BitmapFactory.decodeStream(diskBitmap.getInputStream(0))
             }
         }
@@ -108,29 +111,17 @@ object ImageLoader {
                         ?.byteStream() ?: return null
                 }
             networkBitmap = BitmapFactory.decodeStream(inStream) ?: return null
-            Log.i(
-                LOGCAT_TAG, "Put image in memory: " + hashKeyForDisk(
-                    url
-                )
-            )
+            Log.i(LOGCAT_TAG, "Put image in memory: " + url)
             lruCache.put(
                 hashKeyForDisk(
                     url
                 ), networkBitmap
             )
-            val editor = diskLruCache.edit(
-                hashKeyForDisk(
-                    url
-                )
-            )
+            val editor = diskLruCache.edit(hashKeyForDisk(url))
             if (editor != null) {
                 val outputStream: OutputStream = editor.newOutputStream(0)
                 if (networkBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)) {
-                    Log.i(
-                        LOGCAT_TAG, "Put image in disk: " + hashKeyForDisk(
-                            url
-                        )
-                    )
+                    Log.i(LOGCAT_TAG, "Put image in disk: " + url)
                     editor.commit()
                 } else {
                     editor.abort()
@@ -221,6 +212,7 @@ object ImageLoader {
         AsyncTask<String?, Void?, Bitmap?>() {
 
         override fun onPreExecute() {
+            Log.i(LOGCAT_TAG, "Started fetching " + url)
             /*if (!loader.isInCache(url)) {
                 bmImage.setImageDrawable(
                     ContextCompat.getDrawable(
@@ -250,8 +242,10 @@ object ImageLoader {
 
         override fun onPostExecute(result: Bitmap?) {
             if (result != null) {
+                Log.i(LOGCAT_TAG, "Succeed fetching " + url)
                 bmImage.setImageBitmap(result)
             } else {
+                Log.i(LOGCAT_TAG, "Gave up fetching " + url)
                 bmImage.setImageDrawable(
                     ContextCompat.getDrawable(
                         ApplicationContext.context,

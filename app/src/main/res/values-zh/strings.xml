@@ -29,7 +29,7 @@
     <string name="text_abuse">如出現侵權或其他不法行為，請聯系上傳者。如果您的訴求未被重視，您可聯系服務器維護團隊：</string>
     <string name="text_apiurl">API</string>
     <string name="text_author">作者</string>
-    <string name="text_noinfo">沒有公告。</string>
+    <string name="text_noinfo">沒有此類路線。</string>
     <string name="text_contact">聯絡</string>
     <string name="text_uploader">上傳</string>
     <string name="text_continue_download">前往下載</string>

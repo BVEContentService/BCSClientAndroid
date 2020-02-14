@@ -29,7 +29,7 @@
     <string name="text_abuse">如出现侵权或其他不法行为，请联系上传者。如果您的诉求未被重视，您可联系服务器维护团队：</string>
     <string name="text_apiurl">API</string>
     <string name="text_author">作者</string>
-    <string name="text_noinfo">没有公告。</string>
+    <string name="text_noinfo">没有此类路线。</string>
     <string name="text_contact">联络</string>
     <string name="text_uploader">上传</string>
     <string name="text_continue_download">前往下载</string>
