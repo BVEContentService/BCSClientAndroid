@@ -41,6 +41,7 @@ data class PackageMetadata(
     var Description_REL: String,
     var Thumbnail_REL: String,
     var ThumbnailLQ_REL: String,
+    var NoFile: Boolean,
     var AutoOpen: Boolean,
     var ForceView: Boolean,
     var Timestamp: Date,
@@ -78,8 +79,9 @@ data class PackageMetadata(
         src.tryString("Description"),
         src.tryString("Thumbnail"),
         src.tryString("ThumbnailLQ"),
-        src.tryString("AutoOpen").equals("1", true),
-        src.tryString("ForceView").equals("1", true),
+        src.tryString("NoFile") == "1",
+        src.tryString("AutoOpen") == "1",
+        src.tryString("ForceView") == "1",
         Date(src.getLong("TimeStamp") * 1000),
         source,
         src.tryString("SourceURL"),
@@ -107,15 +109,17 @@ data class PackageMetadata(
         }
 
     private fun processRelUrl(url: String): String {
-        if (url.startsWith("http://") || url.startsWith("https://")) {
-            return url
+        return if (url == "") {
+            ""
+        } else if (url.startsWith("http://") || url.startsWith("https://")) {
+            url
         } else if (PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context).getBoolean(
                 "reverseProxy", true
             ) && Source.APIRProxy != ""
         ) {
-            return Source.APIRProxy + url
+            Source.APIRProxy + url
         } else {
-            return Source.APIURL + url
+            Source.APIURL + url
         }
     }
 

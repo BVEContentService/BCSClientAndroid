@@ -47,8 +47,8 @@
     <string name="pref_ugc_custom">自定义来源</string>
     <string name="pref_ugc_disable">不显示评论</string>
     <string name="pref_advanced">高级</string>
-    <string name="pref_allpacks">显示历史版本</string>
-    <string name="pref_allpacks_sum">在列表中显示过期线路包</string>
+    <string name="pref_allpacks">显示所有路线包</string>
+    <string name="pref_allpacks_sum">在列表中显示过期和已安装路线</string>
     <string name="pref_cleartemp">清除所有缓存</string>
     <string name="pref_cleartemp_sum">删除下载缓存和图片缓存</string>
     <string name="pref_customugc">自定义UGC源</string>
@@ -109,7 +109,8 @@ DiskLruCache 是个简单易用的本地LRU算法缓存库。\
 此为公共版权软件，以 Apache 2.0 开源许可证授权。\
 https://github.com/JakeWharton/DiskLruCache\
 \
-感谢Asnacinjar, Tucson, 及中国南方地铁模拟中心(CSSSC)在本程序开发期间提出的建议与支持。\
+感谢 @Asnacinjar, @Tucson, 及中国南方地铁模拟中心(CSSSC)在本程序开发期间提出的建议与支持。\
+感谢 @咕鸽装饰 制作粤语翻译。\
 BCSC的开发过程中还用到了数不胜数的开源程序与资源，在此限于篇幅无法一一列出。
 个人在此谨向所有开源社区的合作者们致以最崇高的敬意。</string>
     <string name="action_about">关于</string>

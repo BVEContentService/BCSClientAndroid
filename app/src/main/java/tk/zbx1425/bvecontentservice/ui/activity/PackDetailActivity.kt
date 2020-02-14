@@ -166,7 +166,7 @@ class PackDetailActivity : AppCompatActivity() {
             }
             dlgAlert.create().show()
         } else {
-            if (metadata.AutoOpen) {
+            if (metadata.AutoOpen || metadata.NoFile) {
                 val intent = Intent(this as Context, ForceViewActivity::class.java)
                 intent.putExtra("metadata", metadata)
                 startActivityForResult(intent, 9376)
@@ -201,16 +201,20 @@ class PackDetailActivity : AppCompatActivity() {
             downloadButton.text =
                 when {
                     packState < 0 -> {
-                        if (metadata.UpdateAvailable) {
-                            String.format(
-                                resources.getString(R.string.text_update),
-                                metadata.FileSize
-                            )
+                        if (metadata.NoFile) {
+                            resources.getString(R.string.text_continue_download)
                         } else {
-                            String.format(
-                                resources.getString(R.string.text_download),
-                                metadata.FileSize
-                            )
+                            if (metadata.UpdateAvailable) {
+                                String.format(
+                                    resources.getString(R.string.text_update),
+                                    metadata.FileSize
+                                )
+                            } else {
+                                String.format(
+                                    resources.getString(R.string.text_download),
+                                    metadata.FileSize
+                                )
+                            }
                         }
                     }
                     packState < 100 -> resources.getString(R.string.text_downloading)

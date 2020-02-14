@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BVE內容服務</string>
+    <string name="action_refresh">刷新</string>
+    <string name="action_search">搵料</string>
+    <string name="action_settings">設定</string>
+    <string name="alert_abort">安裝暫停？\n%s</string>
+    <string name="alert_install">安裝哩條線路？\n%s</string>
+    <string name="alert_remove">Delete哩條線路？\n%s</string>
+    <string name="alert_hmmsim">請確定啟動hmmsim</string>
+    <string name="dummy">程式發生錯誤</string>
+    <string name="fetch_error_message">抓取結束，發生 %d 個錯誤。\n請聯系程式製作組 程式仍然正常運作</string>
+    <string name="fetch_err_nosrc">ERROR: 無法連線到服務器\
+        如果你依家使用嘅網路連接係正常嘅，請聯系程式製作組</string>
+    <string name="fetch_err_update">ERROR: 你嘅客戶端版本過低，請下載最新版本: %s</string>
+    <string name="info_clear_temp">已清空下載內容</string>
+    <string name="info_download_abort_failed">啊啊啊點解下載停唔低㗎！！！</string>
+    <string name="info_download_aborted">%s\n下載已暫停%s設置入面可Delete已經下載咗嘅部分</string>
+    <string name="info_download_failed">%s\n啊啊啊又要重新下載啦......\n%s</string>
+    <string name="info_download_finished">%s\nDownload job finished%s</string>
+    <string name="info_download_start_failed">啊啊啊點解冇得下載㗎！！！</string>
+    <string name="info_download_started">正在下載</string>
+    <string name="info_fetch_text">Loading……</string>
+    <string name="info_fetch_text_fail">呢個頁面暫時不可描述\n%s\n%s</string>
+    <string name="info_hmmsim_fail">你未安裝hmmsim本體</string>
+    <string name="permission_fail">要有外部儲存寫入權限先至可以安裝線路</string>
+    <string name="tab_text_download">下載</string>
+    <string name="tab_text_manage">管理</string>
+    <string name="text_abuse">如出現侵權或其他不法行為，請聯系上傳。如果你冇收到回覆，可以聯系程式製作組：</string>
+    <string name="text_apiurl">API</string>
+    <string name="text_author">作者</string>
+    <string name="text_noinfo">唔使望啦，人哋乜都冇寫</string>
+    <string name="text_contact">聯絡</string>
+    <string name="text_uploader">上傳</string>
+    <string name="text_continue_download">去下載</string>
+    <string name="text_date">日期</string>
+    <string name="text_developer">BVE內容服務 客戶端</string>
+    <string name="text_download">下載 %s</string>
+    <string name="text_downloading">Downloading……</string>
+    <string name="text_finishing">正在結束……</string>
+    <string name="text_homepage">網站</string>
+    <string name="text_maintainer">維護</string>
+    <string name="text_remove">卸載</string>
+    <string name="text_ugc">評論</string>
+    <string name="text_update">更新 %s</string>
+    <string name="text_version">版本</string>
+    <string name="pref_ugc_custom">自定義來源</string>
+    <string name="pref_ugc_disable">隱藏評論</string>
+    <string name="pref_advanced">高級</string>
+    <string name="pref_allpacks">顯示全部線路包</string>
+    <string name="pref_allpacks_sum">响清單中顯示過期/已安裝線路</string>
+    <string name="pref_cleartemp">清除所有緩存</string>
+    <string name="pref_cleartemp_sum">刪除下載緩存同圖片緩存</string>
+    <string name="pref_customugc">自定義UGC源</string>
+    <string name="pref_customugc_sum">手動指定所需嘅評論源服務器</string>
+    <string name="pref_listugc">UGC評論源</string>
+    <string name="pref_listugc_sum">選擇、自定義或禁用評論功能</string>
+    <string name="pref_javascript_sum">請自行定奪功能與安全性</string>
+    <string name="pref_javascript">啟用WebView中的Javascript</string>
+    <string name="pref_index_sum">用於獲取源服務器的服務器</string>
+    <string name="pref_index">編輯索引服務器列表</string>
+    <string name="pref_general">常規</string>
+    <string name="pref_engname">顯示英文名</string>
+    <string name="pref_engname_sum">以英文顯示線路包名稱</string>
+    <string name="pref_server">服務器</string>
+    <string name="pref_source">編輯源服務器列表</string>
+    <string name="pref_source_sum">用來獲取線路包的服務器</string>
+    <string name="pref_useindex">使用索引服務器</string>
+    <string name="pref_useindex_sum">用索引服務器自動獲取源服務器</string>
+    <string name="pref_usewebview">使用WebView替代TextView</string>
+    <string name="pref_usewebview_sum">用WebView顯示線路包描述信息</string>
+    <string name="pref_rproxy">啟用反向代理</string>
+    <string name="pref_rproxy_sum">如果連接緩慢可以嘗試打開</string>
+    <string name="text_update_avail">更新 %s</string>
+    <string name="info_update_avail">有 %d 個路線可以更新！\n詳見管理頁。</string>
+    <string name="pref_disklru">設定磁盤緩存大小 (MB)</string>
+    <string name="pref_disklru_sum">用於本地緩存圖片嘅空間</string>
+    <string name="pref_usespider">使用源抓取數據</string>
+    <string name="pref_usespider_sum">下載已合並嘅數據以加快加載速度</string>
+    <string name="pref_disklru_err">%s 唔係有效數字！</string>
+
+    <string name="about_info">
+BVE 內容服務客戶端 (BCSC)\
+由 zbx1425 設計、編程\
+聯系方式: zbx1425@outlook.com\
+歡迎訪問項目網站: https://bvecontentservice.gitee.io 或 https://bvecontentservice.github.io\
+歡迎光臨個人網站: https://www.zbx1425.tk\
+\
+本程式喺自由軟件；你可依據自由軟件基金會所發表嘅GNU通用公共授權條款，對本程式再次發布或者修改；無論您依據嘅係此授權嘅第三版，或者（你可選嘅）任壹此後發行的版本。\
+本程式是基於使用目的而發布，唔會負任何擔保責任；亦冇對適售性或特定目的適用性所為的默示性擔保。詳情請參照GNU通用公共授權。\
+你應該已經收到附隨於本程式嘅GNU通用公共授權嘅副本；如果冇，請參照 http://www.gnu.org/licenses/。\
+如需獲取本程序源代碼嘅副本，你可以參閱 https://github.com/BVEContentService/BCSClientAndroid。\
+\
+BCSC 使用 OkHttp 進行網絡通訊。\
+OkHttp 是個簡單慳事嘅 HTTP 客戶端。\
+多謝 Square 開源公司強勁嘅生產力。\
+此為公共版權軟件，以 Apache 2.0 開源許可證授權。\
+https://square.github.io/okhttp\
+\
+BCSC 使用 OkDownload 進行多線程下載。\
+OkDownload 是個極好、可靠、靈活、快速而強大嘅下載引擎。\
+多謝上海流利說信息技術有限公司嘅慷慨奉獻。\
+此為公共版權軟件，以 Apache 2.0 開源許可證授權。\
+https://github.com/lingochamp/okdownload\
+\
+BCSC 使用 DiskLruCache 進行圖片緩存。\
+DiskLruCache 是個簡單易用嘅本地LRU算法緩存庫。\
+多謝 Jake Wharton 大佬。\
+此為公共版權軟件，以 Apache 2.0 開源許可證授權。\
+https://github.com/JakeWharton/DiskLruCache\
+\
+多謝 @Asnacinjar, @Tucson, 及中國南方地鐵模擬中心(CSSSC)响本程序開發嘅過程中提出嘅建議同支持。\
+多謝 @咕鸽装饰 製粵語翻譯！\
+BCSC嘅開發過程中仲用到咗數不勝數嘅開源程序同資源，在此限於篇幅無法壹壹列出。
+個人在此謹向所有Open-Source社區嘅合作者致以最崇高嘅敬意，多謝你哋嘅支持！</string>
+    <string name="action_about">關於</string>
+    <string name="tab_text_info">公告</string>
+</resources>

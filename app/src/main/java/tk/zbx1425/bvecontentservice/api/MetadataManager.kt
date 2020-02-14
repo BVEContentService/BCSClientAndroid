@@ -265,7 +265,7 @@ object MetadataManager {
                             sourceServer,
                             bySpider
                         )
-                    if (metadata.File == "") continue
+                    if (metadata.File == "" && (metadata.Homepage == "" || !metadata.NoFile)) continue
                     packs.add(metadata)
                     if (!packMap.containsKey(metadata.ID) ||
                         packMap[metadata.ID]?.Version ?: Version("0.0") < metadata.Version

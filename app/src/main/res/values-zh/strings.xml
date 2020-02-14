@@ -47,8 +47,8 @@
     <string name="pref_ugc_custom">自定義來源</string>
     <string name="pref_ugc_disable">不顯示評論</string>
     <string name="pref_advanced">高級</string>
-    <string name="pref_allpacks">顯示歷史版本</string>
-    <string name="pref_allpacks_sum">在列表中顯示過期線路包</string>
+    <string name="pref_allpacks">顯示所有路線包</string>
+    <string name="pref_allpacks_sum">在清單中顯示過期和已安裝路線</string>
     <string name="pref_cleartemp">清除所有緩存</string>
     <string name="pref_cleartemp_sum">刪除下載緩存和圖片緩存</string>
     <string name="pref_customugc">自定義UGC源</string>

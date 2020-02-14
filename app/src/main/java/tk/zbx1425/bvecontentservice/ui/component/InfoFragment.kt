@@ -29,22 +29,29 @@ import kotlinx.android.synthetic.main.activity_webview.view.*
 import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.MetadataManager
-import tk.zbx1425.bvecontentservice.log.Log
 
 class InfoFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.i("BCSUi", "onCreateView called")
         val newView = inflater.inflate(R.layout.activity_webview, container, false)
         newView.continueButton.visibility = View.GONE
         newView.webView.settings.javaScriptEnabled =
-            PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context).getBoolean(
-                "enableJavascript", true
-            )
+            PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context)
+                .getBoolean(
+                    "enableJavascript", true
+                )
         newView.webView.settings.cacheMode = WebSettings.LOAD_NO_CACHE
-        newView.webView.loadUrl(MetadataManager.indexHomepage)
+        if (MetadataManager.indexHomepage != "") {
+            newView.webView.loadUrl(MetadataManager.indexHomepage)
+        } else {
+            newView.webView.loadData(
+                "<table style='width:100%;height:100%'><td style='text-align:center;vertical-align:middle'>" +
+                        resources.getString(R.string.text_noinfo) + "</td></table>",
+                "text/html", "UTF-8"
+            )
+        }
         newView.webView.webViewClient = object : WebViewClient() {
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 newView.loadingProgress.visibility = View.VISIBLE

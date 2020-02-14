@@ -62,7 +62,7 @@
     <string name="pref_disklru">Set DiskLru Size (MB)</string>
     <string name="pref_disklru_sum">Space used to cache images locally</string>
     <string name="pref_disklru_err">%s is not an valid number!</string>
-    <string name="pref_allpacks">Show Historical Packages</string>
+    <string name="pref_allpacks">Show All Packages</string>
     <string name="pref_allpacks_sum">Including the outdated ones</string>
     <string name="pref_rproxy">Use Reverse Proxy</string>
     <string name="pref_rproxy_sum">Try if slow connection is experienced</string>

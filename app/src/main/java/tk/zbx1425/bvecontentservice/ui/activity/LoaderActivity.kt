@@ -45,6 +45,7 @@ class LoaderActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_loader)
+        continueButton.visibility = View.GONE
         adapter = ArrayAdapter(
             this,
             android.R.layout.simple_list_item_1, adapterData

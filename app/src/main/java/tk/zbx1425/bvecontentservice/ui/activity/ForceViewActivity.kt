@@ -40,7 +40,7 @@ class ForceViewActivity : AppCompatActivity() {
         setContentView(R.layout.activity_webview)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         metadata = intent.getSerializableExtra("metadata") as PackageMetadata
-        if (metadata.ForceView) continueButton.visibility = View.GONE
+        if (metadata.ForceView || metadata.NoFile) continueButton.visibility = View.GONE
         continueButton.setOnClickListener {
             startDownload()
         }
@@ -68,7 +68,7 @@ class ForceViewActivity : AppCompatActivity() {
 
             override fun shouldOverrideUrlLoading(view: WebView?, url: String): Boolean {
                 if (url == "bcs://startDownload") {
-                    startDownload()
+                    if (!metadata.NoFile) startDownload()
                     return true
                 }
                 return super.shouldOverrideUrlLoading(view, url)

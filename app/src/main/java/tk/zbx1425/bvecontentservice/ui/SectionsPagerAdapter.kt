@@ -52,7 +52,11 @@ class SectionsPagerAdapter(
     }
 
     override fun getPageTitle(position: Int): CharSequence? {
-        return context.resources.getString(TAB_TITLES[position])
+        return if (MetadataManager.indexHomepage != "") {
+            context.resources.getString(TAB_TITLES[position])
+        } else {
+            context.resources.getString(TAB_TITLES[position + 1])
+        }
     }
 
     override fun getCount(): Int {

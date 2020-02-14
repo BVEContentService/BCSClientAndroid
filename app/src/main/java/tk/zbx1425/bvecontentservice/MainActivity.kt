@@ -68,10 +68,10 @@ class MainActivity : AppCompatActivity() {
                     ?: packageManager.getLaunchIntentForPackage("com.Jeminie.Hmmsim")
             if (launchIntent == null) {
                 Snackbar.make(
-                    findViewById(android.R.id.content),
+                    root_view,
                     R.string.info_hmmsim_fail,
                     Snackbar.LENGTH_SHORT
-                )
+                ).show()
             } else {
                 val dlgAlert = AlertDialog.Builder(this)
                 dlgAlert.setNegativeButton(android.R.string.no, null)

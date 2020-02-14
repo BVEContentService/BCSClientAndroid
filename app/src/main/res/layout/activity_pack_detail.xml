@@ -97,7 +97,7 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginRight="50dp"
                 android:layout_marginBottom="20dp"
-                android:background="@color/colorPrimaryLight"
+                android:background="@color/colorAccentLight"
                 android:text="@string/text_ugc" />
 
             <View
