@@ -15,13 +15,10 @@
 
 package tk.zbx1425.bvecontentservice
 
-import android.Manifest
 import android.app.SearchManager
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.Menu
@@ -29,18 +26,16 @@ import android.view.MenuItem
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_webview.*
 import tk.zbx1425.bvecontentservice.api.MetadataManager
-import tk.zbx1425.bvecontentservice.log.Log
 import tk.zbx1425.bvecontentservice.ui.SectionsPagerAdapter
 import tk.zbx1425.bvecontentservice.ui.activity.AboutActivity
 import tk.zbx1425.bvecontentservice.ui.activity.LoaderActivity
 import tk.zbx1425.bvecontentservice.ui.activity.SettingActivity
 import tk.zbx1425.bvecontentservice.ui.component.InfoFragment
+import kotlin.system.exitProcess
 
 
 class MainActivity : AppCompatActivity() {
@@ -58,9 +53,6 @@ class MainActivity : AppCompatActivity() {
             finish()
         }
         setContentView(R.layout.activity_main)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        }
         setSupportActionBar(toolbar)
         sectionsPagerAdapter = SectionsPagerAdapter(this, supportFragmentManager)
         tabs.setupWithViewPager(view_pager)
@@ -84,7 +76,7 @@ class MainActivity : AppCompatActivity() {
                 dlgAlert.setPositiveButton(android.R.string.yes) { _: DialogInterface, i: Int ->
                     if (i == DialogInterface.BUTTON_POSITIVE) {
                         startActivity(launchIntent)
-                        finishAffinity()
+                        exitProcess(0)
                     }
                 }
                 dlgAlert.create().show()
@@ -153,38 +145,5 @@ class MainActivity : AppCompatActivity() {
             return true
         }
         return super.onKeyDown(keyCode, event)
-    }
-
-    private fun checkPermission(perm: String) {
-        val result = ContextCompat.checkSelfPermission(this, perm)
-        if (result != PackageManager.PERMISSION_GRANTED) requestPermission(perm)
-    }
-
-    private fun requestPermission(perm: String) {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, perm)) {
-            val dlgAlert = AlertDialog.Builder(this)
-            dlgAlert.setTitle(R.string.app_name)
-            dlgAlert.setMessage(R.string.permission_fail)
-            dlgAlert.setPositiveButton(android.R.string.ok) { _: DialogInterface, _: Int ->
-                finishAffinity()
-            }
-            dlgAlert.create().show()
-            Log.e("BCSBullshit", "You fucking careless bastard!")
-        } else {
-            ActivityCompat.requestPermissions(this, arrayOf(perm), 810)
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String?>,
-        grantResults: IntArray
-    ) {
-        if (requestCode == 810) {
-            if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Log.e("BCSBullshit", "You fucking stubborn bastard!")
-                finishAffinity()
-            }
-        }
     }
 }

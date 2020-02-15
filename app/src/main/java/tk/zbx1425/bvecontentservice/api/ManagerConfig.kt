@@ -5,6 +5,9 @@ import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.getPreference
 
 object ManagerConfig {
+    const val arch = "Official-Android"
+    const val simulator = "H2"
+
     val useSpider: Boolean
         get() {
             return getPreference("useSourceSpider", false)
@@ -16,6 +19,7 @@ object ManagerConfig {
 
     //Important strings that should get localized
     val strIndex = "Index"
+    val strUpdate = "Update"
     val strSpider = "Spider"
     val strUGC = "UGC"
     val strSource = "Source"

@@ -16,6 +16,7 @@
         Check your network connection, or contact developer!</string>
     <string name="fetch_err_update">ERROR: Your client is outdated! Please update! Minimal protocol ver: %s</string>
     <string name="permission_fail">Write External Storage permission allows us to install routes. Please allow this permission in App Settings.</string>
+    <string name="permission_restart">Please restart this app.</string>
     <string name="info_download_started">Download started.</string>
     <string name="info_download_finished">%s\nDownload finished.%s</string>
     <string name="info_download_aborted">%s\nDownload paused.%sTo delete downloaded file, see settings.</string>
@@ -25,7 +26,9 @@
     <string name="info_fetch_text">Fetching remote description…</string>
     <string name="info_fetch_text_fail">Failed fetching remote description!\n%s\n%s</string>
     <string name="info_clear_temp">Cache cleared.</string>
-    <string name="info_update_avail">Update is available for %d packages!\nPlease see Manage page for detail.</string>
+    <string name="info_update_pack">Update is available for %d packages!\nPlease see Manage page for detail.</string>
+    <string name="info_update_app">This app can be updated.\nVersion %s\n%s</string>
+    <string name="info_update_start">Download started, Please wait…</string>
     <string name="info_hmmsim_fail">Hmmsim is not installed.</string>
     <string name="info_exit_again">Press again to exit.</string>
 

@@ -18,11 +18,8 @@ package tk.zbx1425.bvecontentservice
 import android.view.View
 import android.view.ViewGroup
 import androidx.preference.PreferenceManager
-import org.json.JSONObject
-
-fun JSONObject.tryString(key: String?): String {
-    return if (this.has(key)) this.getString(key) else ""
-}
+import tk.zbx1425.bvecontentservice.api.ManagerConfig
+import tk.zbx1425.bvecontentservice.api.model.SourceMetadata
 
 fun View.replaceView(newView: View) {
     val parent: ViewGroup = this.parent as ViewGroup
@@ -36,6 +33,18 @@ fun View.replaceView(newView: View) {
 fun chooseString(lo: String, en: String): String {
     return if (getPreference("englishName", false)
     ) en; else lo
+}
+
+fun processRelUrl(Source: SourceMetadata, url: String): String {
+    return if (url == "") {
+        ""
+    } else if (url.startsWith("http://") || url.startsWith("https://")) {
+        url
+    } else if (ManagerConfig.reverseProxy && Source.APIRProxy != "") {
+        Source.APIRProxy + url
+    } else {
+        Source.APIURL + url
+    }
 }
 
 fun getPreference(key: String, defValue: String): String {

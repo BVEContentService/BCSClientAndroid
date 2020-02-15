@@ -15,6 +15,8 @@
 
 package tk.zbx1425.bvecontentservice.io
 
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import com.liulishuo.okdownload.DownloadTask
 import com.liulishuo.okdownload.StatusUtil
@@ -26,11 +28,13 @@ import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.log.Log
 import java.io.*
+import kotlin.system.exitProcess
 
 
 object PackDownloadManager {
 
     const val LOGCAT_TAG = "BCSDownloadManager"
+    const val MAGIC_UPDATE = "__SELF_UPDATE"
     val downloadingMap = HashMap<String, DownloadTask>()
 
     fun getProgress(metadata: PackageMetadata): Int {
@@ -101,6 +105,66 @@ object PackDownloadManager {
                     PackLocalManager.getLocalTempFile(dtask.getTag(0) as String)
                         .renameTo(PackLocalManager.getLocalPackFile(dtask.getTag(0) as String))
                     PackListManager.populate()
+                }
+                downloadingMap.remove(dtask.getTag(0) as String)
+            })
+            Log.i(LOGCAT_TAG, "Download started")
+            return true
+        } catch (ex: Exception) {
+            Log.e(LOGCAT_TAG, "Download Fail", ex)
+            ex.printStackTrace()
+            return false
+        }
+    }
+
+    fun startSelfUpdateDownload(url: String): Boolean {
+        if (downloadingMap.containsKey(MAGIC_UPDATE)) return true
+        Log.i(LOGCAT_TAG, "Not in VSID-db, starting")
+        try {
+            PackLocalManager.ensureAppDir()
+            Log.i(LOGCAT_TAG, url)
+            val builder = DownloadTask.Builder(url, PackLocalManager.getUpdateTempFile())
+                .setMinIntervalMillisCallbackProcess(400)
+            builder.addHeader(
+                "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+                        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
+            )
+            val task = builder.build().addTag(0, MAGIC_UPDATE).addTag(1, MAGIC_UPDATE)
+            downloadingMap[MAGIC_UPDATE] = task
+            task.enqueue(createListener2({
+                Log.i(LOGCAT_TAG, "Task started")
+                Toast.makeText(
+                    ApplicationContext.context, String.format(
+                        ApplicationContext.context.resources.getText(R.string.info_update_start)
+                            .toString(), ""
+                    ), Toast.LENGTH_LONG
+                ).show()
+            }) { dtask: DownloadTask, cause: EndCause, realCause: java.lang.Exception? ->
+                Log.i(LOGCAT_TAG, "Task finished")
+                Toast.makeText(
+                    ApplicationContext.context, String.format(
+                        ApplicationContext.context.resources.getText(
+                            when (cause) {
+                                EndCause.COMPLETED -> R.string.info_download_finished
+                                EndCause.CANCELED -> R.string.info_download_aborted
+                                else -> R.string.info_download_failed
+                            }
+                        ).toString(), dtask.getTag(1), when (cause) {
+                            EndCause.COMPLETED, EndCause.CANCELED -> ""
+                            else -> {
+                                realCause?.printStackTrace(); realCause?.message ?: ""
+                            }
+                        }
+                    ), Toast.LENGTH_LONG
+                ).show()
+                if (cause == EndCause.COMPLETED) {
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    val uri: Uri = Uri.fromFile(PackLocalManager.getUpdateTempFile())
+                    intent.setDataAndType(uri, "application/vnd.android.package-archive")
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    ApplicationContext.context.startActivity(intent)
+                    exitProcess(0)
                 }
                 downloadingMap.remove(dtask.getTag(0) as String)
             })

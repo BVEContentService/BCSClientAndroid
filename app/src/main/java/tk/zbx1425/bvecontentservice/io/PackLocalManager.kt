@@ -30,6 +30,7 @@ object PackLocalManager {
     )
     val BCS_SUFFIX = "." + encodeInvisibleString("bcs")
     val hmmDir = File(Environment.getExternalStorageDirectory(), "Hmmsim")
+    val appDir = File(Environment.getExternalStorageDirectory(), "bveContentService")
 
     fun encodeInvisibleString(src: String): String {
         val builder = StringBuilder()
@@ -87,6 +88,12 @@ object PackLocalManager {
         return File(hmmDir, BCS_SUFFIX + BCS_DELIMITER + convertVSID(VSID) + BCS_DELIMITER + ".tmp")
     }
 
+    fun getUpdateTempFile(): File {
+        val tempFile = File(appDir, "update.apk")
+        //if (tempFile.exists()) Log.i("DEBUG", tempFile.delete().toString())
+        return tempFile
+    }
+
     fun flushCache() {
         val allCache = hmmDir.listFiles { file: File ->
             file.isFile && file.name.toLowerCase(Locale.US).endsWith(".tmp")
@@ -125,6 +132,15 @@ object PackLocalManager {
         val noMediaHint = File(hmmDir, ".nomedia")
         if (!noMediaHint.exists()) noMediaHint.createNewFile()
         deleteUnqualifiedFile()
+    }
+
+    fun ensureAppDir() {
+        if (!appDir.exists()) {
+            Log.i(PackDownloadManager.LOGCAT_TAG, "AppDir not there. Creating...")
+            if (!appDir.mkdirs()) {
+                throw IOException("Unable create AppDir folder")
+            }
+        }
     }
 
     fun deleteUnqualifiedFile() {

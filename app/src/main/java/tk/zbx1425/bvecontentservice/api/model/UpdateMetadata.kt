@@ -16,42 +16,42 @@
 package tk.zbx1425.bvecontentservice.api.model
 
 import org.json.JSONObject
+import tk.zbx1425.bvecontentservice.api.Version
 import tk.zbx1425.bvecontentservice.chooseString
+import tk.zbx1425.bvecontentservice.processRelUrl
 
 import java.io.Serializable
 
-
-data class AuthorMetadata(
-    var ID: String,
-    var Name_LO: String,
-    var Name_EN: String,
-    var Name_SA: String,
+data class UpdateMetadata(
+    var Version: Version,
+    var File_REL: String,
+    var Description_LO: String,
+    var Description_EN: String,
     var Homepage: String,
-    var Description: String,
-    var Source: SourceMetadata
+    var Force: Boolean,
+    val Source: SourceMetadata
 ) : Serializable {
-    constructor (src: JSONObject, source: SourceMetadata) : this(
-        src.getString("ID"),
-        src.getString("Name_LO"),
-        src.getString("Name_EN"),
-        src.optString("Name_SA"),
+    constructor (src: JSONObject, Source: SourceMetadata) : this(
+        Version(src.getString("Version")),
+        src.getString("File"),
+        src.getString("Description_LO"),
+        src.getString("Description_EN"),
         src.optString("Homepage"),
-        src.optString("Description"),
-        source
+        src.optBoolean("Force", false),
+        Source
     )
 
-    constructor(source: SourceMetadata) : this(
-        "Unknown",
-        "Unknown",
-        "Unknown",
-        "Unknown",
-        "",
-        "",
-        source
-    )
+    fun chooseNewer(opponent: UpdateMetadata?): UpdateMetadata {
+        return if (this.Version > opponent?.Version ?: return this) this; else opponent
+    }
 
-    val Name: String
+    val Description: String
         get() {
-            return chooseString(Name_LO, Name_EN)
+            return chooseString(Description_LO, Description_EN)
+        }
+
+    val File: String
+        get() {
+            return processRelUrl(Source, File_REL)
         }
 }

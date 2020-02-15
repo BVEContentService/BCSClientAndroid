@@ -20,7 +20,8 @@ import tk.zbx1425.bvecontentservice.api.ManagerConfig
 import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.api.Version
 import tk.zbx1425.bvecontentservice.chooseString
-import tk.zbx1425.bvecontentservice.tryString
+import tk.zbx1425.bvecontentservice.processRelUrl
+
 import java.io.Serializable
 import java.util.*
 
@@ -61,30 +62,30 @@ data class PackageMetadata(
     ) : this(
         src.getString("ID"),
         Version(src.getString("Version")),
-        src.tryString("File_H2"),
-        src.tryString("FileSize_H2"),
+        src.optString("File_" + ManagerConfig.simulator),
+        src.optString("FileSize_" + ManagerConfig.simulator),
         MetadataManager.getAuthor(
-            src.tryString(
+            src.optString(
                 "Author"
             )
         ) ?: AuthorMetadata(source),
-        src.tryString("Name_LO"),
-        src.tryString("Name_EN"),
-        src.tryString("Name_SA"),
-        src.tryString("Origin_LO"),
-        src.tryString("Origin_EN"),
-        src.tryString("Origin_SA"),
-        src.tryString("Homepage"),
-        src.tryString("Description"),
-        src.tryString("Thumbnail"),
-        src.tryString("ThumbnailLQ"),
-        src.tryString("NoFile") == "1",
-        src.tryString("AutoOpen") == "1",
-        src.tryString("ForceView") == "1",
+        src.optString("Name_LO"),
+        src.optString("Name_EN"),
+        src.optString("Name_SA"),
+        src.optString("Origin_LO"),
+        src.optString("Origin_EN"),
+        src.optString("Origin_SA"),
+        src.optString("Homepage"),
+        src.optString("Description"),
+        src.optString("Thumbnail"),
+        src.optString("ThumbnailLQ"),
+        src.optBoolean("NoFile", false),
+        src.optBoolean("AutoOpen", false),
+        src.optBoolean("ForceView", false),
         Date(src.getLong("TimeStamp") * 1000),
         source,
-        src.tryString("SourceURL"),
-        src.tryString("SourceUsername")
+        src.optString("SourceURL"),
+        src.optString("SourceUsername")
     ) {
         if (bySpider) {
             Source = MetadataManager.sourceServers.find {
@@ -107,36 +108,24 @@ data class PackageMetadata(
             return chooseString(Origin_LO, Origin_EN)
         }
 
-    private fun processRelUrl(url: String): String {
-        return if (url == "") {
-            ""
-        } else if (url.startsWith("http://") || url.startsWith("https://")) {
-            url
-        } else if (ManagerConfig.reverseProxy && Source.APIRProxy != "") {
-            Source.APIRProxy + url
-        } else {
-            Source.APIURL + url
-        }
-    }
-
     val File: String
         get() {
-            return processRelUrl(File_REL)
+            return processRelUrl(Source, File_REL)
         }
     val Thumbnail: String
         get() {
-            return processRelUrl(Thumbnail_REL)
+            return processRelUrl(Source, Thumbnail_REL)
         }
     val ThumbnailLQ: String
         get() {
-            return processRelUrl(ThumbnailLQ_REL)
+            return processRelUrl(Source, ThumbnailLQ_REL)
         }
     val Description: String
         get() {
             return if (Description_REL.trim().endsWith(".html")
                 || Description_REL.trim().endsWith(".txt")
             ) {
-                processRelUrl(Description_REL)
+                processRelUrl(Source, Description_REL)
             } else {
                 Description_REL
             }

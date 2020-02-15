@@ -17,7 +17,7 @@ package tk.zbx1425.bvecontentservice.api.model
 
 import org.json.JSONObject
 import tk.zbx1425.bvecontentservice.chooseString
-import tk.zbx1425.bvecontentservice.tryString
+
 import java.io.Serializable
 
 data class IndexMetadata(
@@ -36,9 +36,9 @@ data class IndexMetadata(
         APIURL,
         src.getString("Author_LO"),
         src.getString("Author_EN"),
-        src.tryString("Homepage"),
+        src.optString("Homepage"),
         src.getString("Contact"),
-        src.tryString("Protocol")
+        src.optString("Protocol")
     )
 
     constructor() : this(

@@ -17,7 +17,7 @@ package tk.zbx1425.bvecontentservice.api.model
 
 import org.json.JSONObject
 import tk.zbx1425.bvecontentservice.chooseString
-import tk.zbx1425.bvecontentservice.tryString
+
 import java.io.Serializable
 
 data class SourceMetadata(
@@ -38,14 +38,14 @@ data class SourceMetadata(
         src.getString("Name_LO"),
         src.getString("Name_EN"),
         src.getString("APIURL"),
-        src.tryString("APIRProxy"),
+        src.optString("APIRProxy"),
         src.getString("APIType"),
         src.getString("Author_LO"),
         src.getString("Author_EN"),
-        src.tryString("Homepage"),
+        src.optString("Homepage"),
         src.getString("Contact"),
-        src.tryString("Username"),
-        src.tryString("Password"),
+        src.optString("Username"),
+        src.optString("Password"),
         index
     )
 

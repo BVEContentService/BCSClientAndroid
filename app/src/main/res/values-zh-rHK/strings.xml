@@ -25,6 +25,7 @@
     <string name="info_hmmsim_fail">你未安裝hmmsim本體</string>
     <string name="info_exit_again">再按一次退出程式</string>
     <string name="permission_fail">要有外部儲存寫入權限先至可以安裝線路</string>
+    <string name="permission_restart">請重啓程式。</string>
     <string name="tab_text_download">下載</string>
     <string name="tab_text_manage">管理</string>
     <string name="text_abuse">如出現侵權或其他不法行為，請聯系上傳。如果你冇收到回覆，可以聯系程式製作組：</string>
@@ -73,7 +74,9 @@
     <string name="pref_rproxy">啟用反向代理</string>
     <string name="pref_rproxy_sum">如果連接緩慢可以嘗試打開</string>
     <string name="text_update_avail">更新 %s</string>
-    <string name="info_update_avail">有 %d 個路線可以更新！\n詳見管理頁。</string>
+    <string name="info_update_pack">有 %d 個路線可以更新！\n詳見管理頁。</string>
+    <string name="info_update_app">本程式可被更新。\n版本: %s\n%s</string>
+    <string name="info_update_start">下載已經開始。唔該好有耐性咁等……</string>
     <string name="pref_disklru">設定磁盤緩存大小 (MB)</string>
     <string name="pref_disklru_sum">用於本地緩存圖片嘅空間</string>
     <string name="pref_usespider">使用源抓取數據</string>

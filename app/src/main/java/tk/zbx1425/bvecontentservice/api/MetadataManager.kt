@@ -18,23 +18,23 @@ package tk.zbx1425.bvecontentservice.api
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
-import tk.zbx1425.bvecontentservice.api.model.AuthorMetadata
-import tk.zbx1425.bvecontentservice.api.model.IndexMetadata
-import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
-import tk.zbx1425.bvecontentservice.api.model.SourceMetadata
+import tk.zbx1425.bvecontentservice.api.model.*
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 object MetadataManager {
-    const val PROTOCOL_VER = "1.4"
-    const val PROTOCOL_DATE = "2020-2-10"
+    const val PROTOCOL_VER = "1.5"
+    const val PROTOCOL_DATE = "2020-2-15"
     const val API_SUB_INDEX = "/sources.json"
+    const val API_SUB_UPDATE = "/clients.json"
     const val API_SUB_AUTHOR = "/index/authors.json"
     const val API_SUB_PACK = "/index/packs.json"
+    const val MAGIC_VERINFO = "__PROTOCOL_VERSION"
 
     val client = OkHttpClient()
     var initialized: Boolean = false
+    var updateMetadata: UpdateMetadata? = null
     var indexServers: ArrayList<String> = ArrayList()
     var sourceServers: ArrayList<SourceMetadata> = ArrayList()
     var ugcServers: ArrayList<IndexMetadata> = ArrayList()
@@ -49,6 +49,7 @@ object MetadataManager {
         this.initialized = true
         this.indexServers = ArrayList(indexServers)
         indexHomepage = ""
+        updateMetadata = null
         sourceServers.clear()
         ugcServers.clear()
         authors.clear()
@@ -68,6 +69,7 @@ object MetadataManager {
         this.indexServers = arrayListOf("")
         this.sourceServers.clear()
         indexHomepage = ""
+        updateMetadata = null
         ugcServers.clear()
         authors.clear()
         packs.clear()
@@ -133,86 +135,83 @@ object MetadataManager {
                         Version(indexServer.Protocol) > Version(PROTOCOL_VER)
                     ) {
                         progress(String.format(ManagerConfig.strErrUpdate, indexServer.Protocol))
+                        for (i in 0 until indexServerJSONArray.length()) {
+                            try {
+                                val indexServerJSON: JSONObject =
+                                    indexServerJSONArray[i] as? JSONObject ?: continue
+                                val APIURL = indexServerJSON.getString("APIURL")
+                                if (indexServerJSON.getString("Type") == "Update") {
+                                    progress(String.format(ManagerConfig.strGetContent, ManagerConfig.strUpdate, APIURL))
+                                    val updateServer = SourceMetadata(indexServerJSON, indexServer)
+                                    val content = JSONObject(HttpHelper.fetchString(updateServer, API_SUB_UPDATE) ?: "{}")
+                                    if (!content.has(ManagerConfig.arch)) continue
+                                    updateMetadata =
+                                        UpdateMetadata(content.getJSONObject(ManagerConfig.arch), updateServer).chooseNewer(updateMetadata)
+                                }
+                            } catch (ex: Exception) {
+                                progress(
+                                    String.format(
+                                        ManagerConfig.strErrParser,
+                                        ManagerConfig.strSource,
+                                        i,
+                                        ex.message
+                                    )
+                                )
+                            }
+                        }
                         continue
                     }
                     for (i in 0 until indexServerJSONArray.length()) {
                         try {
                             val indexServerJSON: JSONObject =
                                 indexServerJSONArray[i] as? JSONObject ?: continue
+                            val APIURL = indexServerJSON.getString("APIURL")
                             when (indexServerJSON.getString("Type")) {
                                 "Index" -> {
-                                    progress(
-                                        String.format(
-                                            ManagerConfig.strGetContent, ManagerConfig.strIndex,
-                                            indexServerJSON.getString("APIURL")
-                                        )
-                                    )
-                                    if (indexServerJSON.getString("APIURL") !in indexServers) {
-                                        indexServers.add(indexServerJSON.getString("APIURL"))
+                                    progress(String.format(ManagerConfig.strGetContent, ManagerConfig.strIndex, APIURL))
+                                    if (APIURL !in indexServers) {
+                                        indexServers.add(APIURL)
+                                    }
+                                }
+                                "Update" -> {
+                                    progress(String.format(ManagerConfig.strGetContent, ManagerConfig.strUpdate, APIURL))
+                                    val updateServer = SourceMetadata(indexServerJSON, indexServer)
+                                    val content = JSONObject(HttpHelper.fetchString(updateServer, API_SUB_UPDATE) ?: "{}")
+                                    if (content.has(ManagerConfig.arch)) {
+                                        updateMetadata =
+                                            UpdateMetadata(content.getJSONObject(ManagerConfig.arch), updateServer).chooseNewer(updateMetadata)
                                     }
                                 }
                                 "SourceSpider" -> {
-                                    progress(
-                                        String.format(
-                                            ManagerConfig.strGetContent, ManagerConfig.strSpider,
-                                            indexServerJSON.getString("APIURL")
-                                        )
-                                    )
+                                    progress(String.format(ManagerConfig.strGetContent, ManagerConfig.strSpider, APIURL))
                                     spiderServer = SourceMetadata(indexServerJSON, indexServer)
                                 }
                                 "Source" -> {
-                                    progress(
-                                        String.format(
-                                            ManagerConfig.strGetContent, ManagerConfig.strSource,
-                                            indexServerJSON.getString("APIURL")
-                                        )
-                                    )
-                                    val newServer =
-                                        SourceMetadata(
-                                            indexServerJSON,
-                                            indexServer
-                                        )
-                                    if (sourceServers.find {
-                                            it.APIURL == newServer.APIURL &&
-                                                    it.Username == newServer.Username
-                                        } == null) {
+                                    progress(String.format(ManagerConfig.strGetContent, ManagerConfig.strSource, APIURL))
+                                    val newServer = SourceMetadata(indexServerJSON, indexServer)
+                                    if (sourceServers.find { it.APIURL == newServer.APIURL && it.Username == newServer.Username } == null) {
                                         sourceServers.add(newServer)
                                         //A spider server is present, it holds all the data of the following servers
                                         if (spiderServer == null || !ManagerConfig.useSpider) {
-                                            fetchAuthors(newServer, progress)
-                                            fetchPackages(newServer, progress)
+                                            if (fetchAuthors(newServer, progress)) {
+                                                fetchPackages(newServer, progress)
+                                            }
                                         }
                                     }
                                 }
                                 "UGC" -> {
-                                    progress(
-                                        String.format(
-                                            ManagerConfig.strGetContent, ManagerConfig.strUGC,
-                                            indexServerJSON.getString("APIURL")
-                                        )
-                                    )
-                                    ugcServers.add(
-                                        IndexMetadata(
-                                            indexServerJSON,
-                                            indexServerJSON.getString("APIURL")
-                                        )
-                                    )
+                                    progress(String.format(ManagerConfig.strGetContent, ManagerConfig.strUGC, APIURL))
+                                    ugcServers.add(IndexMetadata(indexServerJSON, APIURL))
                                 }
                             }
                         } catch (ex: Exception) {
-                            progress(
-                                String.format(
-                                    ManagerConfig.strErrParser,
-                                    ManagerConfig.strSource,
-                                    i,
-                                    ex.message
-                                )
-                            )
+                            progress(String.format(ManagerConfig.strErrParser, ManagerConfig.strSource, i, ex.message))
                         }
                     }
                     if (spiderServer != null && ManagerConfig.useSpider) {
-                        fetchAuthors(spiderServer, progress)
-                        fetchPackages(spiderServer, progress, true)
+                        if (fetchAuthors(spiderServer, progress)) {
+                            fetchPackages(spiderServer, progress, true)
+                        }
                     }
                     break
                 } catch (ex: Exception) {
@@ -224,7 +223,8 @@ object MetadataManager {
             sourceServers.distinctBy { Pair(it.APIURL, it.Username) } as ArrayList<SourceMetadata>
     }
 
-    private fun fetchAuthors(sourceServer: SourceMetadata, progress: (String) -> Unit) {
+    //Returns: If the parser is allowed to go on and parse pack metadata
+    private fun fetchAuthors(sourceServer: SourceMetadata, progress: (String) -> Unit): Boolean {
         progress(
             String.format(
                 ManagerConfig.strBeginFetch,
@@ -234,7 +234,14 @@ object MetadataManager {
         )
         try {
             val authorJSONArray =
-                HttpHelper.fetchArray(sourceServer, API_SUB_AUTHOR) ?: return
+                HttpHelper.fetchArray(sourceServer, API_SUB_AUTHOR) ?: return false
+            if ((authorJSONArray[0] as? JSONObject)?.optString("ID") == MAGIC_VERINFO) {
+                val verInfo = authorJSONArray[0] as JSONObject
+                if (Version(PROTOCOL_VER) < Version(verInfo.optString("Name_LO", "0.0"))) {
+                    progress(String.format(ManagerConfig.strErrUpdate, verInfo.optString("Name_LO")))
+                    return false
+                }
+            }
             for (i in 0 until authorJSONArray.length()) {
                 try {
                     val authorJSON: JSONObject = authorJSONArray[i] as? JSONObject ?: continue
@@ -265,6 +272,7 @@ object MetadataManager {
             progress(String.format(ManagerConfig.strErrNetwork, ex.message))
         }
         authors = authors.distinctBy { it.ID } as ArrayList<AuthorMetadata>
+        return true
     }
 
     private fun fetchPackages(
