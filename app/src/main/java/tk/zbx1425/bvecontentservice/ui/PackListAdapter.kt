@@ -27,7 +27,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
-import tk.zbx1425.bvecontentservice.storage.ImageLoader
+import tk.zbx1425.bvecontentservice.io.ImageLoader
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList

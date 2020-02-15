@@ -25,12 +25,12 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.activity_webview.*
 import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
-import tk.zbx1425.bvecontentservice.storage.PackDownloadManager
+import tk.zbx1425.bvecontentservice.getPreference
+import tk.zbx1425.bvecontentservice.io.PackDownloadManager
 
 class ForceViewActivity : AppCompatActivity() {
 
@@ -45,10 +45,7 @@ class ForceViewActivity : AppCompatActivity() {
         continueButton.setOnClickListener {
             startDownload()
         }
-        webView.settings.javaScriptEnabled =
-            PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context).getBoolean(
-                "enableJavascript", true
-            )
+        webView.settings.javaScriptEnabled = getPreference("enableJavascript", true)
         webView.loadUrl(metadata.Homepage)
         webView.webChromeClient = object : WebChromeClient() {
             override fun onReceivedTitle(view: WebView?, title: String?) {

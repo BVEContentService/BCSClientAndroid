@@ -33,15 +33,11 @@ import com.google.android.material.appbar.AppBarLayout
 import kotlinx.android.synthetic.main.activity_pack_detail.*
 import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
-import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
+import tk.zbx1425.bvecontentservice.io.*
+import tk.zbx1425.bvecontentservice.io.PackLocalManager.removeLocalPacks
 import tk.zbx1425.bvecontentservice.log.Log
 import tk.zbx1425.bvecontentservice.replaceView
-import tk.zbx1425.bvecontentservice.storage.ImageLoader
-import tk.zbx1425.bvecontentservice.storage.PackDownloadManager
-import tk.zbx1425.bvecontentservice.storage.PackListManager
-import tk.zbx1425.bvecontentservice.storage.PackLocalManager
-import tk.zbx1425.bvecontentservice.storage.PackLocalManager.removeLocalPacks
 import tk.zbx1425.bvecontentservice.ui.component.DescriptionView
 import tk.zbx1425.bvecontentservice.ui.component.MetadataView
 import java.util.*
@@ -97,7 +93,7 @@ class PackDetailActivity : AppCompatActivity() {
 
         fab.setOnClickListener { startDownload() }
         downloadButton.setOnClickListener { startDownload() }
-        if (MetadataManager.getActiveUGCServer() == null) ugcButton.visibility = View.GONE
+        if (UGCSelector.getActiveUGCServer() == null) ugcButton.visibility = View.GONE
         ugcButton.setOnClickListener {
             val intent = Intent(this as Context, UGCActivity::class.java)
             intent.putExtra("metadata", metadata)

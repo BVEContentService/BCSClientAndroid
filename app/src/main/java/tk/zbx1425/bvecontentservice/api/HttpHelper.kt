@@ -15,11 +15,9 @@
 
 package tk.zbx1425.bvecontentservice.api
 
-import androidx.preference.PreferenceManager
 import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONObject
-import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.api.model.SourceMetadata
 
 object HttpHelper {
@@ -35,10 +33,7 @@ object HttpHelper {
 
     fun fetchString(source: SourceMetadata, sub: String): String? {
         val request =
-            if (PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context).getBoolean(
-                    "reverseProxy", false
-                ) && source.APIRProxy != ""
-            ) {
+            if (ManagerConfig.reverseProxy && source.APIRProxy != "") {
                 //Log.i("BCSHttpHelper", "Built request with RPROXY "+source.APIRProxy)
                 Request.Builder().url(source.APIRProxy.trim() + sub).build()
             } else {

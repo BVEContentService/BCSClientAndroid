@@ -22,8 +22,8 @@ import androidx.preference.*
 import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.MetadataManager
-import tk.zbx1425.bvecontentservice.storage.ImageLoader
-import tk.zbx1425.bvecontentservice.storage.PackLocalManager
+import tk.zbx1425.bvecontentservice.io.ImageLoader
+import tk.zbx1425.bvecontentservice.io.PackLocalManager
 
 class SettingFragment : PreferenceFragmentCompat() {
 

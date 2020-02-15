@@ -15,17 +15,13 @@
 
 package tk.zbx1425.bvecontentservice.api
 
-import androidx.preference.PreferenceManager
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
-import tk.zbx1425.bvecontentservice.ApplicationContext
-import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.model.AuthorMetadata
 import tk.zbx1425.bvecontentservice.api.model.IndexMetadata
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.api.model.SourceMetadata
-import tk.zbx1425.bvecontentservice.log.Log
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -49,7 +45,7 @@ object MetadataManager {
     var indexHomepage: String = ""
 
     fun fetchMetadata(indexServers: List<String>, progress: (String) -> Unit) {
-        progress(String.format("BCS Protocol v%s\nBy zbx1425, %s.", PROTOCOL_VER, PROTOCOL_DATE))
+        progress(String.format(ManagerConfig.strBegin, PROTOCOL_VER, PROTOCOL_DATE))
         this.initialized = true
         this.indexServers = ArrayList(indexServers)
         indexHomepage = ""
@@ -60,16 +56,14 @@ object MetadataManager {
         packMap.clear()
         fetchServers(progress)
         if (sourceServers.count() == 0) {
-            progress(
-                ApplicationContext.context.resources.getString(R.string.fetch_err_nosrc)
-            )
+            progress(ManagerConfig.strErrNoSrc)
             return
         }
-        progress("Fetching Finished.")
+        progress(ManagerConfig.strFinish)
     }
 
     fun fetchMetadataBySource(sourceServers: List<String>, progress: (String) -> Unit) {
-        progress(String.format("BCS Protocol v%s\nBy zbx1425, %s.", PROTOCOL_VER, PROTOCOL_DATE))
+        progress(String.format(ManagerConfig.strBegin, PROTOCOL_VER, PROTOCOL_DATE))
         this.initialized = true
         this.indexServers = arrayListOf("")
         this.sourceServers.clear()
@@ -91,7 +85,7 @@ object MetadataManager {
                         IndexMetadata()
                     )
                 } catch (ex: java.lang.Exception) {
-                    progress("ERROR! MMNetwork: " + ex.message)
+                    progress(String.format(ManagerConfig.strErrNetwork, ex.message))
                     null
                 }
             } else {
@@ -106,14 +100,19 @@ object MetadataManager {
                 fetchPackages(newServer, progress)
             }
         }
-        progress("Fetching Finished.")
+        progress(ManagerConfig.strFinish)
     }
 
     private fun fetchServers(progress: (String) -> Unit) {
-        progress("MetaMan: Server Fetching started")
         for (indexServerSetURL in indexServers) {
             for (indexServerURL in indexServerSetURL.split(",")) {
-                progress("MMNetwork: Fetching Servers from " + indexServerURL.trim() + API_SUB_INDEX)
+                progress(
+                    String.format(
+                        ManagerConfig.strBeginFetch,
+                        ManagerConfig.strSource,
+                        indexServerURL
+                    )
+                )
                 try {
                     val request =
                         Request.Builder().url(indexServerURL.trim() + API_SUB_INDEX).build()
@@ -128,18 +127,12 @@ object MetadataManager {
                         )
                     var spiderServer: SourceMetadata? = null
                     if (indexServer.Homepage != "") {
-                        Log.i("BCSDebug", indexServer.APIURL)
                         indexHomepage = indexServer.Homepage
                     }
                     if (indexServer.Protocol != "" &&
                         Version(indexServer.Protocol) > Version(PROTOCOL_VER)
                     ) {
-                        progress(
-                            String.format(
-                                ApplicationContext.context.resources
-                                    .getString(R.string.fetch_err_update), indexServer.Protocol
-                            )
-                        )
+                        progress(String.format(ManagerConfig.strErrUpdate, indexServer.Protocol))
                         continue
                     }
                     for (i in 0 until indexServerJSONArray.length()) {
@@ -149,7 +142,10 @@ object MetadataManager {
                             when (indexServerJSON.getString("Type")) {
                                 "Index" -> {
                                     progress(
-                                        "MMParser: Got Index Server " + indexServerJSON.getString("APIURL")
+                                        String.format(
+                                            ManagerConfig.strGetContent, ManagerConfig.strIndex,
+                                            indexServerJSON.getString("APIURL")
+                                        )
                                     )
                                     if (indexServerJSON.getString("APIURL") !in indexServers) {
                                         indexServers.add(indexServerJSON.getString("APIURL"))
@@ -157,17 +153,19 @@ object MetadataManager {
                                 }
                                 "SourceSpider" -> {
                                     progress(
-                                        "MMParser: Got Source Spider " + indexServerJSON.getString("APIURL")
-                                    )
-                                    spiderServer =
-                                        SourceMetadata(
-                                            indexServerJSON,
-                                            indexServer
+                                        String.format(
+                                            ManagerConfig.strGetContent, ManagerConfig.strSpider,
+                                            indexServerJSON.getString("APIURL")
                                         )
+                                    )
+                                    spiderServer = SourceMetadata(indexServerJSON, indexServer)
                                 }
                                 "Source" -> {
                                     progress(
-                                        "MMParser: Got Source Server " + indexServerJSON.getString("APIURL")
+                                        String.format(
+                                            ManagerConfig.strGetContent, ManagerConfig.strSource,
+                                            indexServerJSON.getString("APIURL")
+                                        )
                                     )
                                     val newServer =
                                         SourceMetadata(
@@ -180,10 +178,7 @@ object MetadataManager {
                                         } == null) {
                                         sourceServers.add(newServer)
                                         //A spider server is present, it holds all the data of the following servers
-                                        if (spiderServer == null || !PreferenceManager.getDefaultSharedPreferences(
-                                                ApplicationContext.context
-                                            ).getBoolean("useSourceSpider", true)
-                                        ) {
+                                        if (spiderServer == null || !ManagerConfig.useSpider) {
                                             fetchAuthors(newServer, progress)
                                             fetchPackages(newServer, progress)
                                         }
@@ -191,7 +186,10 @@ object MetadataManager {
                                 }
                                 "UGC" -> {
                                     progress(
-                                        "MMParser: Got UGC Server " + indexServerJSON.getString("APIURL")
+                                        String.format(
+                                            ManagerConfig.strGetContent, ManagerConfig.strUGC,
+                                            indexServerJSON.getString("APIURL")
+                                        )
                                     )
                                     ugcServers.add(
                                         IndexMetadata(
@@ -202,19 +200,23 @@ object MetadataManager {
                                 }
                             }
                         } catch (ex: Exception) {
-                            progress("ERROR! MMParser: SSq " + i.toString() + " : " + ex.message)
+                            progress(
+                                String.format(
+                                    ManagerConfig.strErrParser,
+                                    ManagerConfig.strSource,
+                                    i,
+                                    ex.message
+                                )
+                            )
                         }
                     }
-                    if (spiderServer != null && PreferenceManager.getDefaultSharedPreferences(
-                            ApplicationContext.context
-                        ).getBoolean("useSourceSpider", true)
-                    ) {
+                    if (spiderServer != null && ManagerConfig.useSpider) {
                         fetchAuthors(spiderServer, progress)
                         fetchPackages(spiderServer, progress, true)
                     }
                     break
                 } catch (ex: Exception) {
-                    progress("ERROR! MMNetwork: " + ex.message)
+                    progress(String.format(ManagerConfig.strErrNetwork, ex.message))
                 }
             }
         }
@@ -223,25 +225,44 @@ object MetadataManager {
     }
 
     private fun fetchAuthors(sourceServer: SourceMetadata, progress: (String) -> Unit) {
-        progress("MMNetwork: Fetching Authors from " + sourceServer.APIURL.trim())
+        progress(
+            String.format(
+                ManagerConfig.strBeginFetch,
+                ManagerConfig.strAuthor,
+                sourceServer.APIURL
+            )
+        )
         try {
             val authorJSONArray =
                 HttpHelper.fetchArray(sourceServer, API_SUB_AUTHOR) ?: return
             for (i in 0 until authorJSONArray.length()) {
                 try {
                     val authorJSON: JSONObject = authorJSONArray[i] as? JSONObject ?: continue
-                    progress("MMParser: Got Author " + authorJSON.getString("ID"))
+                    progress(
+                        String.format(
+                            ManagerConfig.strGetContent,
+                            ManagerConfig.strAuthor,
+                            authorJSON.getString("ID")
+                        )
+                    )
                     authors.add(
                         AuthorMetadata(
                             authorJSON, sourceServer
                         )
                     )
                 } catch (ex: Exception) {
-                    progress("ERROR! MMParser: ASq " + i.toString() + " : " + ex.message)
+                    progress(
+                        String.format(
+                            ManagerConfig.strErrParser,
+                            ManagerConfig.strAuthor,
+                            i,
+                            ex.message
+                        )
+                    )
                 }
             }
         } catch (ex: Exception) {
-            progress("ERROR! MMNetwork: " + ex.message)
+            progress(String.format(ManagerConfig.strErrNetwork, ex.message))
         }
         authors = authors.distinctBy { it.ID } as ArrayList<AuthorMetadata>
     }
@@ -251,17 +272,28 @@ object MetadataManager {
         progress: (String) -> Unit,
         bySpider: Boolean = false
     ) {
-        progress("MMNetwork: Fetching Packages from " + sourceServer.APIURL.trim())
+        progress(
+            String.format(
+                ManagerConfig.strBeginFetch,
+                ManagerConfig.strPack,
+                sourceServer.APIURL
+            )
+        )
         try {
             val packJSONArray = HttpHelper.fetchArray(sourceServer, API_SUB_PACK) ?: return
             for (i in 0 until packJSONArray.length()) {
                 try {
                     val packJSON: JSONObject = packJSONArray[i] as? JSONObject ?: continue
-                    progress("MMParser: Got Pack " + packJSON.getString("ID"))
+                    progress(
+                        String.format(
+                            ManagerConfig.strGetContent,
+                            ManagerConfig.strPack,
+                            packJSON.getString("ID")
+                        )
+                    )
                     val metadata =
                         PackageMetadata(
                             packJSON,
-                            this,
                             sourceServer,
                             bySpider
                         )
@@ -273,18 +305,20 @@ object MetadataManager {
                         packMap[metadata.ID] = metadata
                     }
                 } catch (ex: Exception) {
-                    progress("ERROR! MMParser: PSq " + i.toString() + " : " + ex.message)
+                    progress(
+                        String.format(
+                            ManagerConfig.strErrParser,
+                            ManagerConfig.strPack,
+                            i,
+                            ex.message
+                        )
+                    )
                 }
             }
         } catch (ex: Exception) {
-            progress("ERROR! MMNetwork: " + ex.message)
+            progress(String.format(ManagerConfig.strErrNetwork, ex.message))
         }
         packs = packs.distinctBy { Pair(it.ID, it.Version) } as ArrayList<PackageMetadata>
-    }
-
-    fun getPack(id: String, version: Version): PackageMetadata {
-        return packs.find { it.ID == id && it.Version == version }
-            ?: throw IllegalArgumentException("Author cannot be found")
     }
 
     fun getAuthor(id: String): AuthorMetadata? {
@@ -295,21 +329,4 @@ object MetadataManager {
         return packs.filter { it.Author.ID == id }
     }
 
-    fun getActiveUGCServer(): IndexMetadata? {
-        val ugcSrc = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context)
-            .getString("listUGCSource", "********")
-        val customUgc = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context)
-            .getString("customUGCSource", "")
-        return when (ugcSrc) {
-            "" -> null
-            "########" -> IndexMetadata(
-                customUgc ?: return null
-            )
-            "********" -> if (ugcServers.count() > 0) ugcServers[0]
-            else IndexMetadata(
-                customUgc ?: return null
-            )
-            else -> ugcServers.find { it.APIURL == ugcSrc }
-        }
-    }
 }

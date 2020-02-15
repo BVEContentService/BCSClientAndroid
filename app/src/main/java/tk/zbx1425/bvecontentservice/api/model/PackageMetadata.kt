@@ -15,9 +15,8 @@
 
 package tk.zbx1425.bvecontentservice.api.model
 
-import androidx.preference.PreferenceManager
 import org.json.JSONObject
-import tk.zbx1425.bvecontentservice.ApplicationContext
+import tk.zbx1425.bvecontentservice.api.ManagerConfig
 import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.api.Version
 import tk.zbx1425.bvecontentservice.chooseString
@@ -57,7 +56,7 @@ data class PackageMetadata(
     val VSID: String = this.ID + "_" + this.Version.get()
 
     constructor (
-        src: JSONObject, manager: MetadataManager, source: SourceMetadata
+        src: JSONObject, source: SourceMetadata
         , bySpider: Boolean = false
     ) : this(
         src.getString("ID"),
@@ -113,10 +112,7 @@ data class PackageMetadata(
             ""
         } else if (url.startsWith("http://") || url.startsWith("https://")) {
             url
-        } else if (PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context).getBoolean(
-                "reverseProxy", true
-            ) && Source.APIRProxy != ""
-        ) {
+        } else if (ManagerConfig.reverseProxy && Source.APIRProxy != "") {
             Source.APIRProxy + url
         } else {
             Source.APIURL + url

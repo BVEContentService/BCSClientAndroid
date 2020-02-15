@@ -24,13 +24,13 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import android.widget.TextView
-import androidx.preference.PreferenceManager
 import okhttp3.Credentials
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.HttpHelper
 import tk.zbx1425.bvecontentservice.api.model.AuthorMetadata
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.api.model.SourceMetadata
+import tk.zbx1425.bvecontentservice.getPreference
 import tk.zbx1425.bvecontentservice.log.Log
 import tk.zbx1425.bvecontentservice.ui.activity.PackDetailActivity
 import java.net.URL
@@ -50,19 +50,12 @@ class DescriptionView(context: Context) : FrameLayout(context) {
             LayoutParams.MATCH_PARENT,
             LayoutParams.WRAP_CONTENT
         )
-        if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
-                "useWebView", false
-            )
-        ) {
+        if (getPreference("useWebView", true)) {
             if (url.trim().startsWith("http://") ||
                 url.trim().startsWith("https://")
             ) {
                 val webView = WebView(context)
-                webView.settings.javaScriptEnabled =
-                    PreferenceManager.getDefaultSharedPreferences(context)
-                        .getBoolean(
-                            "enableJavascript", true
-                        )
+                webView.settings.javaScriptEnabled = getPreference("enableJavascript", true)
                 webView.webViewClient = object : WebViewClient() {
                     override fun onPageFinished(view: WebView, url: String) {
                         webView.loadUrl("javascript:bcs.resize(document.body.getBoundingClientRect().height+10)")

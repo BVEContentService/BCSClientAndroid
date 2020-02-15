@@ -13,15 +13,14 @@
 //  You should have received a copy of the GNU General Public License
 //  along with BCSC.  If not, see <https://www.gnu.org/licenses/>.
 
-package tk.zbx1425.bvecontentservice.storage
+package tk.zbx1425.bvecontentservice.io
 
-import androidx.preference.PreferenceManager
-import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.api.Version
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
+import tk.zbx1425.bvecontentservice.getPreference
+import tk.zbx1425.bvecontentservice.io.PackLocalManager.decodeInvisibleString
 import tk.zbx1425.bvecontentservice.log.Log
-import tk.zbx1425.bvecontentservice.storage.PackLocalManager.decodeInvisibleString
 
 object PackListManager {
     const val LOGCAT_TAG = "BCSPackListMan"
@@ -68,10 +67,7 @@ object PackListManager {
             Log.i(LOGCAT_TAG, "Non-indexed pack " + pack.key)
             //localList.add(PackageMetadata(pack.key))
         }
-        if (PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context).getBoolean(
-                "allPacks", false
-            )
-        ) {
+        if (getPreference("allPacks", false)) {
             onlineList = MetadataManager.packs
         }
         onlineList.sortByDescending { it.Timestamp }

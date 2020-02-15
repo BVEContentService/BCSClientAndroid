@@ -27,7 +27,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.fragment_main.view.*
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
-import tk.zbx1425.bvecontentservice.storage.PackListManager
+import tk.zbx1425.bvecontentservice.io.PackListManager
 import tk.zbx1425.bvecontentservice.ui.PackListAdapter
 import tk.zbx1425.bvecontentservice.ui.activity.PackDetailActivity
 

@@ -13,7 +13,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with BCSC.  If not, see <https://www.gnu.org/licenses/>.
 
-package tk.zbx1425.bvecontentservice.storage
+package tk.zbx1425.bvecontentservice.io
 
 import android.os.Environment
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata

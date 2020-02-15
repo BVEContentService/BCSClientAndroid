@@ -26,12 +26,11 @@ import android.webkit.WebView
 import android.webkit.WebView.WebViewTransport
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
-import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.activity_webview.*
-import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
-import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
+import tk.zbx1425.bvecontentservice.getPreference
+import tk.zbx1425.bvecontentservice.io.UGCSelector
 import tk.zbx1425.bvecontentservice.log.Log
 
 
@@ -43,22 +42,19 @@ class UGCActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_webview)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        if (MetadataManager.getActiveUGCServer() == null) {
+        if (UGCSelector.getActiveUGCServer() == null) {
             finish()
             return
         }
         metadata = intent.getSerializableExtra("metadata") as PackageMetadata
         continueButton.visibility = View.GONE
-        webView.settings.javaScriptEnabled =
-            PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context).getBoolean(
-                "enableJavascript", true
-            )
+        webView.settings.javaScriptEnabled = getPreference("enableJavascript", true)
         webView.settings.javaScriptCanOpenWindowsAutomatically = true
         webView.settings.setSupportMultipleWindows(true)
         webView.loadUrl(
             String.format(
                 "%s?pkg=%s&ver=%s&author=%s",
-                MetadataManager.getActiveUGCServer()?.APIURL,
+                UGCSelector.getActiveUGCServer()?.APIURL,
                 metadata.ID, metadata.Version.get(), metadata.Author.ID
             )
         )
@@ -122,11 +118,7 @@ class UGCActivity : AppCompatActivity() {
         ): Boolean {
             Log.i("BCSWeb", "CreateWindow Called")
             val webView = WebView(activity)
-            webView.settings.javaScriptEnabled =
-                PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context)
-                    .getBoolean(
-                        "enableJavascript", true
-                    )
+            webView.settings.javaScriptEnabled = getPreference("enableJavascript", true)
             webView.settings.javaScriptCanOpenWindowsAutomatically = true
             webView.settings.setSupportMultipleWindows(true)
             activity.layoutFrame.addView(webView)

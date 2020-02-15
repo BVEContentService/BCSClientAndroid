@@ -23,13 +23,13 @@ import android.view.View
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.activity_loader.*
 import tk.zbx1425.bvecontentservice.MainActivity
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.MetadataManager
+import tk.zbx1425.bvecontentservice.getPreference
+import tk.zbx1425.bvecontentservice.io.PackListManager
 import tk.zbx1425.bvecontentservice.log.Log
-import tk.zbx1425.bvecontentservice.storage.PackListManager
 import java.util.*
 
 
@@ -57,20 +57,17 @@ class LoaderActivity : AppCompatActivity() {
             startActivity(intent)
         }
         Thread {
-            if (!PreferenceManager.getDefaultSharedPreferences(this)
-                    .getBoolean("useIndexServer", true)
-            ) {
-                val sourceServers = PreferenceManager.getDefaultSharedPreferences(this)
-                    .getString("sourceServers", resources.getString(R.string.default_src))
-                    ?.split("\n") ?: ArrayList()
+            if (!getPreference("useIndexServer", true)) {
+                val sourceServers =
+                    getPreference("sourceServers", resources.getString(R.string.default_src))
+                        .split("\n")
                 MetadataManager.fetchMetadataBySource(sourceServers) { message ->
                     runOnUiThread { progress(message) }
                 }
             } else {
-                val indexServers = PreferenceManager.getDefaultSharedPreferences(this)
-                    .getString(
+                val indexServers = getPreference(
                         "indexServers", resources.getString(R.string.default_index)
-                    )?.split("\n") ?: ArrayList()
+                ).split("\n")
                 MetadataManager.fetchMetadata(indexServers) { message ->
                     runOnUiThread { progress(message) }
                 }

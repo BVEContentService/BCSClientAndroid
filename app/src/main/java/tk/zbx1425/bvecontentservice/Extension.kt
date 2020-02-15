@@ -34,7 +34,18 @@ fun View.replaceView(newView: View) {
 }
 
 fun chooseString(lo: String, en: String): String {
-    return if (PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context)
-            .getBoolean("englishName", false)
+    return if (getPreference("englishName", false)
     ) en; else lo
+}
+
+fun getPreference(key: String, defValue: String): String {
+    return PreferenceManager.getDefaultSharedPreferences(
+        ApplicationContext.context
+    ).getString(key, defValue) ?: ""
+}
+
+fun getPreference(key: String, defValue: Boolean): Boolean {
+    return PreferenceManager.getDefaultSharedPreferences(
+        ApplicationContext.context
+    ).getBoolean(key, defValue)
 }

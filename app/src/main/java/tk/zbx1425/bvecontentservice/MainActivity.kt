@@ -165,7 +165,7 @@ class MainActivity : AppCompatActivity() {
             val dlgAlert = AlertDialog.Builder(this)
             dlgAlert.setTitle(R.string.app_name)
             dlgAlert.setMessage(R.string.permission_fail)
-            dlgAlert.setPositiveButton(android.R.string.ok) { _: DialogInterface, i: Int ->
+            dlgAlert.setPositiveButton(android.R.string.ok) { _: DialogInterface, _: Int ->
                 finishAffinity()
             }
             dlgAlert.create().show()

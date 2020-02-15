@@ -13,7 +13,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with BCSC.  If not, see <https://www.gnu.org/licenses/>.
 
-package tk.zbx1425.bvecontentservice.storage
+package tk.zbx1425.bvecontentservice.io
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -24,7 +24,6 @@ import android.os.Environment.isExternalStorageRemovable
 import android.util.LruCache
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
-import androidx.preference.PreferenceManager
 import com.jakewharton.disklrucache.DiskLruCache
 import okhttp3.Request
 import tk.zbx1425.bvecontentservice.ApplicationContext
@@ -33,6 +32,7 @@ import tk.zbx1425.bvecontentservice.api.HttpHelper
 import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.api.model.SourceMetadata
+import tk.zbx1425.bvecontentservice.getPreference
 import tk.zbx1425.bvecontentservice.log.Log
 import java.io.File
 import java.io.InputStream
@@ -61,8 +61,7 @@ object ImageLoader {
                 ApplicationContext.context,
                 "thumb"
             ), 1, 1,
-            (PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context)
-                .getString("cacheSize", "10")?.toLongOrNull() ?: 10) * 1024 * 1024
+            (getPreference("cacheSize", "10").toLongOrNull() ?: 10) * 1024 * 1024
         )
     }
 

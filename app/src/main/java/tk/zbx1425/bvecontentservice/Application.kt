@@ -16,7 +16,7 @@
 package tk.zbx1425.bvecontentservice
 
 import android.app.Application
-import tk.zbx1425.bvecontentservice.storage.ImageLoader
+import tk.zbx1425.bvecontentservice.io.ImageLoader
 
 
 class Application : Application() {

@@ -24,11 +24,10 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
-import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.activity_webview.view.*
-import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.MetadataManager
+import tk.zbx1425.bvecontentservice.getPreference
 
 
 class InfoFragment : Fragment() {
@@ -38,11 +37,7 @@ class InfoFragment : Fragment() {
     ): View? {
         val newView = inflater.inflate(R.layout.activity_webview, container, false)
         newView.continueButton.visibility = View.GONE
-        newView.webView.settings.javaScriptEnabled =
-            PreferenceManager.getDefaultSharedPreferences(ApplicationContext.context)
-                .getBoolean(
-                    "enableJavascript", true
-                )
+        newView.webView.settings.javaScriptEnabled = getPreference("enableJavascript", true)
         newView.webView.settings.cacheMode = WebSettings.LOAD_NO_CACHE
         if (MetadataManager.indexHomepage != "") {
             newView.webView.loadUrl(MetadataManager.indexHomepage)
