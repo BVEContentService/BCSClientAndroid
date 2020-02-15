@@ -23,9 +23,9 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -33,18 +33,21 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_webview.*
 import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.log.Log
 import tk.zbx1425.bvecontentservice.ui.SectionsPagerAdapter
 import tk.zbx1425.bvecontentservice.ui.activity.AboutActivity
 import tk.zbx1425.bvecontentservice.ui.activity.LoaderActivity
 import tk.zbx1425.bvecontentservice.ui.activity.SettingActivity
+import tk.zbx1425.bvecontentservice.ui.component.InfoFragment
 
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var searchView: SearchView
     private lateinit var sectionsPagerAdapter: SectionsPagerAdapter
+    private var mExitTime: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -130,6 +133,28 @@ class MainActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_BACK) {
+            val activeView = sectionsPagerAdapter.getItem(view_pager.currentItem)
+            if (activeView is InfoFragment && activeView.webView.canGoBack()) {
+                activeView.webView.goBack()
+                return true
+            }
+            if ((System.currentTimeMillis() - mExitTime) > 2000) {
+                Snackbar.make(
+                    root_view,
+                    R.string.info_exit_again,
+                    Snackbar.LENGTH_SHORT
+                ).show()
+                mExitTime = System.currentTimeMillis()
+            } else {
+                finishAffinity()
+            }
+            return true
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
     private fun checkPermission(perm: String) {
         val result = ContextCompat.checkSelfPermission(this, perm)
         if (result != PackageManager.PERMISSION_GRANTED) requestPermission(perm)
@@ -137,13 +162,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestPermission(perm: String) {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, perm)) {
-            Toast.makeText(
-                this,
-                "Write External Storage permission allows us to do store images. Please allow this permission in App Settings.",
-                Toast.LENGTH_LONG
-            ).show()
-            Log.e("ZBX", "You fucking careless bastard!")
-            finishAffinity()
+            val dlgAlert = AlertDialog.Builder(this)
+            dlgAlert.setTitle(R.string.app_name)
+            dlgAlert.setMessage(R.string.permission_fail)
+            dlgAlert.setPositiveButton(android.R.string.ok) { _: DialogInterface, i: Int ->
+                finishAffinity()
+            }
+            dlgAlert.create().show()
+            Log.e("BCSBullshit", "You fucking careless bastard!")
         } else {
             ActivityCompat.requestPermissions(this, arrayOf(perm), 810)
         }
@@ -156,7 +182,7 @@ class MainActivity : AppCompatActivity() {
     ) {
         if (requestCode == 810) {
             if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Log.e("ZBX", "You fucking stubborn bastard!")
+                Log.e("BCSBullshit", "You fucking stubborn bastard!")
                 finishAffinity()
             }
         }

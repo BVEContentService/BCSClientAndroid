@@ -27,6 +27,7 @@
     <string name="info_clear_temp">Cache cleared.</string>
     <string name="info_update_avail">Update is available for %d packages!\nPlease see Manage page for detail.</string>
     <string name="info_hmmsim_fail">Hmmsim is not installed.</string>
+    <string name="info_exit_again">Press again to exit.</string>
 
     <string name="text_update_avail">Updated: %s</string>
     <string name="action_search">Search</string>
@@ -116,10 +117,11 @@ Thanks Jake Wharton for such a beautiful library.\
 Licensed under Apache 2.0.\
 https://github.com/JakeWharton/DiskLruCache\
 \
-Thanks Asnacinjar, Tucson, and CSSSC for their support during the developing of this program.
+Thanks Asnacinjar, Tucson, and CSSSC for their support during the developing of this program.\
 Quite a few other open-source programs and resources have been used during the development of BCSC, which cannot be completely listed here.
 I will pay my personal respect to all the collaborators of the open source community.</string>
 
     <string name="default_index" translatable="false">https://bvecontentservice.gitee.io/bcs-index,https://bvecontentservice.github.io/bcs-index</string>
     <string name="default_src" translatable="false">https://api.zbx1425.tk:8953/bcs-src</string>
+    <string name="url_start_download" translatable="false">bcs://startDownload</string>
 </resources>

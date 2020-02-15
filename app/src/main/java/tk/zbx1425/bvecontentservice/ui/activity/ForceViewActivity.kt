@@ -18,6 +18,7 @@ package tk.zbx1425.bvecontentservice.ui.activity
 import android.app.Activity
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.View
 import android.webkit.WebChromeClient
 import android.webkit.WebView
@@ -67,7 +68,7 @@ class ForceViewActivity : AppCompatActivity() {
             }
 
             override fun shouldOverrideUrlLoading(view: WebView?, url: String): Boolean {
-                if (url == "bcs://startDownload") {
+                if (url == resources.getString(R.string.url_start_download)) {
                     if (!metadata.NoFile) startDownload()
                     return true
                 }
@@ -79,6 +80,16 @@ class ForceViewActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         finish()
         return true
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_BACK) {
+            if (webView.canGoBack()) {
+                webView.goBack()
+                return true
+            }
+        }
+        return super.onKeyDown(keyCode, event)
     }
 
     override fun onDestroy() {

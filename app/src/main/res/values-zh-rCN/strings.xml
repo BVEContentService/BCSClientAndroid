@@ -23,6 +23,7 @@
     <string name="info_fetch_text">正获取描述信息……</string>
     <string name="info_fetch_text_fail">未能获取描述信息！\n%s\n%s</string>
     <string name="info_hmmsim_fail">未安装 Hmmsim。</string>
+    <string name="info_exit_again">再按一次退出程序。</string>
     <string name="permission_fail">为安装线路，本程序必须获得外部存储写入权限。请到系统设置中打开。</string>
     <string name="tab_text_download">下载</string>
     <string name="tab_text_manage">管理</string>

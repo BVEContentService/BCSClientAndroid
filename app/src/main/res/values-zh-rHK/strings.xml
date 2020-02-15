@@ -23,6 +23,7 @@
     <string name="info_fetch_text">Loading……</string>
     <string name="info_fetch_text_fail">呢個頁面暫時不可描述\n%s\n%s</string>
     <string name="info_hmmsim_fail">你未安裝hmmsim本體</string>
+    <string name="info_exit_again">再按一次退出程式</string>
     <string name="permission_fail">要有外部儲存寫入權限先至可以安裝線路</string>
     <string name="tab_text_download">下載</string>
     <string name="tab_text_manage">管理</string>

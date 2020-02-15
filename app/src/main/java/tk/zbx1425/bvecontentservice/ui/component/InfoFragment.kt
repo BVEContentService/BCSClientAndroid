@@ -30,6 +30,7 @@ import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.MetadataManager
 
+
 class InfoFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -65,4 +66,5 @@ class InfoFragment : Fragment() {
         }
         return newView
     }
+
 }

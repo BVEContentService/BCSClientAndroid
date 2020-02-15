@@ -91,7 +91,7 @@ data class PackageMetadata(
             Source = MetadataManager.sourceServers.find {
                 it.APIURL == SpiderSourceURL &&
                         it.Username == SpiderSourceUsername
-            } ?: throw NullPointerException("Bad Spider Source!")
+            } ?: throw IllegalArgumentException("Bad Spider Source!")
         }
     }
 
