@@ -21,11 +21,13 @@ import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.getPreference
 import tk.zbx1425.bvecontentservice.io.PackLocalManager.decodeInvisibleString
 import tk.zbx1425.bvecontentservice.log.Log
+import tk.zbx1425.bvecontentservice.ui.SectionsPagerAdapter
 
 object PackListManager {
     const val LOGCAT_TAG = "BCSPackListMan"
     val localList: ArrayList<PackageMetadata> = ArrayList()
     var onlineList: ArrayList<PackageMetadata> = ArrayList()
+    lateinit var pagerAdapter: SectionsPagerAdapter
 
     fun stripExtension(str: String): String { // Handle null case specially.
         val pos = str.lastIndexOf(".")
@@ -65,13 +67,17 @@ object PackListManager {
         }
         for (pack in localPacks) {
             Log.i(LOGCAT_TAG, "Non-indexed pack " + pack.key)
+            localList.add(PackageMetadata(stripExtension(pack.key)))
             //localList.add(PackageMetadata(pack.key))
         }
         if (getPreference("allPacks", false)) {
             onlineList = MetadataManager.packs
         }
         onlineList.sortByDescending { it.Timestamp }
-        localList.sortByDescending { it.UpdateAvailable }
+        localList.sortWith(compareBy({ it.DummyPack }, { !it.UpdateAvailable }))
+        if (::pagerAdapter.isInitialized) {
+            pagerAdapter.notifyAllAdapters()
+        }
         return updateCount
     }
 }

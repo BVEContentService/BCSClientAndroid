@@ -16,11 +16,13 @@
 package tk.zbx1425.bvecontentservice.ui.component
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -28,6 +30,7 @@ import kotlinx.android.synthetic.main.fragment_main.view.*
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.io.PackListManager
+import tk.zbx1425.bvecontentservice.io.PackLocalManager
 import tk.zbx1425.bvecontentservice.ui.PackListAdapter
 import tk.zbx1425.bvecontentservice.ui.activity.PackDetailActivity
 
@@ -55,9 +58,29 @@ class PackListFragment : Fragment() {
             activity as Context,
             dataList
         ) { metadata ->
-            val intent = Intent(activity as Context, PackDetailActivity::class.java)
-            intent.putExtra("metadata", metadata)
-            startActivity(intent)
+            if (metadata.DummyPack) {
+                val dlgAlert = AlertDialog.Builder(activity as Context)
+                dlgAlert.setNegativeButton(android.R.string.no, null)
+                dlgAlert.setCancelable(true)
+                dlgAlert.setTitle(R.string.app_name)
+                dlgAlert.setMessage(
+                    String.format(
+                        resources.getString(R.string.alert_remove),
+                        metadata.Name
+                    )
+                )
+                dlgAlert.setPositiveButton(android.R.string.yes) { _: DialogInterface, i: Int ->
+                    if (i == DialogInterface.BUTTON_POSITIVE) {
+                        PackLocalManager.removeLocalPack(metadata.File_REL)
+                        PackListManager.populate()
+                    }
+                }
+                dlgAlert.create().show()
+            } else {
+                val intent = Intent(activity as Context, PackDetailActivity::class.java)
+                intent.putExtra("metadata", metadata)
+                startActivity(intent)
+            }
         }
         val view = inflater.inflate(R.layout.fragment_main, container, false)
         val rv: RecyclerView = view.findViewById(R.id.recyclerView)

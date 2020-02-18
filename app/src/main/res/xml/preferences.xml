@@ -84,5 +84,10 @@
             android:key="enableJavascript"
             android:summary="@string/pref_javascript_sum"
             android:title="@string/pref_javascript" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="showLoadLog"
+            android:summary="@string/pref_loadlog_sum"
+            android:title="@string/pref_loadlog" />
     </PreferenceCategory>
 </PreferenceScreen>

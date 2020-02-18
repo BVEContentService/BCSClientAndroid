@@ -23,15 +23,17 @@
     <string name="info_fetch_text">Loading……</string>
     <string name="info_fetch_text_fail">呢個頁面暫時不可描述\n%s\n%s</string>
     <string name="info_hmmsim_fail">你未安裝hmmsim本體</string>
-    <string name="info_exit_again">再按一次退出程式</string>
+    <string name="info_exit_again">㩒多一次退出程式</string>
     <string name="permission_fail">要有外部儲存寫入權限先至可以安裝線路</string>
-    <string name="permission_restart">請重啓程式。</string>
+    <string name="permission_restart">請重新啓動程式</string>
     <string name="tab_text_download">下載</string>
     <string name="tab_text_manage">管理</string>
-    <string name="text_abuse">如出現侵權或其他不法行為，請聯系上傳。如果你冇收到回覆，可以聯系程式製作組：</string>
+    <string name="text_abuse">如果出現侵權或其他不法行為，請聯系上傳者。如果你冇收到回覆，可以聯系程式製作組：</string>
+    <string name="text_manual_install">自己喐手，豐衣足食</string>
+    <string name="text_id">ID</string>
     <string name="text_apiurl">API</string>
     <string name="text_author">作者</string>
-    <string name="text_noinfo">唔使望啦，乜都冇</string>
+    <string name="text_noinfo">唔使望啦，乜都冇，望望隔籬啦！</string>
     <string name="text_contact">聯絡</string>
     <string name="text_uploader">上傳</string>
     <string name="text_continue_download">去下載</string>
@@ -71,12 +73,15 @@
     <string name="pref_useindex_sum">用索引服務器自動獲取源服務器</string>
     <string name="pref_usewebview">使用WebView替代TextView</string>
     <string name="pref_usewebview_sum">用WebView顯示線路包描述信息</string>
+    <string name="pref_loadlog">顯示加載日誌</string>
+    <string name="pref_loadlog_sum">在加載界面顯示日誌</string>
     <string name="pref_rproxy">啟用反向代理</string>
     <string name="pref_rproxy_sum">如果連接緩慢可以嘗試打開</string>
     <string name="text_update_avail">更新 %s</string>
     <string name="info_update_pack">有 %d 個路線可以更新！\n詳見管理頁。</string>
-    <string name="info_update_app">本程式可被更新。\n版本: %s\n%s</string>
-    <string name="info_update_start">下載已經開始。唔該好有耐性咁等……</string>
+    <string name="info_update_app">程式可以更新啦！\n版本: %s\n%s</string>
+    <string name="info_update_start">開始下載，俾啲心機等下</string>
+    <string name="info_no_network">好似冇網絡，\n暫時冇得下載線路\n不過想删除已經下載嘅線路，仲係可以嘅</string>
     <string name="pref_disklru">設定磁盤緩存大小 (MB)</string>
     <string name="pref_disklru_sum">用於本地緩存圖片嘅空間</string>
     <string name="pref_usespider">使用源抓取數據</string>
@@ -90,10 +95,10 @@ BVE 內容服務客戶端 (BCSC)\
 歡迎訪問項目網站: https://bvecontentservice.gitee.io 或 https://bvecontentservice.github.io\
 歡迎光臨個人網站: https://www.zbx1425.tk\
 \
-本程式喺自由軟件；你可依據自由軟件基金會所發表嘅GNU通用公共授權條款，對本程式再次發布或者修改；無論您依據嘅係此授權嘅第三版，或者（你可選嘅）任壹此後發行的版本。\
-本程式是基於使用目的而發布，唔會負任何擔保責任；亦冇對適售性或特定目的適用性所為的默示性擔保。詳情請參照GNU通用公共授權。\
+本程式喺自由軟件(可參閱維基百科詞條)，不過如果要對本程式二次配布或者修改，請參閱GPLv3條例後進行。\
+本程式是基於方便玩家嘅目的而發布，唔負任何擔保責任，亦唔對適售性或特定目的適用性所為的默示性擔保，詳情請參照GNU通用公共授權。\
 你應該已經收到附隨於本程式嘅GNU通用公共授權嘅副本；如果冇，請參照 http://www.gnu.org/licenses/。\
-如需獲取本程序源代碼嘅副本，你可以參閱 https://github.com/BVEContentService/BCSClientAndroid。\
+如果需要獲取本程序源代碼嘅副本，你可以參閱 https://github.com/BVEContentService/BCSClientAndroid。\
 \
 BCSC 使用 OkHttp 進行網絡通訊。\
 OkHttp 是個簡單慳事嘅 HTTP 客戶端。\
@@ -114,7 +119,7 @@ DiskLruCache 是個簡單易用嘅本地LRU算法緩存庫。\
 https://github.com/JakeWharton/DiskLruCache\
 \
 多謝 @Asnacinjar, @Tucson, 及中國南方地鐵模擬中心(CSSSC)响本程序開發嘅過程中提出嘅建議同支持。\
-多謝 @咕鸽装饰 製粵語翻譯！\
+多謝 博丽·雾希明@bilibili.com 嘅粵語翻譯！\
 BCSC嘅開發過程中仲用到咗數不勝數嘅開源程序同資源，在此限於篇幅無法壹壹列出。
 個人在此謹向所有Open-Source社區嘅合作者致以最崇高嘅敬意，多謝你哋嘅支持！</string>
     <string name="action_about">關於</string>

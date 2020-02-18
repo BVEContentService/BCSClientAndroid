@@ -20,35 +20,37 @@ import tk.zbx1425.bvecontentservice.api.ManagerConfig
 import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.api.Version
 import tk.zbx1425.bvecontentservice.chooseString
+import tk.zbx1425.bvecontentservice.io.PackLocalManager
 import tk.zbx1425.bvecontentservice.processRelUrl
 
 import java.io.Serializable
 import java.util.*
 
 data class PackageMetadata(
-    var ID: String,
-    var Version: Version,
-    var File_REL: String,
-    var FileSize: String,
-    var Author: AuthorMetadata,
-    var Name_LO: String,
-    var Name_EN: String,
-    var Name_SA: String,
-    var Origin_LO: String,
-    var Origin_EN: String,
-    var Origin_SA: String,
-    var Homepage: String,
-    var Description_REL: String,
-    var Thumbnail_REL: String,
-    var ThumbnailLQ_REL: String,
-    var NoFile: Boolean,
-    var AutoOpen: Boolean,
-    var ForceView: Boolean,
-    var Timestamp: Date,
-    var Source: SourceMetadata,
+    var ID: String = "",
+    var Version: Version = Version("0.0"),
+    var File_REL: String = "",
+    var FileSize: String = "",
+    var Author: AuthorMetadata = AuthorMetadata(SourceMetadata("")),
+    var Name_LO: String = "",
+    var Name_EN: String = "",
+    var Name_SA: String = "",
+    var Origin_LO: String = "",
+    var Origin_EN: String = "",
+    var Origin_SA: String = "",
+    var Homepage: String = "",
+    var Description_REL: String = "",
+    var Thumbnail_REL: String = "",
+    var ThumbnailLQ_REL: String = "",
+    var NoFile: Boolean = false,
+    var AutoOpen: Boolean = false,
+    var ForceView: Boolean = false,
+    var Timestamp: Date = Date(),
+    var Source: SourceMetadata = SourceMetadata(""),
     var SpiderSourceURL: String = "",
     var SpiderSourceUsername: String = "",
-    var UpdateAvailable: Boolean = false
+    var UpdateAvailable: Boolean = false,
+    var DummyPack: Boolean = false
 ) : Comparable<PackageMetadata>, Serializable {
 
     val searchAssistName: String = (Name_LO + Name_EN + Name_SA +
@@ -94,6 +96,11 @@ data class PackageMetadata(
             } ?: throw IllegalArgumentException("Bad Spider Source!")
         }
     }
+
+    constructor(localName: String) : this(
+        File_REL = localName, Name_LO = PackLocalManager.trimEncryptedName(localName)
+        , Name_EN = PackLocalManager.trimEncryptedName(localName), DummyPack = true
+    )
 
     override fun compareTo(other: PackageMetadata): Int {
         return compareValuesBy(this, other, PackageMetadata::Timestamp)

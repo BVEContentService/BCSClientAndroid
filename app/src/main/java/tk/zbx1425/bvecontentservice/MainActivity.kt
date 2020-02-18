@@ -30,6 +30,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_webview.*
 import tk.zbx1425.bvecontentservice.api.MetadataManager
+import tk.zbx1425.bvecontentservice.io.PackListManager
 import tk.zbx1425.bvecontentservice.ui.SectionsPagerAdapter
 import tk.zbx1425.bvecontentservice.ui.activity.AboutActivity
 import tk.zbx1425.bvecontentservice.ui.activity.LoaderActivity
@@ -57,6 +58,7 @@ class MainActivity : AppCompatActivity() {
         sectionsPagerAdapter = SectionsPagerAdapter(this, supportFragmentManager)
         tabs.setupWithViewPager(view_pager)
         view_pager.adapter = sectionsPagerAdapter
+        PackListManager.pagerAdapter = sectionsPagerAdapter
         fab.setOnClickListener {
             val launchIntent =
                 packageManager.getLaunchIntentForPackage("com.Jeminie.Hmmsim2")

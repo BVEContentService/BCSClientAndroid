@@ -46,6 +46,7 @@ class MetadataView : TableLayout {
         rowAPIURL.visibility = View.GONE
         rowMaintainer.visibility = View.GONE
         textName.visibility = View.GONE
+        textID.text = metadata.ID
         textVersion.text = metadata.Version.get()
         textDate.text = SimpleDateFormat("yyyy-MM-dd", Locale.US)
             .format(metadata.Timestamp)
@@ -74,6 +75,7 @@ class MetadataView : TableLayout {
     }
 
     constructor(context: Context, metadata: AuthorMetadata) : this(context) {
+        rowID.visibility = View.GONE
         rowAPIURL.visibility = View.GONE
         rowMaintainer.visibility = View.GONE
         textName.visibility = View.GONE
@@ -90,6 +92,7 @@ class MetadataView : TableLayout {
     }
 
     constructor(context: Context, metadata: SourceMetadata) : this(context) {
+        rowID.visibility = View.GONE
         rowVersion.visibility = View.GONE
         rowAuthor.visibility = View.GONE
         rowDate.visibility = View.GONE
@@ -108,6 +111,7 @@ class MetadataView : TableLayout {
     }
 
     constructor(context: Context, metadata: IndexMetadata) : this(context) {
+        rowID.visibility = View.GONE
         rowVersion.visibility = View.GONE
         rowAuthor.visibility = View.GONE
         rowDate.visibility = View.GONE

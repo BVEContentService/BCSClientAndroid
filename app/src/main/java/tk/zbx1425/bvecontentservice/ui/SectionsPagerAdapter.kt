@@ -74,4 +74,12 @@ class SectionsPagerAdapter(
             fragment.listAdapter.filter.filter(query)
         }
     }
+
+    fun notifyAllAdapters() {
+        for (fragment in fragments) {
+            if (fragment !is PackListFragment) continue
+            if (!fragment.isAdapterInitialized) continue
+            fragment.listAdapter.notifyDataSetChanged()
+        }
+    }
 }

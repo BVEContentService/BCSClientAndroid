@@ -35,7 +35,6 @@ import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.io.*
-import tk.zbx1425.bvecontentservice.io.PackLocalManager.removeLocalPacks
 import tk.zbx1425.bvecontentservice.log.Log
 import tk.zbx1425.bvecontentservice.replaceView
 import tk.zbx1425.bvecontentservice.ui.component.DescriptionView
@@ -142,7 +141,7 @@ class PackDetailActivity : AppCompatActivity() {
             )
             dlgAlert.setPositiveButton(android.R.string.yes) { _: DialogInterface, i: Int ->
                 if (i == DialogInterface.BUTTON_POSITIVE) {
-                    removeLocalPacks(metadata.ID)
+                    PackLocalManager.removeLocalPacks(metadata.ID)
                     PackListManager.populate()
                     finish()
                 }

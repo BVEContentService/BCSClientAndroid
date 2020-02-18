@@ -49,8 +49,8 @@ object PackLocalManager {
         var i = 0
         while (i < src.length) {
             var str = src.substring(i, i + 2)
-            for (i in BCS_MAGIC_CHAR.indices) {
-                str = str.replace(BCS_MAGIC_CHAR[i], (0x30 + i).toChar())
+            for (j in BCS_MAGIC_CHAR.indices) {
+                str = str.replace(BCS_MAGIC_CHAR[j], (0x30 + j).toChar())
             }
             val nb = Integer.parseInt(str, 8)
             chars[i / 2] = nb.toChar()
@@ -103,6 +103,11 @@ object PackLocalManager {
         }
     }
 
+    fun removeLocalPack(RelPath: String) {
+        val file = File(hmmDir, RelPath)
+        file.delete()
+    }
+
     fun removeLocalPacks(ID: String) {
         for (file in getLocalPacks()) {
             val parts = file.nameWithoutExtension.split(
@@ -120,6 +125,10 @@ object PackLocalManager {
                     file.name.toLowerCase(Locale.US).endsWith(".zip") &&
                     file.name.toLowerCase(Locale.US).startsWith(BCS_SUFFIX)
         } ?: arrayOf()
+    }
+
+    fun trimEncryptedName(src: String): String {
+        return src.filterNot { it in BCS_MAGIC_CHAR || it == '.' || it == BCS_DELIMITER }
     }
 
     fun ensureHmmsimDir() {

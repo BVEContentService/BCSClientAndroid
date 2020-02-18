@@ -24,7 +24,9 @@ import android.widget.Filter
 import android.widget.Filterable
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.io.ImageLoader
@@ -57,24 +59,39 @@ class PackListAdapter(
 
     override fun onBindViewHolder(holder: PackListViewHolder, position: Int) {
         val metadata = valuesFiltered[position]
-        holder.textTitle.text = metadata.Name
-        if (metadata.Origin == "") {
-            holder.textAuthor.text = metadata.Author.Name
-        } else {
-            holder.textAuthor.text = metadata.Origin
-        }
-        if (metadata.UpdateAvailable) {
-            holder.textVersion.text = String.format(
-                context.resources.getString(R.string.text_update_avail), metadata.Version.get()
+        if (metadata.DummyPack) {
+            holder.textAuthor.visibility = View.GONE
+            holder.textVersion.visibility = View.GONE
+            holder.textTimestamp.visibility = View.GONE
+            holder.textTitle.text = metadata.Name
+            holder.imageView.setImageDrawable(
+                ContextCompat.getDrawable(
+                    ApplicationContext.context, R.drawable.landscape_placeholder
+                )
             )
-            holder.textVersion.setTextColor(Color.rgb(255, 140, 0))
         } else {
-            holder.textVersion.text = metadata.Version.get()
-            holder.textVersion.setTextColor(Color.BLACK)
+            holder.textAuthor.visibility = View.VISIBLE
+            holder.textVersion.visibility = View.VISIBLE
+            holder.textTimestamp.visibility = View.VISIBLE
+            holder.textTitle.text = metadata.Name
+            if (metadata.Origin == "") {
+                holder.textAuthor.text = metadata.Author.Name
+            } else {
+                holder.textAuthor.text = metadata.Origin
+            }
+            if (metadata.UpdateAvailable) {
+                holder.textVersion.text = String.format(
+                    context.resources.getString(R.string.text_update_avail), metadata.Version.get()
+                )
+                holder.textVersion.setTextColor(Color.rgb(255, 140, 0))
+            } else {
+                holder.textVersion.text = metadata.Version.get()
+                holder.textVersion.setTextColor(Color.BLACK)
+            }
+            holder.textTimestamp.text = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+                .format(metadata.Timestamp)
+            ImageLoader.setPackThumbImageAsync(holder.imageView, metadata)
         }
-        holder.textTimestamp.text = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-            .format(metadata.Timestamp)
-        ImageLoader.setPackThumbImageAsync(holder.imageView, metadata)
         holder.rowView.setOnClickListener {
             onListItemClickListener(values[position])
         }

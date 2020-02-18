@@ -29,6 +29,8 @@
     <string name="tab_text_download">下载</string>
     <string name="tab_text_manage">管理</string>
     <string name="text_abuse">如出现侵权或其他不法行为，请联系上传者。如果您的诉求未被重视，您可联系服务器维护团队：</string>
+    <string name="text_manual_install">人工装入</string>
+    <string name="text_id">ID</string>
     <string name="text_apiurl">API</string>
     <string name="text_author">作者</string>
     <string name="text_noinfo">没有此类路线。</string>
@@ -71,12 +73,15 @@
     <string name="pref_useindex_sum">用索引服务器自动获取源服务器</string>
     <string name="pref_usewebview">使用WebView替代TextView</string>
     <string name="pref_usewebview_sum">用WebView显示线路包描述信息</string>
+    <string name="pref_loadlog">显示加载日志</string>
+    <string name="pref_loadlog_sum">在加载界面显示日志</string>
     <string name="pref_rproxy">启用反向代理</string>
     <string name="pref_rproxy_sum">如连接缓慢可尝试打开</string>
     <string name="text_update_avail">更新: %s</string>
     <string name="info_update_pack">有 %d 个路线可以更新！\n详见管理页。</string>
     <string name="info_update_app">本程序可被更新。\n版本: %s\n%s</string>
     <string name="info_update_start">下载已开始。请耐心等待……</string>
+    <string name="info_no_network">似乎不能联网。\n因此本程序无法下载路线。\n要想删除本地路线，还是可以的。</string>
     <string name="pref_disklru">设定磁盘缓存大小 (MB)</string>
     <string name="pref_disklru_sum">用于本地缓存图片的空间</string>
     <string name="pref_usespider">使用源抓取数据</string>
@@ -114,7 +119,7 @@ DiskLruCache 是个简单易用的本地LRU算法缓存库。\
 https://github.com/JakeWharton/DiskLruCache\
 \
 感谢 @Asnacinjar, @Tucson, 及中国南方地铁模拟中心(CSSSC)在本程序开发期间提出的建议与支持。\
-感谢 @咕鸽装饰 制作粤语翻译。\
+感谢 博丽·雾希明@bilibili.com 制作粤语翻译。\
 BCSC的开发过程中还用到了数不胜数的开源程序与资源，在此限于篇幅无法一一列出。
 个人在此谨向所有开源社区的合作者们致以最崇高的敬意。</string>
     <string name="action_about">关于</string>

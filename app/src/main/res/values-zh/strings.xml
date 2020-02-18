@@ -29,6 +29,8 @@
     <string name="tab_text_download">下載</string>
     <string name="tab_text_manage">管理</string>
     <string name="text_abuse">如出現侵權或其他不法行為，請聯系上傳者。如果您的訴求未被重視，您可聯系服務器維護團隊：</string>
+    <string name="text_manual_install">人工裝入</string>
+    <string name="text_id">ID</string>
     <string name="text_apiurl">API</string>
     <string name="text_author">作者</string>
     <string name="text_noinfo">沒有此類路線。</string>
@@ -71,12 +73,15 @@
     <string name="pref_useindex_sum">用索引服務器自動獲取源服務器</string>
     <string name="pref_usewebview">使用WebView替代TextView</string>
     <string name="pref_usewebview_sum">用WebView顯示線路包描述信息</string>
+    <string name="pref_loadlog">顯示加載日誌</string>
+    <string name="pref_loadlog_sum">在加載界面顯示日誌</string>
     <string name="pref_rproxy">啟用反向代理</string>
     <string name="pref_rproxy_sum">如連接緩慢可嘗試打開</string>
     <string name="text_update_avail">更新: %s</string>
     <string name="info_update_pack">有 %d 個路線可以更新！\n詳見管理頁。</string>
     <string name="info_update_app">本程式可被更新。\n版本: %s\n%s</string>
     <string name="info_update_start">下載已開始。請耐心等待……</string>
+    <string name="info_no_network">似乎不能聯網。\n囙此本程式無法下載路線。\n要想删除本地路線，還是可以的。</string>
     <string name="pref_disklru">設定磁盤緩存大小 (MB)</string>
     <string name="pref_disklru_sum">用於本地緩存圖片的空間</string>
     <string name="pref_usespider">使用源抓取數據</string>

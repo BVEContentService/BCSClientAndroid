@@ -16,19 +16,21 @@
 package tk.zbx1425.bvecontentservice.ui.activity
 
 import android.Manifest
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.widget.ArrayAdapter
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import kotlinx.android.synthetic.main.activity_loader.*
 import tk.zbx1425.bvecontentservice.BuildConfig
 import tk.zbx1425.bvecontentservice.MainActivity
 import tk.zbx1425.bvecontentservice.R
@@ -50,10 +52,25 @@ class LoaderActivity : AppCompatActivity() {
     val adapterData: ArrayList<String> = ArrayList()
     val errorList: ArrayList<String> = ArrayList()
 
+    lateinit var continueButton: Button
+    lateinit var stepLog: ListView
+    lateinit var progressBar: ProgressBar
+    lateinit var currentStep: TextView
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_loader)
+        setContentView(
+            if (getPreference("showLoadLog", false)) {
+                R.layout.activity_loader
+            } else {
+                R.layout.activity_loader_production
+            }
+        )
+        continueButton = findViewById(R.id.continueButton)
+        stepLog = findViewById(R.id.stepLog)
+        progressBar = findViewById(R.id.progressBar)
+        currentStep = findViewById(R.id.currentStep)
         continueButton.visibility = View.GONE
         adapter = ArrayAdapter(
             this,
@@ -75,7 +92,7 @@ class LoaderActivity : AppCompatActivity() {
                 }
             } else {
                 val indexServers = getPreference(
-                        "indexServers", resources.getString(R.string.default_index)
+                    "indexServers", resources.getString(R.string.default_index)
                 ).split("\n")
                 MetadataManager.fetchMetadata(indexServers) { message ->
                     runOnUiThread { progress(message) }
@@ -107,7 +124,7 @@ class LoaderActivity : AppCompatActivity() {
                             MetadataManager.updateMetadata!!.Version.get(), MetadataManager.updateMetadata!!.Description
                         )
                     )
-                    dlgAlert.setCancelable(MetadataManager.updateMetadata?.Force == false)
+                    dlgAlert.setCancelable(false)
                     dlgAlert.setPositiveButton(android.R.string.yes) { _: DialogInterface, _: Int ->
                         adapterData.add("")
                         adapterData.add(resources.getString(R.string.info_update_start))
@@ -126,7 +143,7 @@ class LoaderActivity : AppCompatActivity() {
                     dlgAlert.create().show()
                 } else if (updateCnt > 0) {
                     dlgAlert.setMessage(String.format(resources.getString(R.string.info_update_pack), updateCnt))
-                    dlgAlert.setCancelable(true)
+                    dlgAlert.setCancelable(false)
                     dlgAlert.setPositiveButton(android.R.string.ok) { _: DialogInterface, _: Int ->
                         if (errorCount == 0) {
                             callMainActivity()
@@ -134,21 +151,42 @@ class LoaderActivity : AppCompatActivity() {
                     }
                     dlgAlert.create().show()
                 } else if (errorCount == 0) {
-                    callMainActivity()
+                    if (getPreference("showLoadLog", false)) {
+                        continueButton.visibility = View.VISIBLE
+                    } else {
+                        callMainActivity()
+                    }
                 }
             }
         }
+        MetadataManager.cleanUp()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                progressBar.visibility = View.GONE
                 adapterData.add(resources.getString(R.string.permission_restart))
                 adapter.notifyDataSetChanged()
                 currentStep.text = resources.getString(R.string.permission_restart)
                 progressBar.visibility = View.GONE
                 continueButton.visibility = View.GONE
-            } else {
-                fetchThread.start()
+                return
             }
         }
+        if (!isInternetAvailable(this)) {
+            MetadataManager.initialized = true
+            PackListManager.populate()
+            progressBar.visibility = View.GONE
+            currentStep.text = resources.getString(R.string.info_no_network)
+            val dlgAlert = AlertDialog.Builder(this)
+            dlgAlert.setCancelable(false)
+            dlgAlert.setTitle(R.string.app_name)
+            dlgAlert.setMessage(R.string.info_no_network)
+            dlgAlert.setPositiveButton(android.R.string.ok) { _: DialogInterface, _: Int ->
+                callMainActivity()
+            }
+            dlgAlert.create().show()
+            return
+        }
+        fetchThread.start()
     }
 
     fun callMainActivity() {
@@ -183,6 +221,7 @@ class LoaderActivity : AppCompatActivity() {
     private fun requestPermission(perm: String) {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, perm)) {
             val dlgAlert = AlertDialog.Builder(this)
+            dlgAlert.setCancelable(false)
             dlgAlert.setTitle(R.string.app_name)
             dlgAlert.setMessage(R.string.permission_fail)
             dlgAlert.setPositiveButton(android.R.string.ok) { _: DialogInterface, _: Int ->
@@ -203,6 +242,7 @@ class LoaderActivity : AppCompatActivity() {
         if (requestCode == 810) {
             if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 val dlgAlert = AlertDialog.Builder(this)
+                dlgAlert.setCancelable(false)
                 dlgAlert.setTitle(R.string.app_name)
                 dlgAlert.setMessage(R.string.permission_fail)
                 dlgAlert.setPositiveButton(android.R.string.ok) { _: DialogInterface, _: Int ->
@@ -213,5 +253,24 @@ class LoaderActivity : AppCompatActivity() {
                 exitProcess(0)
             }
         }
+    }
+
+    private fun isInternetAvailable(context: Context): Boolean {
+        var result = false
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val networkCapabilities = connectivityManager.activeNetwork ?: return false
+            val actNw =
+                connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
+            result = actNw.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+        } else {
+            connectivityManager.run {
+                connectivityManager.activeNetworkInfo?.run {
+                    result = type != ConnectivityManager.TYPE_DUMMY
+                }
+            }
+        }
+        return result
     }
 }

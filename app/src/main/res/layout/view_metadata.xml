@@ -20,6 +20,24 @@
     </TableRow>
 
     <TableRow
+        android:id="@+id/rowID"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/text_id"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/textID"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp" />
+    </TableRow>
+
+    <TableRow
         android:id="@+id/rowAuthor"
         android:layout_width="match_parent"
         android:layout_height="match_parent">

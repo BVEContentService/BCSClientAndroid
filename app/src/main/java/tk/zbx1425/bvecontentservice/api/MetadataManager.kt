@@ -44,17 +44,22 @@ object MetadataManager {
 
     var indexHomepage: String = ""
 
-    fun fetchMetadata(indexServers: List<String>, progress: (String) -> Unit) {
-        progress(String.format(ManagerConfig.strBegin, PROTOCOL_VER, PROTOCOL_DATE))
-        this.initialized = true
-        this.indexServers = ArrayList(indexServers)
+    fun cleanUp() {
         indexHomepage = ""
         updateMetadata = null
+        indexServers.clear()
         sourceServers.clear()
         ugcServers.clear()
         authors.clear()
         packs.clear()
         packMap.clear()
+    }
+
+    fun fetchMetadata(indexServers: List<String>, progress: (String) -> Unit) {
+        progress(String.format(ManagerConfig.strBegin, PROTOCOL_VER, PROTOCOL_DATE))
+        cleanUp()
+        this.initialized = true
+        this.indexServers = ArrayList(indexServers)
         fetchServers(progress)
         if (sourceServers.count() == 0) {
             progress(ManagerConfig.strErrNoSrc)
@@ -66,14 +71,8 @@ object MetadataManager {
     fun fetchMetadataBySource(sourceServers: List<String>, progress: (String) -> Unit) {
         progress(String.format(ManagerConfig.strBegin, PROTOCOL_VER, PROTOCOL_DATE))
         this.initialized = true
+        cleanUp()
         this.indexServers = arrayListOf("")
-        this.sourceServers.clear()
-        indexHomepage = ""
-        updateMetadata = null
-        ugcServers.clear()
-        authors.clear()
-        packs.clear()
-        packMap.clear()
         for (sourceServer in sourceServers) {
             val newServer = if (sourceServer.trim().toLowerCase(Locale.US).endsWith(".json")) {
                 try {
