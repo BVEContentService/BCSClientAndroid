@@ -1,6 +1,6 @@
 <resources>
     <string name="dummy">What a terrible failure!</string>
-    <string name="app_name">BVE Content Service</string>
+    <string name="app_name">RoutesBVE</string>
     <string name="tab_text_info">Bulletin</string>
     <string name="tab_text_download">Download</string>
     <string name="tab_text_manage">Manage</string>
@@ -51,7 +51,7 @@
     <string name="text_noinfo">There is no content of this type.</string>
     <string name="text_abuse">For abuse or copyright claims, please contact the uploader.
     If your demand is not satisfied, you can contact server maintainers:</string>
-    <string name="text_developer">BVE Content Service Client</string>
+    <string name="text_developer">BVE Content Service Client\n(RoutesBVE)</string>
     <string name="text_ugc">Comments</string>
     <string name="text_download">Download %s</string>
     <string name="text_continue_download">Continue to Download</string>

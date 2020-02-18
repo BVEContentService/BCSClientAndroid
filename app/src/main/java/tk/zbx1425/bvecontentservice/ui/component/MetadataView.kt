@@ -34,6 +34,7 @@ class MetadataView : TableLayout {
 
     constructor(context: Context) : super(context) {
         View.inflate(context, R.layout.view_metadata, this)
+        rowID.visibility = View.GONE
         textVersion.text = BuildConfig.VERSION_NAME + " " + BuildConfig.BUILD_TYPE
         textDate.text = SimpleDateFormat("yyyy-MM-dd", Locale.US)
             .format(BuildConfig.BUILD_TIME)

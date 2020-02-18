@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">BVE內容服務</string>
+    <string name="app_name">BVE線路庫</string>
     <string name="action_refresh">刷新</string>
     <string name="action_search">搜索</string>
     <string name="action_settings">設置</string>
@@ -12,7 +12,7 @@
     <string name="fetch_error_message">抓取結束，發生 %d 個錯誤。\n請聯系維護人員, 程序仍能正常運行。</string>
     <string name="fetch_err_nosrc">ERROR: 獲取不到任何源服務器！\
         請檢查網絡連接，如無問題請聯系維護人員！</string>
-    <string name="fetch_err_update">ERROR: 您的客戶端程序版本過低！請更新！最低協議版本: %s</string>
+    <string name="fetch_err_update">ERROR: 您的程式版本過低！請更新！最低通訊協定版本: %s</string>
     <string name="info_clear_temp">下載緩存已清空。</string>
     <string name="info_download_abort_failed">無法停止下載！</string>
     <string name="info_download_aborted">%s\n下載已暫停。%s在設置中可刪除已下載的部分文件。</string>
@@ -24,7 +24,7 @@
     <string name="info_fetch_text_fail">未能獲取描述信息！\n%s\n%s</string>
     <string name="info_hmmsim_fail">未安裝 Hmmsim。</string>
     <string name="info_exit_again">再按一次退出程式。</string>
-    <string name="permission_fail">為安裝線路，本程序必須獲得外部存儲寫入權限。請到系統設置中打開。</string>
+    <string name="permission_fail">為安裝線路，本程式必須獲得外部存儲寫入權限。請到系統設置中打開。</string>
     <string name="permission_restart">請重啓程式。</string>
     <string name="tab_text_download">下載</string>
     <string name="tab_text_manage">管理</string>
@@ -38,7 +38,7 @@
     <string name="text_uploader">上傳</string>
     <string name="text_continue_download">前往下載</string>
     <string name="text_date">日期</string>
-    <string name="text_developer">BVE內容服務 客戶端</string>
+    <string name="text_developer">BVE內容服務系統用戶端\n(BVE線路庫)</string>
     <string name="text_download">下載 %s</string>
     <string name="text_downloading">下載中……</string>
     <string name="text_finishing">收尾中……</string>
@@ -95,8 +95,8 @@ BVE 內容服務客戶端 (BCSC)\
 歡迎訪問項目網站: https://bvecontentservice.gitee.io 或 https://bvecontentservice.github.io\
 歡迎光臨個人網站: https://www.zbx1425.tk\
 \
-本程序為自由軟件；您可依據自由軟件基金會所發表的GNU通用公共授權條款，對本程序再次發布和/或修改；無論您依據的是此授權的第三版，或（您可選的）任壹此後發行的版本。\
-本程序是基於使用目的而加以發布，然而不負任何擔保責任；亦無對適售性或特定目的適用性所為的默示性擔保。詳情請參照GNU通用公共授權。\
+本程式為自由軟件；您可依據自由軟件基金會所發表的GNU通用公共授權條款，對本程序再次發布和/或修改；無論您依據的是此授權的第三版，或（您可選的）任壹此後發行的版本。\
+本程式是基於使用目的而加以發布，然而不負任何擔保責任；亦無對適售性或特定目的適用性所為的默示性擔保。詳情請參照GNU通用公共授權。\
 您應已收到附隨於本程序的GNU通用公共授權的副本；如沒有，請參照 http://www.gnu.org/licenses/。\
 如需獲取本程序源代碼的副本，您可參見 https://github.com/BVEContentService/BCSClientAndroid。\
 \
@@ -118,8 +118,8 @@ DiskLruCache 是個簡單易用的本地LRU算法緩存庫。\
 此為公共版權軟件，以 Apache 2.0 開源許可證授權。\
 https://github.com/JakeWharton/DiskLruCache\
 \
-感謝Asnacinjar, Tucson, 及中國南方地鐵模擬中心(CSSSC)在本程序開發期間提出的建議與支持。\
-BCSC的開發過程中還用到了數不勝數的開源程序與資源，在此限於篇幅無法壹壹列出。
+感謝Asnacinjar, Tucson, 及中國南方地鐵模擬中心(CSSSC)在本程式開發期間提出的建議與支持。\
+BCSC的開發過程中還用到了數不勝數的開源程式與資源，在此限於篇幅無法壹壹列出。
 個人在此謹向所有開源社區的合作者們致以最崇高的敬意。</string>
     <string name="action_about">關於</string>
     <string name="tab_text_info">公告</string>

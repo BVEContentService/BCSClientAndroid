@@ -20,6 +20,7 @@ import android.view.ViewGroup
 import androidx.preference.PreferenceManager
 import tk.zbx1425.bvecontentservice.api.ManagerConfig
 import tk.zbx1425.bvecontentservice.api.model.SourceMetadata
+import java.util.*
 
 fun View.replaceView(newView: View) {
     val parent: ViewGroup = this.parent as ViewGroup
@@ -38,7 +39,9 @@ fun chooseString(lo: String, en: String): String {
 fun processRelUrl(Source: SourceMetadata, url: String): String {
     return if (url == "") {
         ""
-    } else if (url.startsWith("http://") || url.startsWith("https://")) {
+    } else if (url.toLowerCase(Locale.US).startsWith("http://")
+        || url.toLowerCase(Locale.US).startsWith("https://")
+    ) {
         url
     } else if (ManagerConfig.reverseProxy && Source.APIRProxy != "") {
         Source.APIRProxy + url

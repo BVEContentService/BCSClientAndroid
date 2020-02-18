@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">BVE内容服务</string>
+    <string name="app_name">BVE线路库</string>
     <string name="action_refresh">刷新</string>
     <string name="action_search">搜索</string>
     <string name="action_settings">设置</string>
@@ -12,7 +12,7 @@
     <string name="fetch_error_message">抓取结束，发生 %d 个错误。\n请联系维护人员, 程序仍能正常运行。</string>
     <string name="fetch_err_nosrc">ERROR: 获取不到任何源服务器！\
         请检查网络连接，如无问题请联系维护人员！</string>
-    <string name="fetch_err_update">ERROR: 您的客户端程序版本过低！请更新！最低协议版本: %s</string>
+    <string name="fetch_err_update">ERROR: 您的客户端程序版本过低！请更新！最低通信协议版本: %s</string>
     <string name="info_clear_temp">下载缓存已清空。</string>
     <string name="info_download_abort_failed">无法停止下载！</string>
     <string name="info_download_aborted">%s\n下载已暂停。%s在设置中可删除已下载的部分文件。</string>
@@ -38,7 +38,7 @@
     <string name="text_uploader">上传</string>
     <string name="text_continue_download">前往下载</string>
     <string name="text_date">日期</string>
-    <string name="text_developer">BVE内容服务 客户端</string>
+    <string name="text_developer">BVE内容服务系统客户端\n(BVE线路库)</string>
     <string name="text_download">下载 %s</string>
     <string name="text_downloading">下载中……</string>
     <string name="text_finishing">收尾中……</string>

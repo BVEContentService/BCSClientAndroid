@@ -26,6 +26,7 @@ import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.Window
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -60,13 +61,13 @@ class LoaderActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(
-            if (getPreference("showLoadLog", false)) {
-                R.layout.activity_loader
-            } else {
-                R.layout.activity_loader_production
-            }
-        )
+        if (getPreference("showLoadLog", false)) {
+            setContentView(R.layout.activity_loader)
+        } else {
+            requestWindowFeature(Window.FEATURE_NO_TITLE)
+            setContentView(R.layout.activity_loader_production)
+            supportActionBar?.hide()
+        }
         continueButton = findViewById(R.id.continueButton)
         stepLog = findViewById(R.id.stepLog)
         progressBar = findViewById(R.id.progressBar)
@@ -116,6 +117,7 @@ class LoaderActivity : AppCompatActivity() {
                     adapter.notifyDataSetChanged()
                     currentStep.setTextColor(Color.RED)
                     continueButton.visibility = View.VISIBLE
+                    stepLog.visibility = View.VISIBLE
                 }
                 if (MetadataManager.updateMetadata != null && MetadataManager.updateMetadata!!.Version > Version(BuildConfig.VERSION_NAME)) {
                     dlgAlert.setMessage(

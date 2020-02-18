@@ -51,8 +51,8 @@ class DescriptionView(context: Context) : FrameLayout(context) {
             LayoutParams.WRAP_CONTENT
         )
         if (getPreference("useWebView", true)) {
-            if (url.trim().startsWith("http://") ||
-                url.trim().startsWith("https://")
+            if (url.toLowerCase(Locale.US).startsWith("http://") ||
+                url.toLowerCase(Locale.US).startsWith("https://")
             ) {
                 val webView = WebView(context)
                 webView.settings.javaScriptEnabled = getPreference("enableJavascript", true)
@@ -115,8 +115,8 @@ class DescriptionView(context: Context) : FrameLayout(context) {
                     null
                 }
             }
-            if (url.trim().startsWith("http://") ||
-                url.trim().startsWith("https://")
+            if (url.toLowerCase(Locale.US).startsWith("http://") ||
+                url.toLowerCase(Locale.US).startsWith("https://")
             ) {
                 textDescription.text = resources.getText(R.string.info_fetch_text)
                 Thread {
@@ -126,7 +126,9 @@ class DescriptionView(context: Context) : FrameLayout(context) {
                         Log.i("BCSDescription", url)
                         Log.i("BCSDescription", result ?: "")
                         val spanned =
-                            if (url.trim().toLowerCase(Locale.US).endsWith(".html")) {
+                            if (url.trim().toLowerCase(Locale.US).endsWith(".txt")) {
+                                result
+                            } else {
                                 if (android.os.Build.VERSION.SDK_INT > 24) {
                                     Html.fromHtml(
                                         result, Html.FROM_HTML_MODE_COMPACT,
@@ -135,8 +137,6 @@ class DescriptionView(context: Context) : FrameLayout(context) {
                                 } else {
                                     Html.fromHtml(result, imageGetter, null)
                                 }
-                            } else {
-                                result
                             }
                         (context as Activity).runOnUiThread {
                             textDescription.text = spanned

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">BVE內容服務</string>
+    <string name="app_name">BVE線路庫</string>
     <string name="action_refresh">刷新</string>
     <string name="action_search">搵料</string>
     <string name="action_settings">設定</string>
@@ -12,7 +12,7 @@
     <string name="fetch_error_message">抓取結束，發生 %d 個錯誤。\n請聯系程式製作組 程式仍然正常運作</string>
     <string name="fetch_err_nosrc">ERROR: 無法連線到服務器\
         如果你依家使用嘅網路連接係正常嘅，請聯系程式製作組</string>
-    <string name="fetch_err_update">ERROR: 你嘅客戶端版本過低，請下載最新版本: %s</string>
+    <string name="fetch_err_update">ERROR: 你嘅程式版本過低，請下載最新版本！最低通訊協定版本: %s</string>
     <string name="info_clear_temp">已清空下載內容</string>
     <string name="info_download_abort_failed">啊啊啊點解下載停唔低㗎！！！</string>
     <string name="info_download_aborted">%s\n下載已暫停%s設置入面可Delete已經下載咗嘅部分</string>
@@ -38,7 +38,7 @@
     <string name="text_uploader">上傳</string>
     <string name="text_continue_download">去下載</string>
     <string name="text_date">日期</string>
-    <string name="text_developer">BVE內容服務 客戶端</string>
+    <string name="text_developer">BVE內容服務系統用戶端\n(BVE線路庫)</string>
     <string name="text_download">下載 %s</string>
     <string name="text_downloading">Downloading……</string>
     <string name="text_finishing">正在結束……</string>
