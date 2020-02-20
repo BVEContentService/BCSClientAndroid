@@ -36,6 +36,7 @@ import tk.zbx1425.bvecontentservice.ui.activity.AboutActivity
 import tk.zbx1425.bvecontentservice.ui.activity.LoaderActivity
 import tk.zbx1425.bvecontentservice.ui.activity.SettingActivity
 import tk.zbx1425.bvecontentservice.ui.component.InfoFragment
+import tk.zbx1425.bvecontentservice.ui.showPreviousCrash
 import kotlin.system.exitProcess
 
 
@@ -52,6 +53,7 @@ class MainActivity : AppCompatActivity() {
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
             startActivity(intent)
             finish()
+            return
         }
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
@@ -84,6 +86,7 @@ class MainActivity : AppCompatActivity() {
                 dlgAlert.create().show()
             }
         }
+        showPreviousCrash(this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

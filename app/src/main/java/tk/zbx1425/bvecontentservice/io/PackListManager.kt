@@ -34,7 +34,7 @@ object PackListManager {
         return if (pos == -1) str else str.substring(0, pos)
     }
 
-    fun populate(): Int {
+    fun populate(popSort: Boolean? = null): Int {
         var updateCount = 0
         localList.clear(); onlineList.clear()
         val localPacks = HashMap(PackLocalManager.getLocalPacks().map {
@@ -73,7 +73,12 @@ object PackListManager {
         if (getPreference("allPacks", false)) {
             onlineList = MetadataManager.packs
         }
-        onlineList.sortByDescending { it.Timestamp }
+        if (!(popSort ?: getPreference("popSort", false))
+            || !getPreference("useIndexServer", true)
+            || !getPreference("useSourceSpider", true)){
+            Log.i(LOGCAT_TAG, "Sorted by Timestamp")
+            onlineList.sortByDescending { it.Timestamp }
+        }
         localList.sortWith(compareBy({ it.DummyPack }, { !it.UpdateAvailable }))
         if (::pagerAdapter.isInitialized) {
             pagerAdapter.notifyAllAdapters()

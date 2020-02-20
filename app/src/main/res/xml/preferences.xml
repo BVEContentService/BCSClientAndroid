@@ -13,15 +13,11 @@
             android:key="clearTemp"
             android:summary="@string/pref_cleartemp_sum"
             android:title="@string/pref_cleartemp" />
-        <EditTextPreference
-            android:defaultValue="10"
-            android:digits="0123456789"
-            android:inputType="numberDecimal"
-            android:key="cacheSize"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:summary="@string/pref_disklru_sum"
-            android:title="@string/pref_disklru" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="popSort"
+            android:summary="@string/pref_sort_sum"
+            android:title="@string/pref_sort"/>
         <SwitchPreference
             android:defaultValue="false"
             android:key="allPacks"
@@ -73,7 +69,11 @@
             app:enabled="false" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_advanced">
-
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="showLoadLog"
+            android:summary="@string/pref_loadlog_sum"
+            android:title="@string/pref_loadlog" />
         <SwitchPreference
             android:defaultValue="true"
             android:key="useWebView"
@@ -84,10 +84,14 @@
             android:key="enableJavascript"
             android:summary="@string/pref_javascript_sum"
             android:title="@string/pref_javascript" />
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="showLoadLog"
-            android:summary="@string/pref_loadlog_sum"
-            android:title="@string/pref_loadlog" />
+        <EditTextPreference
+            android:defaultValue="10"
+            android:digits="0123456789"
+            android:inputType="numberDecimal"
+            android:key="cacheSize"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:summary="@string/pref_disklru_sum"
+            android:title="@string/pref_disklru" />
     </PreferenceCategory>
 </PreferenceScreen>

@@ -47,6 +47,7 @@ class MetadataView : TableLayout {
         rowAPIURL.visibility = View.GONE
         rowMaintainer.visibility = View.GONE
         textName.visibility = View.GONE
+        rowID.visibility = View.VISIBLE
         textID.text = metadata.ID
         textVersion.text = metadata.Version.get()
         textDate.text = SimpleDateFormat("yyyy-MM-dd", Locale.US)

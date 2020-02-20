@@ -92,7 +92,10 @@ class PackDetailActivity : AppCompatActivity() {
 
         fab.setOnClickListener { startDownload() }
         downloadButton.setOnClickListener { startDownload() }
-        if (UGCSelector.getActiveUGCServer() == null) ugcButton.visibility = View.GONE
+        if (UGCSelector.getActiveUGCServer() == null){
+            ugcButton.visibility = View.GONE
+        }
+        UGCSelector.runActionAsync(metadata, "view")
         ugcButton.setOnClickListener {
             val intent = Intent(this as Context, UGCActivity::class.java)
             intent.putExtra("metadata", metadata)
@@ -162,29 +165,34 @@ class PackDetailActivity : AppCompatActivity() {
             dlgAlert.create().show()
         } else {
             if (metadata.AutoOpen || metadata.NoFile) {
+                if (metadata.NoFile) UGCSelector.runActionAsync(metadata, "download")
                 val intent = Intent(this as Context, ForceViewActivity::class.java)
                 intent.putExtra("metadata", metadata)
                 startActivityForResult(intent, 9376)
             } else {
-                if (PackDownloadManager.startDownload(metadata)) {
-                    setResult(Activity.RESULT_OK, null)
-                    timer = Timer()
-                    timer.schedule(timerTask { setButtonState(true) }, 500, 500)
-                } else {
-                    Toast.makeText(
-                        this as Context, ApplicationContext.context.resources.getString(
-                            R.string.info_download_start_failed
-                        ), Toast.LENGTH_SHORT
-                    ).show()
-                }
+                startActualDownload()
             }
+        }
+    }
+
+    private fun startActualDownload(){
+        UGCSelector.runActionAsync(metadata, "download")
+        if (PackDownloadManager.startDownload(metadata)) {
+            setResult(Activity.RESULT_OK, null)
+            timer = Timer()
+            timer.schedule(timerTask { setButtonState(true) }, 500, 500)
+        } else {
+            Toast.makeText(
+                this as Context, ApplicationContext.context.resources.getString(
+                    R.string.info_download_start_failed
+                ), Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == 9376 && resultCode == Activity.RESULT_OK) {
-            timer = Timer()
-            timer.schedule(timerTask { setButtonState(true) }, 500, 500)
+            startActualDownload()
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
@@ -215,7 +223,7 @@ class PackDetailActivity : AppCompatActivity() {
                     packState < 100 -> resources.getString(R.string.text_downloading)
                     packState == 100 -> resources.getString(R.string.text_finishing)
                     packState > 100 -> resources.getString(R.string.text_remove)
-                    else -> resources.getString(R.string.dummy)
+                    else -> resources.getString(R.string.bullshit)
                 }
             val animation = ObjectAnimator.ofInt(
                 downloadProgress,
@@ -233,7 +241,7 @@ class PackDetailActivity : AppCompatActivity() {
                 packState <= 100 -> downloadProgress.secondaryProgress = 0
                 packState > 100 -> downloadProgress.secondaryProgress = 100
             }
-            Log.i("BCSUi", "PackState: " + packState)
+            //Log.i("BCSUi", "PackState: " + packState)
             if ((packState > 100 || packState < 0) && timerRunning) {
                 timer.cancel(); timer.purge()
                 Log.i("BCSUi", "Timer stopped")

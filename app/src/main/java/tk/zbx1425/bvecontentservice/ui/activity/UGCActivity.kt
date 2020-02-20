@@ -51,13 +51,7 @@ class UGCActivity : AppCompatActivity() {
         webView.settings.javaScriptEnabled = getPreference("enableJavascript", true)
         webView.settings.javaScriptCanOpenWindowsAutomatically = true
         webView.settings.setSupportMultipleWindows(true)
-        webView.loadUrl(
-            String.format(
-                "%s?pkg=%s&ver=%s&author=%s",
-                UGCSelector.getActiveUGCServer()?.APIURL,
-                metadata.ID, metadata.Version.get(), metadata.Author.ID
-            )
-        )
+        webView.loadUrl(UGCSelector.getURL(metadata))
         webView.webChromeClient =
             MultiPageChromeClient(
                 this

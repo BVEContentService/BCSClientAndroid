@@ -17,12 +17,14 @@ package tk.zbx1425.bvecontentservice
 
 import android.app.Application
 import tk.zbx1425.bvecontentservice.io.ImageLoader
+import tk.zbx1425.bvecontentservice.ui.bindHandlerToThread
 
 
 class Application : Application() {
     override fun onCreate() {
         super.onCreate()
         ApplicationContext.initialize(this)
+        bindHandlerToThread(Thread.currentThread())
         ImageLoader.initCache()
     }
 

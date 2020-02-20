@@ -129,7 +129,8 @@ data class PackageMetadata(
         }
     val Description: String
         get() {
-            return if (Description_REL.toLowerCase(Locale.US).startsWith("http://")
+            return if (Description_REL.startsWith("/")
+                || Description_REL.toLowerCase(Locale.US).startsWith("http://")
                 || Description_REL.toLowerCase(Locale.US).startsWith("https://")
             ) {
                 processRelUrl(Source, Description_REL)

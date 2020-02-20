@@ -15,9 +15,12 @@
 
 package tk.zbx1425.bvecontentservice.io
 
+import Identification
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.widget.Toast
+import androidx.core.content.FileProvider
 import com.liulishuo.okdownload.DownloadTask
 import com.liulishuo.okdownload.StatusUtil
 import com.liulishuo.okdownload.core.cause.EndCause
@@ -66,6 +69,8 @@ object PackDownloadManager {
                 "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
                         "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
             )
+            builder.addHeader("X-BCS-UUID", Identification.deviceID)
+            builder.addHeader("X-BCS-CHECKSUM", Identification.getChecksum(metadata))
             when (metadata.Source.APIType) {
                 "httpBasicAuth" -> {
                     val credential: String =
@@ -159,7 +164,14 @@ object PackDownloadManager {
                 ).show()
                 if (cause == EndCause.COMPLETED) {
                     val intent = Intent(Intent.ACTION_VIEW)
-                    val uri: Uri = Uri.fromFile(PackLocalManager.getUpdateTempFile())
+                    val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+                        FileProvider.getUriForFile(
+                            ApplicationContext.context,
+                            ApplicationContext.context.packageName + ".provider",
+                            PackLocalManager.getUpdateTempFile())
+                    } else {
+                        Uri.fromFile(PackLocalManager.getUpdateTempFile())
+                    }
                     intent.setDataAndType(uri, "application/vnd.android.package-archive")
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)

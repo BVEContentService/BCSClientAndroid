@@ -15,13 +15,11 @@
 
 package tk.zbx1425.bvecontentservice.api
 
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
 import tk.zbx1425.bvecontentservice.api.model.*
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 object MetadataManager {
     const val PROTOCOL_VER = "1.5"
@@ -32,7 +30,6 @@ object MetadataManager {
     const val API_SUB_PACK = "/index/packs.json"
     const val MAGIC_VERINFO = "__PROTOCOL_VERSION"
 
-    val client = OkHttpClient()
     var initialized: Boolean = false
     var updateMetadata: UpdateMetadata? = null
     var indexServers: ArrayList<String> = ArrayList()
@@ -40,7 +37,7 @@ object MetadataManager {
     var ugcServers: ArrayList<IndexMetadata> = ArrayList()
     var authors: ArrayList<AuthorMetadata> = ArrayList()
     var packs: ArrayList<PackageMetadata> = ArrayList()
-    var packMap: HashMap<String, PackageMetadata> = HashMap()
+    var packMap: LinkedHashMap<String, PackageMetadata> = LinkedHashMap()
 
     var indexHomepage: String = ""
 
@@ -78,7 +75,7 @@ object MetadataManager {
                 try {
                     val request =
                         Request.Builder().url(sourceServer.trim()).build()
-                    val response = client.newCall(request).execute()
+                    val response = HttpHelper.client.newCall(request).execute()
                     val result = response.body()?.string() ?: continue
                     val sourceServerJSON = JSONObject(result)
                     SourceMetadata(
@@ -117,7 +114,7 @@ object MetadataManager {
                 try {
                     val request =
                         Request.Builder().url(indexServerURL.trim() + API_SUB_INDEX).build()
-                    val response = client.newCall(request).execute()
+                    val response = HttpHelper.client.newCall(request).execute()
                     val result = response.body()?.string() ?: continue
                     val indexServerTotalJSON = JSONObject(result)
                     val indexServerJSONArray = indexServerTotalJSON.getJSONArray("Servers")

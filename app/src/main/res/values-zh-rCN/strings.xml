@@ -8,7 +8,7 @@
     <string name="alert_install">安装这个线路？\n%s</string>
     <string name="alert_remove">卸载这个线路？\n%s</string>
     <string name="alert_hmmsim">启动Hmmsim吗？</string>
-    <string name="dummy">有啥坏了</string>
+    <string name="bullshit">请截图。\n程序发生错误!\n%s\n请将此文件送至开发人员:\n%s</string>
     <string name="fetch_error_message">抓取结束，发生 %d 个错误。\n请联系维护人员, 程序仍能正常运行。</string>
     <string name="fetch_err_nosrc">ERROR: 获取不到任何源服务器！\
         请检查网络连接，如无问题请联系维护人员！</string>
@@ -45,7 +45,7 @@
     <string name="text_homepage">网站</string>
     <string name="text_maintainer">维护</string>
     <string name="text_remove">卸载</string>
-    <string name="text_ugc">评论</string>
+    <string name="text_ugc">更多</string>
     <string name="text_update">更新 %s</string>
     <string name="text_version">版本</string>
     <string name="pref_ugc_custom">自定义来源</string>
@@ -67,6 +67,8 @@
     <string name="pref_engname">显示英文名</string>
     <string name="pref_engname_sum">以英文显示线路包名称</string>
     <string name="pref_server">服务器</string>
+    <string name="pref_sort">按热门程度排序</string>
+    <string name="pref_sort_sum">同时在下方启用源抓取才可生效</string>
     <string name="pref_source">编辑源服务器列表</string>
     <string name="pref_source_sum">用来获取线路包的服务器</string>
     <string name="pref_useindex">使用索引服务器</string>

@@ -1,5 +1,5 @@
 <resources>
-    <string name="dummy">What a terrible failure!</string>
+    <string name="bullshit">Please take a screenshot.\nWhat a terrible failure!\n%s\nPlease send this file to developers:\n%s</string>
     <string name="app_name">RoutesBVE</string>
     <string name="tab_text_info">Bulletin</string>
     <string name="tab_text_download">Download</string>
@@ -52,7 +52,7 @@
     <string name="text_abuse">For abuse or copyright claims, please contact the uploader.
     If your demand is not satisfied, you can contact server maintainers:</string>
     <string name="text_developer">BVE Content Service Client\n(RoutesBVE)</string>
-    <string name="text_ugc">Comments</string>
+    <string name="text_ugc">More</string>
     <string name="text_download">Download %s</string>
     <string name="text_continue_download">Continue to Download</string>
     <string name="text_downloading">Downloading…</string>
@@ -66,9 +66,9 @@
     <string name="pref_engname_sum">Show Package names in English</string>
     <string name="pref_cleartemp">Clear all cache files</string>
     <string name="pref_cleartemp_sum">Remove download and image cache</string>
-    <string name="pref_disklru">Set DiskLru Size (MB)</string>
-    <string name="pref_disklru_sum">Space used to cache images locally</string>
     <string name="pref_disklru_err">%s is not an valid number!</string>
+    <string name="pref_sort">Sort by popularity</string>
+    <string name="pref_sort_sum">Must enable Source Spider below to actually get it working</string>
     <string name="pref_allpacks">Show All Packages</string>
     <string name="pref_allpacks_sum">Including the outdated ones</string>
     <string name="pref_rproxy">Use Reverse Proxy</string>
@@ -89,6 +89,8 @@
     <string name="pref_usewebview_sum">Use WebView for package description</string>
     <string name="pref_javascript">Enable Javascript in WebView</string>
     <string name="pref_javascript_sum">Balance usability and security yourself</string>
+    <string name="pref_disklru">Set DiskLru Size (MB)</string>
+    <string name="pref_disklru_sum">Space used to cache images locally</string>
     <string name="pref_loadlog">Show load log</string>
     <string name="pref_loadlog_sum">Show logs at the loading screen</string>
     <string name="pref_general">General</string>

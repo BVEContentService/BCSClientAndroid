@@ -33,6 +33,7 @@ import tk.zbx1425.bvecontentservice.api.model.SourceMetadata
 import tk.zbx1425.bvecontentservice.getPreference
 import tk.zbx1425.bvecontentservice.log.Log
 import tk.zbx1425.bvecontentservice.ui.activity.PackDetailActivity
+import tk.zbx1425.bvecontentservice.ui.hThread
 import java.net.URL
 import java.util.*
 
@@ -119,7 +120,7 @@ class DescriptionView(context: Context) : FrameLayout(context) {
                 url.toLowerCase(Locale.US).startsWith("https://")
             ) {
                 textDescription.text = resources.getText(R.string.info_fetch_text)
-                Thread {
+                hThread {
                     try {
                         val result =
                             HttpHelper.fetchNonapiString(source, url)

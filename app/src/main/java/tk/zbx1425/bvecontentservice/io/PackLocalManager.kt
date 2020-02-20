@@ -23,10 +23,10 @@ import java.io.IOException
 import java.util.*
 
 object PackLocalManager {
-    val BCS_DELIMITER = 0x200D.toChar()
+    val BCS_DELIMITER = 0x202C.toChar()
     val BCS_MAGIC_CHAR = arrayOf(
         0x200B.toChar(), 0x200C.toChar(), 0x2060.toChar(), 0xFEFF.toChar(),
-        0x2411.toChar(), 0x2412.toChar(), 0x2413.toChar(), 0x2414.toChar()
+        0x202A.toChar(), 0x202B.toChar(), 0x200D.toChar(), 0x202D.toChar()
     )
     val BCS_SUFFIX = "." + encodeInvisibleString("bcs")
     val hmmDir = File(Environment.getExternalStorageDirectory(), "Hmmsim")

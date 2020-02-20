@@ -23,14 +23,11 @@ import android.view.View
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_webview.*
-import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.getPreference
-import tk.zbx1425.bvecontentservice.io.PackDownloadManager
 
 class ForceViewActivity : AppCompatActivity() {
 
@@ -43,7 +40,8 @@ class ForceViewActivity : AppCompatActivity() {
         metadata = intent.getSerializableExtra("metadata") as PackageMetadata
         if (metadata.ForceView || metadata.NoFile) continueButton.visibility = View.GONE
         continueButton.setOnClickListener {
-            startDownload()
+            setResult(Activity.RESULT_OK, null)
+            finish()
         }
         webView.settings.javaScriptEnabled = getPreference("enableJavascript", true)
         webView.loadUrl(metadata.Homepage)
@@ -66,7 +64,10 @@ class ForceViewActivity : AppCompatActivity() {
 
             override fun shouldOverrideUrlLoading(view: WebView?, url: String): Boolean {
                 if (url == resources.getString(R.string.url_start_download)) {
-                    if (!metadata.NoFile) startDownload()
+                    if (!metadata.NoFile) {
+                        setResult(Activity.RESULT_OK, null)
+                        finish()
+                    }
                     return true
                 }
                 return super.shouldOverrideUrlLoading(view, url)
@@ -92,19 +93,5 @@ class ForceViewActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         webView.destroy()
-    }
-
-    fun startDownload() {
-        if (PackDownloadManager.startDownload(metadata)) {
-            setResult(Activity.RESULT_OK, null)
-        } else {
-            Toast.makeText(
-                this, ApplicationContext.context.resources.getString(
-                    R.string.info_download_start_failed
-                ), Toast.LENGTH_SHORT
-            ).show()
-            setResult(Activity.RESULT_CANCELED, null)
-        }
-        finish()
     }
 }

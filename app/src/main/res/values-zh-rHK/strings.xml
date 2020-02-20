@@ -8,7 +8,7 @@
     <string name="alert_install">安裝哩條線路？\n%s</string>
     <string name="alert_remove">Delete哩條線路？\n%s</string>
     <string name="alert_hmmsim">請確定啟動hmmsim</string>
-    <string name="dummy">程式發生錯誤</string>
+    <string name="bullshit">請截圖。\n程式發生錯誤!\n%s\n請将此檔案送到程式製作組:\n%s</string>
     <string name="fetch_error_message">抓取結束，發生 %d 個錯誤。\n請聯系程式製作組 程式仍然正常運作</string>
     <string name="fetch_err_nosrc">ERROR: 無法連線到服務器\
         如果你依家使用嘅網路連接係正常嘅，請聯系程式製作組</string>
@@ -45,7 +45,7 @@
     <string name="text_homepage">網站</string>
     <string name="text_maintainer">維護</string>
     <string name="text_remove">卸載</string>
-    <string name="text_ugc">評論</string>
+    <string name="text_ugc">更多</string>
     <string name="text_update">更新 %s</string>
     <string name="text_version">版本</string>
     <string name="pref_ugc_custom">自定義來源</string>
@@ -67,6 +67,8 @@
     <string name="pref_engname">顯示英文名</string>
     <string name="pref_engname_sum">以英文顯示線路包名稱</string>
     <string name="pref_server">服務器</string>
+    <string name="pref_sort">按熱門程度排序</string>
+    <string name="pref_sort_sum">同時响下面啟用源抓取先至生效</string>
     <string name="pref_source">編輯源服務器列表</string>
     <string name="pref_source_sum">用來獲取線路包的服務器</string>
     <string name="pref_useindex">使用索引服務器</string>

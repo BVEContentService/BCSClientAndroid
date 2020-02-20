@@ -29,7 +29,6 @@ import okhttp3.Request
 import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.HttpHelper
-import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.api.model.SourceMetadata
 import tk.zbx1425.bvecontentservice.getPreference
@@ -106,7 +105,7 @@ object ImageLoader {
                         ?.byteStream() ?: return null
                 } else {
                     val request: Request = Request.Builder().url(url).build()
-                    MetadataManager.client.newCall(request).execute().body()
+                    HttpHelper.client.newCall(request).execute().body()
                         ?.byteStream() ?: return null
                 }
             networkBitmap = BitmapFactory.decodeStream(inStream) ?: return null

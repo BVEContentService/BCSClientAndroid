@@ -41,6 +41,7 @@ import tk.zbx1425.bvecontentservice.getPreference
 import tk.zbx1425.bvecontentservice.io.PackDownloadManager
 import tk.zbx1425.bvecontentservice.io.PackListManager
 import tk.zbx1425.bvecontentservice.log.Log
+import tk.zbx1425.bvecontentservice.ui.hThread
 import java.util.*
 import kotlin.system.exitProcess
 
@@ -83,7 +84,7 @@ class LoaderActivity : AppCompatActivity() {
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
             startActivity(intent)
         }
-        val fetchThread = Thread {
+        val fetchThread = hThread {
             if (!getPreference("useIndexServer", true)) {
                 val sourceServers =
                     getPreference("sourceServers", resources.getString(R.string.default_src))
@@ -163,7 +164,8 @@ class LoaderActivity : AppCompatActivity() {
         }
         MetadataManager.cleanUp()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (!checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            val permSucceed = checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            if (!permSucceed) {
                 progressBar.visibility = View.GONE
                 adapterData.add(resources.getString(R.string.permission_restart))
                 adapter.notifyDataSetChanged()

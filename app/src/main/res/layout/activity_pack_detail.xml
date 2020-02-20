@@ -91,13 +91,17 @@
             <Button
                 android:id="@+id/ugcButton"
                 style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="50dp"
+                android:layout_gravity="right"
                 android:layout_marginTop="20dp"
-                android:layout_marginRight="50dp"
+                android:layout_marginRight="40dp"
                 android:layout_marginBottom="20dp"
                 android:background="@color/colorAccentLight"
+                android:drawableRight="@drawable/ic_chevron_right_white_24dp"
+                android:drawablePadding="10dp"
+                android:paddingLeft="40dp"
+                android:paddingRight="10dp"
                 android:text="@string/text_ugc" />
 
             <View
@@ -163,8 +167,10 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="60dp"
         android:layout_gravity="bottom"
+        android:background="@drawable/btn_shadow_up"
+        android:paddingTop="10dp"
         app:layout_dodgeInsetEdges="bottom">
 
         <ProgressBar
