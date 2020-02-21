@@ -36,6 +36,13 @@ object Identification {
         return installationID
     }
 
+    fun getDateChecksum(): String {
+        val dateFormat = SimpleDateFormat("yyyyMMddHH", Locale.US)
+        dateFormat.timeZone = TimeZone.getTimeZone("UTC")
+        val inputString = String.format("%s114514%s1919.810", deviceID, dateFormat.format(Date()))
+        return toBase64(MessageDigest.getInstance("md5").digest(inputString.toByteArray(utf8)))
+    }
+
     fun getChecksum(metadata: PackageMetadata): String {
         val dateFormat = SimpleDateFormat("yyyyMMddHH", Locale.US)
         dateFormat.timeZone = TimeZone.getTimeZone("UTC")

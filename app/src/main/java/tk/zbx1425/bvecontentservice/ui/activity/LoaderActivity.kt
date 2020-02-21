@@ -133,7 +133,15 @@ class LoaderActivity : AppCompatActivity() {
                         adapterData.add(resources.getString(R.string.info_update_start))
                         currentStep.text = resources.getString(R.string.info_update_start)
                         adapter.notifyDataSetChanged()
-                        PackDownloadManager.startSelfUpdateDownload(MetadataManager.updateMetadata!!.File)
+                        PackDownloadManager.startSelfUpdateDownload(MetadataManager.updateMetadata!!.File) {
+                            runOnUiThread {
+                                adapterData.add(it)
+                                currentStep.text = it
+                                adapter.notifyDataSetChanged()
+                                continueButton.visibility = View.VISIBLE
+                                stepLog.visibility = View.VISIBLE
+                            }
+                        }
                         continueButton.visibility = View.GONE
                     }
                     dlgAlert.setNegativeButton(android.R.string.no) { _: DialogInterface, _: Int ->

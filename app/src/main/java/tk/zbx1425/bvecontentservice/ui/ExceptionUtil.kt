@@ -1,15 +1,20 @@
 package tk.zbx1425.bvecontentservice.ui
 
-import android.app.Activity
+import Identification
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AlertDialog
+import android.widget.Toast
+import okhttp3.MediaType
+import okhttp3.Request
+import okhttp3.RequestBody
 import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.BuildConfig
 import tk.zbx1425.bvecontentservice.MainActivity
 import tk.zbx1425.bvecontentservice.R
+import tk.zbx1425.bvecontentservice.api.HttpHelper
+import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.io.PackLocalManager
 import tk.zbx1425.bvecontentservice.log.Log
 import java.io.File
@@ -51,7 +56,7 @@ fun bindHandlerToThread(thread: Thread){
     }
 }
 
-fun showPreviousCrash(activity: Activity){
+fun showPreviousCrash() {
     val hintFile = File(PackLocalManager.appDir, ".crashed_hint")
     if (!hintFile.exists()) return
     Log.i("BCSExpUtil", "Crash hint is found")
@@ -59,13 +64,34 @@ fun showPreviousCrash(activity: Activity){
     Log.i("BCSExpUtil", lines.joinToString(","))
     hintFile.delete()
     if (lines.count() < 2) return
-    val dlgAlert = AlertDialog.Builder(activity)
-    dlgAlert.setCancelable(false)
-    dlgAlert.setTitle(R.string.app_name)
-    dlgAlert.setMessage(String.format(activity.resources.getString(R.string.bullshit)
-        , lines[0], lines[1]))
-    dlgAlert.setPositiveButton(android.R.string.yes, null)
-    dlgAlert.create().show()
+    val metadata = MetadataManager.updateMetadata
+    val body = RequestBody.create(MediaType.parse("text/plain"), File(lines[1]))
+    val message: String
+    if (metadata != null && metadata.CrashReport_REL != "") {
+        Thread {
+            try {
+                val builder = Request.Builder().url(
+                    String.format(
+                        metadata.CrashReport,
+                        "and", BuildConfig.VERSION_NAME, SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+                    )
+                )
+                    .addHeader("X-BCS-UUID", Identification.deviceID)
+                    .addHeader("X-BCS-CHECKSUM", Identification.getDateChecksum())
+                val request = when (metadata.ReportMethod) {
+                    "DAV" -> builder.put(body).build()
+                    else -> builder.post(body).build()
+                }
+                HttpHelper.client.newCall(request).execute()
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+            }
+        }.start()
+        message = String.format(ApplicationContext.context.resources.getString(R.string.bullshit_eaten), lines[0])
+    } else {
+        message = String.format(ApplicationContext.context.resources.getString(R.string.bullshit), lines[0], lines[1])
+    }
+    Toast.makeText(ApplicationContext.context, message, Toast.LENGTH_LONG).show()
 }
 
 fun hThread(r: () -> Unit): Thread{

@@ -9,6 +9,7 @@
     <string name="alert_remove">卸载这个线路？\n%s</string>
     <string name="alert_hmmsim">启动Hmmsim吗？</string>
     <string name="bullshit">请截图。\n程序发生错误!\n%s\n请将此文件送至开发人员:\n%s</string>
+    <string name="bullshit_eaten">程序刚刚发生错误。\n%s\n已自动将相应数据送往开发人员分析。</string>
     <string name="fetch_error_message">抓取结束，发生 %d 个错误。\n请联系维护人员, 程序仍能正常运行。</string>
     <string name="fetch_err_nosrc">ERROR: 获取不到任何源服务器！\
         请检查网络连接，如无问题请联系维护人员！</string>

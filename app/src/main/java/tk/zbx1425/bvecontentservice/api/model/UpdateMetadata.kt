@@ -25,6 +25,8 @@ import java.io.Serializable
 data class UpdateMetadata(
     var Version: Version,
     var File_REL: String,
+    var CrashReport_REL: String,
+    var ReportMethod: String,
     var Description_LO: String,
     var Description_EN: String,
     var Homepage: String,
@@ -34,6 +36,8 @@ data class UpdateMetadata(
     constructor (src: JSONObject, Source: SourceMetadata) : this(
         Version(src.getString("Version")),
         src.getString("File"),
+        src.optString("CrashReport"),
+        src.optString("ReportMethod"),
         src.getString("Description_LO"),
         src.getString("Description_EN"),
         src.optString("Homepage"),
@@ -53,5 +57,10 @@ data class UpdateMetadata(
     val File: String
         get() {
             return processRelUrl(Source, File_REL)
+        }
+
+    val CrashReport: String
+        get() {
+            return processRelUrl(Source, CrashReport_REL)
         }
 }

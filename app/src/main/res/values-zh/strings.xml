@@ -9,6 +9,7 @@
     <string name="alert_remove">卸載這個線路？\n%s</string>
     <string name="alert_hmmsim">啟動Hmmsim嗎？</string>
     <string name="bullshit">請截圖。\n程式發生錯誤!\n%s\n請将此檔案送到程式製作組:\n%s</string>
+    <string name="bullshit_eaten">程式剛剛發生錯誤。\n%s\n已自動將相應檔案送往製作組分析。</string>
     <string name="fetch_error_message">抓取結束，發生 %d 個錯誤。\n請聯系維護人員, 程序仍能正常運行。</string>
     <string name="fetch_err_nosrc">ERROR: 獲取不到任何源服務器！\
         請檢查網絡連接，如無問題請聯系維護人員！</string>

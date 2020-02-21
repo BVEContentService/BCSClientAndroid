@@ -31,7 +31,6 @@ import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.log.Log
 import java.io.*
-import kotlin.system.exitProcess
 
 
 object PackDownloadManager {
@@ -122,12 +121,14 @@ object PackDownloadManager {
         }
     }
 
-    fun startSelfUpdateDownload(url: String): Boolean {
+    fun startSelfUpdateDownload(url: String, failureCallback: (String) -> Unit): Boolean {
         if (downloadingMap.containsKey(MAGIC_UPDATE)) return true
         Log.i(LOGCAT_TAG, "Not in VSID-db, starting")
         try {
             PackLocalManager.ensureAppDir()
             Log.i(LOGCAT_TAG, url)
+            Log.i(LOGCAT_TAG, PackLocalManager.getUpdateTempFile().absolutePath)
+            if (PackLocalManager.getUpdateTempFile().exists()) PackLocalManager.getUpdateTempFile().delete()
             val builder = DownloadTask.Builder(url, PackLocalManager.getUpdateTempFile())
                 .setMinIntervalMillisCallbackProcess(400)
             builder.addHeader(
@@ -146,24 +147,25 @@ object PackDownloadManager {
                 ).show()
             }) { dtask: DownloadTask, cause: EndCause, realCause: java.lang.Exception? ->
                 Log.i(LOGCAT_TAG, "Task finished")
-                Toast.makeText(
-                    ApplicationContext.context, String.format(
-                        ApplicationContext.context.resources.getText(
-                            when (cause) {
-                                EndCause.COMPLETED -> R.string.info_download_finished
-                                EndCause.CANCELED -> R.string.info_download_aborted
-                                else -> R.string.info_download_failed
-                            }
-                        ).toString(), dtask.getTag(1), when (cause) {
-                            EndCause.COMPLETED, EndCause.CANCELED -> ""
-                            else -> {
-                                realCause?.printStackTrace(); realCause?.message ?: ""
-                            }
+                val infoText = String.format(
+                    ApplicationContext.context.resources.getText(
+                        when (cause) {
+                            EndCause.COMPLETED -> R.string.info_download_finished
+                            EndCause.CANCELED -> R.string.info_download_aborted
+                            else -> R.string.info_download_failed
                         }
-                    ), Toast.LENGTH_LONG
-                ).show()
+                    ).toString(), dtask.getTag(1), when (cause) {
+                        EndCause.COMPLETED, EndCause.CANCELED -> ""
+                        else -> {
+                            realCause?.printStackTrace(); realCause?.message ?: ""
+                        }
+                    }
+                )
+                Toast.makeText(ApplicationContext.context, infoText, Toast.LENGTH_LONG).show()
                 if (cause == EndCause.COMPLETED) {
                     val intent = Intent(Intent.ACTION_VIEW)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
                         FileProvider.getUriForFile(
                             ApplicationContext.context,
@@ -172,13 +174,14 @@ object PackDownloadManager {
                     } else {
                         Uri.fromFile(PackLocalManager.getUpdateTempFile())
                     }
+                    Log.i(LOGCAT_TAG, uri.toString())
                     intent.setDataAndType(uri, "application/vnd.android.package-archive")
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     ApplicationContext.context.startActivity(intent)
-                    exitProcess(0)
+                    //exitProcess(0)
+                } else {
+                    failureCallback(infoText)
                 }
-                downloadingMap.remove(dtask.getTag(0) as String)
+                //downloadingMap.remove(dtask.getTag(0) as String)
             })
             Log.i(LOGCAT_TAG, "Download started")
             return true

@@ -39,6 +39,7 @@ class AboutActivity : AppCompatActivity() {
             iconLayout.setOnClickListener {
                 clickTimes++
                 if (clickTimes > 20) textUUID.visibility = View.VISIBLE
+                //throw RuntimeException("This should never happen")
             }
         }
     }

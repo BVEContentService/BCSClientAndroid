@@ -16,6 +16,7 @@
 package tk.zbx1425.bvecontentservice.io
 
 import android.os.Environment
+import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.log.Log
 import java.io.File
@@ -89,7 +90,7 @@ object PackLocalManager {
     }
 
     fun getUpdateTempFile(): File {
-        val tempFile = File(appDir, "update.apk")
+        val tempFile = File(ApplicationContext.context.getExternalFilesDir(null), "update.apk")
         //if (tempFile.exists()) Log.i("DEBUG", tempFile.delete().toString())
         return tempFile
     }

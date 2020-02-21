@@ -9,6 +9,7 @@
     <string name="alert_remove">Delete哩條線路？\n%s</string>
     <string name="alert_hmmsim">請確定啟動hmmsim</string>
     <string name="bullshit">請截圖。\n程式發生錯誤!\n%s\n請将此檔案送到程式製作組:\n%s</string>
+    <string name="bullshit_eaten">程式剛剛發生錯誤。\n%s\n已自動將相應檔案送往製作組分析。</string>
     <string name="fetch_error_message">抓取結束，發生 %d 個錯誤。\n請聯系程式製作組 程式仍然正常運作</string>
     <string name="fetch_err_nosrc">ERROR: 無法連線到服務器\
         如果你依家使用嘅網路連接係正常嘅，請聯系程式製作組</string>

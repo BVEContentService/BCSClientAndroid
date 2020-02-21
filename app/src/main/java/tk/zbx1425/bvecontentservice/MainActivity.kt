@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity() {
                 dlgAlert.create().show()
             }
         }
-        showPreviousCrash(this)
+        showPreviousCrash()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
