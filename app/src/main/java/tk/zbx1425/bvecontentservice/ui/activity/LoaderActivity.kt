@@ -132,6 +132,7 @@ class LoaderActivity : AppCompatActivity() {
                         adapterData.add("")
                         adapterData.add(resources.getString(R.string.info_update_start))
                         currentStep.text = resources.getString(R.string.info_update_start)
+                        progressBar.visibility = View.VISIBLE
                         adapter.notifyDataSetChanged()
                         PackDownloadManager.startSelfUpdateDownload(MetadataManager.updateMetadata!!.File) {
                             runOnUiThread {
@@ -139,6 +140,7 @@ class LoaderActivity : AppCompatActivity() {
                                 currentStep.text = it
                                 adapter.notifyDataSetChanged()
                                 continueButton.visibility = View.VISIBLE
+                                progressBar.visibility = View.GONE
                                 stepLog.visibility = View.VISIBLE
                             }
                         }

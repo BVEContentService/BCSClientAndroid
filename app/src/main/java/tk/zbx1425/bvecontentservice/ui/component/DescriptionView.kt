@@ -17,6 +17,7 @@ package tk.zbx1425.bvecontentservice.ui.component
 
 import android.app.Activity
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import android.text.Html
 import android.webkit.JavascriptInterface
@@ -28,6 +29,7 @@ import okhttp3.Credentials
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.HttpHelper
 import tk.zbx1425.bvecontentservice.api.model.AuthorMetadata
+import tk.zbx1425.bvecontentservice.api.model.DevSpecMetadata
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.api.model.SourceMetadata
 import tk.zbx1425.bvecontentservice.getPreference
@@ -45,7 +47,11 @@ class DescriptionView(context: Context) : FrameLayout(context) {
     constructor(context: Context, metadata: AuthorMetadata) :
             this(context, metadata.Description, metadata.Source)
 
+    constructor(context: Context, metadata: DevSpecMetadata) :
+            this(context, metadata.Notice, metadata.Source ?: SourceMetadata(""))
+
     constructor(context: Context, url: String, source: SourceMetadata) : this(context) {
+        if (url == "") return
         val textDescription = TextView(context)
         textDescription.layoutParams = LayoutParams(
             LayoutParams.MATCH_PARENT,
@@ -57,6 +63,13 @@ class DescriptionView(context: Context) : FrameLayout(context) {
             ) {
                 val webView = WebView(context)
                 webView.settings.javaScriptEnabled = getPreference("enableJavascript", true)
+                if (webView.settings.javaScriptEnabled) {
+                    webView.isVerticalScrollBarEnabled = false
+                    webView.isVerticalFadingEdgeEnabled = false
+                    webView.isScrollbarFadingEnabled = false
+                } else {
+                    webView.layoutParams.height = Resources.getSystem().displayMetrics.heightPixels
+                }
                 webView.webViewClient = object : WebViewClient() {
                     override fun onPageFinished(view: WebView, url: String) {
                         webView.loadUrl("javascript:bcs.resize(document.body.getBoundingClientRect().height+10)")
@@ -123,7 +136,7 @@ class DescriptionView(context: Context) : FrameLayout(context) {
                 hThread {
                     try {
                         val result =
-                            HttpHelper.fetchNonapiString(source, url)
+                            HttpHelper.fetchString(source, url)
                         Log.i("BCSDescription", url)
                         Log.i("BCSDescription", result ?: "")
                         val spanned =

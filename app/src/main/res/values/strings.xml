@@ -20,7 +20,7 @@
     <string name="permission_restart">Please restart this app.</string>
     <string name="info_download_started">Download started.</string>
     <string name="info_download_finished">%s\nDownload finished.%s</string>
-    <string name="info_download_aborted">%s\nDownload paused.%sTo delete downloaded file, see settings.</string>
+    <string name="info_download_aborted">%s\nDownload aborted.%s</string>
     <string name="info_download_failed">%s\nDownload interrupted!\n%s</string>
     <string name="info_download_start_failed">Unable to start download!</string>
     <string name="info_download_abort_failed">Unable to abort download!</string>

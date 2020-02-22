@@ -16,7 +16,7 @@
     <string name="fetch_err_update">ERROR: 您的客户端程序版本过低！请更新！最低通信协议版本: %s</string>
     <string name="info_clear_temp">下载缓存已清空。</string>
     <string name="info_download_abort_failed">无法停止下载！</string>
-    <string name="info_download_aborted">%s\n下载已暂停。%s在设置中可删除已下载的部分文件。</string>
+    <string name="info_download_aborted">%s\n下载已停止。%s</string>
     <string name="info_download_failed">%s\n下载中断！\n%s</string>
     <string name="info_download_finished">%s\n下载完成。%s</string>
     <string name="info_download_start_failed">无法开始下载！</string>

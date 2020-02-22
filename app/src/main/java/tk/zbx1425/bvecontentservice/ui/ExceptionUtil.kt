@@ -32,6 +32,7 @@ fun bindHandlerToThread(thread: Thread){
                 SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date()) + ".txt")
             val writer = PrintWriter(dumpFile)
             writer.println("BCS Exception Trace")
+            writer.println("UUID: " + Identification.deviceID)
             writer.println(BuildConfig.VERSION_NAME + " " +
                     BuildConfig.BUILD_TYPE + " " + BuildConfig.BUILD_TIME)
             writer.println("Triggered " + Date().toString())
@@ -65,15 +66,25 @@ fun showPreviousCrash() {
     hintFile.delete()
     if (lines.count() < 2) return
     val metadata = MetadataManager.updateMetadata
-    val body = RequestBody.create(MediaType.parse("text/plain"), File(lines[1]))
-    val message: String
+    val message: String = if (metadata != null && metadata.CrashReport_REL != "") {
+        sendReport(File(lines[1]).readText(), "text")
+        String.format(ApplicationContext.context.resources.getString(R.string.bullshit_eaten), lines[0])
+    } else {
+        String.format(ApplicationContext.context.resources.getString(R.string.bullshit), lines[0], lines[1])
+    }
+    Toast.makeText(ApplicationContext.context, message, Toast.LENGTH_LONG).show()
+}
+
+fun sendReport(text: String, type: String) {
+    val metadata = MetadataManager.updateMetadata
     if (metadata != null && metadata.CrashReport_REL != "") {
         Thread {
+            val body = RequestBody.create(MediaType.parse("text/plain"), text)
             try {
                 val builder = Request.Builder().url(
                     String.format(
                         metadata.CrashReport,
-                        "and", BuildConfig.VERSION_NAME, SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+                        type, "and" + BuildConfig.VERSION_NAME, SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
                     )
                 )
                     .addHeader("X-BCS-UUID", Identification.deviceID)
@@ -87,11 +98,7 @@ fun showPreviousCrash() {
                 ex.printStackTrace()
             }
         }.start()
-        message = String.format(ApplicationContext.context.resources.getString(R.string.bullshit_eaten), lines[0])
-    } else {
-        message = String.format(ApplicationContext.context.resources.getString(R.string.bullshit), lines[0], lines[1])
     }
-    Toast.makeText(ApplicationContext.context, message, Toast.LENGTH_LONG).show()
 }
 
 fun hThread(r: () -> Unit): Thread{

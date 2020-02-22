@@ -15,19 +15,19 @@
 
 package tk.zbx1425.bvecontentservice.api
 
-import okhttp3.Request
 import org.json.JSONObject
 import tk.zbx1425.bvecontentservice.api.model.*
 import java.util.*
 import kotlin.collections.ArrayList
 
 object MetadataManager {
-    const val PROTOCOL_VER = "1.5"
-    const val PROTOCOL_DATE = "2020-2-15"
+    const val PROTOCOL_VER = "1.6"
+    const val PROTOCOL_DATE = "2020-2-21"
     const val API_SUB_INDEX = "/sources.json"
     const val API_SUB_UPDATE = "/clients.json"
     const val API_SUB_AUTHOR = "/index/authors.json"
     const val API_SUB_PACK = "/index/packs.json"
+    const val API_SUB_DEVSPEC = "/index/devspec.json"
     const val MAGIC_VERINFO = "__PROTOCOL_VERSION"
 
     var initialized: Boolean = false
@@ -73,15 +73,8 @@ object MetadataManager {
         for (sourceServer in sourceServers) {
             val newServer = if (sourceServer.trim().toLowerCase(Locale.US).endsWith(".json")) {
                 try {
-                    val request =
-                        Request.Builder().url(sourceServer.trim()).build()
-                    val response = HttpHelper.client.newCall(request).execute()
-                    val result = response.body()?.string() ?: continue
-                    val sourceServerJSON = JSONObject(result)
-                    SourceMetadata(
-                        sourceServerJSON,
-                        IndexMetadata()
-                    )
+                    val sourceServerJSON = HttpHelper.fetchObject(sourceServer.trim()) ?: continue
+                    SourceMetadata(sourceServerJSON, IndexMetadata())
                 } catch (ex: java.lang.Exception) {
                     progress(String.format(ManagerConfig.strErrNetwork, ex.message))
                     null
@@ -90,8 +83,7 @@ object MetadataManager {
                 SourceMetadata((sourceServer.trim()))
             }
             if (newServer != null && this.sourceServers.find {
-                    it.APIURL == newServer.APIURL &&
-                            it.Username == newServer.Username
+                    it.APIURL == newServer.APIURL && it.Username == newServer.Username
                 } == null) {
                 this.sourceServers.add(newServer)
                 fetchAuthors(newServer, progress)
@@ -104,29 +96,13 @@ object MetadataManager {
     private fun fetchServers(progress: (String) -> Unit) {
         for (indexServerSetURL in indexServers) {
             for (indexServerURL in indexServerSetURL.split(",")) {
-                progress(
-                    String.format(
-                        ManagerConfig.strBeginFetch,
-                        ManagerConfig.strSource,
-                        indexServerURL
-                    )
-                )
+                progress(String.format(ManagerConfig.strBeginFetch, ManagerConfig.strSource, indexServerURL))
                 try {
-                    val request =
-                        Request.Builder().url(indexServerURL.trim() + API_SUB_INDEX).build()
-                    val response = HttpHelper.client.newCall(request).execute()
-                    val result = response.body()?.string() ?: continue
-                    val indexServerTotalJSON = JSONObject(result)
+                    val indexServerTotalJSON = HttpHelper.fetchObject(indexServerURL.trim() + API_SUB_INDEX) ?: continue
                     val indexServerJSONArray = indexServerTotalJSON.getJSONArray("Servers")
-                    val indexServer =
-                        IndexMetadata(
-                            indexServerTotalJSON,
-                            indexServerURL.trim()
-                        )
+                    val indexServer = IndexMetadata(indexServerTotalJSON, indexServerURL.trim())
                     var spiderServer: SourceMetadata? = null
-                    if (indexServer.Homepage != "") {
-                        indexHomepage = indexServer.Homepage
-                    }
+                    if (indexServer.Homepage != "") indexHomepage = indexServer.Homepage
                     if (indexServer.Protocol != "" &&
                         Version(indexServer.Protocol) > Version(PROTOCOL_VER)
                     ) {
@@ -139,19 +115,14 @@ object MetadataManager {
                                 if (indexServerJSON.getString("Type") == "Update") {
                                     progress(String.format(ManagerConfig.strGetContent, ManagerConfig.strUpdate, APIURL))
                                     val updateServer = SourceMetadata(indexServerJSON, indexServer)
-                                    val content = JSONObject(HttpHelper.fetchString(updateServer, API_SUB_UPDATE) ?: "{}")
+                                    val content = JSONObject(HttpHelper.fetchApiString(updateServer, API_SUB_UPDATE) ?: "{}")
                                     if (!content.has(ManagerConfig.arch)) continue
                                     updateMetadata =
                                         UpdateMetadata(content.getJSONObject(ManagerConfig.arch), updateServer).chooseNewer(updateMetadata)
                                 }
                             } catch (ex: Exception) {
                                 progress(
-                                    String.format(
-                                        ManagerConfig.strErrParser,
-                                        ManagerConfig.strSource,
-                                        i,
-                                        ex.message
-                                    )
+                                    String.format(ManagerConfig.strErrParser, ManagerConfig.strSource, i, ex.message)
                                 )
                             }
                         }
@@ -172,7 +143,7 @@ object MetadataManager {
                                 "Update" -> {
                                     progress(String.format(ManagerConfig.strGetContent, ManagerConfig.strUpdate, APIURL))
                                     val updateServer = SourceMetadata(indexServerJSON, indexServer)
-                                    val content = JSONObject(HttpHelper.fetchString(updateServer, API_SUB_UPDATE) ?: "{}")
+                                    val content = JSONObject(HttpHelper.fetchApiString(updateServer, API_SUB_UPDATE) ?: "{}")
                                     if (content.has(ManagerConfig.arch)) {
                                         updateMetadata =
                                             UpdateMetadata(content.getJSONObject(ManagerConfig.arch), updateServer).chooseNewer(updateMetadata)
@@ -221,16 +192,10 @@ object MetadataManager {
 
     //Returns: If the parser is allowed to go on and parse pack metadata
     private fun fetchAuthors(sourceServer: SourceMetadata, progress: (String) -> Unit): Boolean {
-        progress(
-            String.format(
-                ManagerConfig.strBeginFetch,
-                ManagerConfig.strAuthor,
-                sourceServer.APIURL
-            )
-        )
+        progress(String.format(ManagerConfig.strBeginFetch, ManagerConfig.strAuthor, sourceServer.APIURL))
         try {
             val authorJSONArray =
-                HttpHelper.fetchArray(sourceServer, API_SUB_AUTHOR) ?: return false
+                HttpHelper.fetchApiArray(sourceServer, API_SUB_AUTHOR) ?: return false
             if ((authorJSONArray[0] as? JSONObject)?.optString("ID") == MAGIC_VERINFO) {
                 val verInfo = authorJSONArray[0] as JSONObject
                 if (Version(PROTOCOL_VER) < Version(verInfo.optString("Name_LO", "0.0"))) {
@@ -241,27 +206,10 @@ object MetadataManager {
             for (i in 0 until authorJSONArray.length()) {
                 try {
                     val authorJSON: JSONObject = authorJSONArray[i] as? JSONObject ?: continue
-                    progress(
-                        String.format(
-                            ManagerConfig.strGetContent,
-                            ManagerConfig.strAuthor,
-                            authorJSON.getString("ID")
-                        )
-                    )
-                    authors.add(
-                        AuthorMetadata(
-                            authorJSON, sourceServer
-                        )
-                    )
+                    progress(String.format(ManagerConfig.strGetContent, ManagerConfig.strAuthor, authorJSON.getString("ID")))
+                    authors.add(AuthorMetadata(authorJSON, sourceServer))
                 } catch (ex: Exception) {
-                    progress(
-                        String.format(
-                            ManagerConfig.strErrParser,
-                            ManagerConfig.strAuthor,
-                            i,
-                            ex.message
-                        )
-                    )
+                    progress(String.format(ManagerConfig.strErrParser, ManagerConfig.strAuthor, i, ex.message))
                 }
             }
         } catch (ex: Exception) {
@@ -276,25 +224,13 @@ object MetadataManager {
         progress: (String) -> Unit,
         bySpider: Boolean = false
     ) {
-        progress(
-            String.format(
-                ManagerConfig.strBeginFetch,
-                ManagerConfig.strPack,
-                sourceServer.APIURL
-            )
-        )
+        progress(String.format(ManagerConfig.strBeginFetch, ManagerConfig.strPack, sourceServer.APIURL))
         try {
-            val packJSONArray = HttpHelper.fetchArray(sourceServer, API_SUB_PACK) ?: return
+            val packJSONArray = HttpHelper.fetchApiArray(sourceServer, API_SUB_PACK) ?: return
             for (i in 0 until packJSONArray.length()) {
                 try {
                     val packJSON: JSONObject = packJSONArray[i] as? JSONObject ?: continue
-                    progress(
-                        String.format(
-                            ManagerConfig.strGetContent,
-                            ManagerConfig.strPack,
-                            packJSON.getString("ID")
-                        )
-                    )
+                    progress(String.format(ManagerConfig.strGetContent, ManagerConfig.strPack, packJSON.getString("ID")))
                     val metadata =
                         PackageMetadata(
                             packJSON,
@@ -309,14 +245,7 @@ object MetadataManager {
                         packMap[metadata.ID] = metadata
                     }
                 } catch (ex: Exception) {
-                    progress(
-                        String.format(
-                            ManagerConfig.strErrParser,
-                            ManagerConfig.strPack,
-                            i,
-                            ex.message
-                        )
-                    )
+                    progress(String.format(ManagerConfig.strErrParser, ManagerConfig.strPack, i, ex.message))
                 }
             }
         } catch (ex: Exception) {

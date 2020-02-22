@@ -59,8 +59,8 @@ data class PackageMetadata(
     val VSID: String = this.ID + "_" + this.Version.get()
 
     constructor (
-        src: JSONObject, source: SourceMetadata
-        , bySpider: Boolean = false
+        src: JSONObject, source: SourceMetadata,
+        bySpider: Boolean = false
     ) : this(
         src.getString("ID"),
         Version(src.getString("Version")),

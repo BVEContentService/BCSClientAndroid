@@ -16,9 +16,8 @@
 package tk.zbx1425.bvecontentservice
 
 import android.app.Application
-import com.liulishuo.okdownload.core.Util
-import com.liulishuo.okdownload.core.dispatcher.DownloadDispatcher
 import tk.zbx1425.bvecontentservice.io.ImageLoader
+import tk.zbx1425.bvecontentservice.io.PackDownloadManager
 import tk.zbx1425.bvecontentservice.ui.bindHandlerToThread
 
 
@@ -28,8 +27,7 @@ class Application : Application() {
         ApplicationContext.initialize(this)
         bindHandlerToThread(Thread.currentThread())
         ImageLoader.initCache()
-        Util.enableConsoleLog()
-        DownloadDispatcher.setMaxParallelRunningCount(1)
+        PackDownloadManager.syncDownloadMap()
     }
 
 }

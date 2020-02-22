@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -30,6 +31,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.appbar.AppBarLayout
+import com.tonyodev.fetch2.Download
+import com.tonyodev.fetch2.Error
+import com.tonyodev.fetch2.FetchListener
+import com.tonyodev.fetch2core.DownloadBlock
 import kotlinx.android.synthetic.main.activity_pack_detail.*
 import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
@@ -39,8 +44,6 @@ import tk.zbx1425.bvecontentservice.log.Log
 import tk.zbx1425.bvecontentservice.replaceView
 import tk.zbx1425.bvecontentservice.ui.component.DescriptionView
 import tk.zbx1425.bvecontentservice.ui.component.MetadataView
-import java.util.*
-import kotlin.concurrent.timerTask
 import kotlin.math.abs
 
 
@@ -48,8 +51,57 @@ class PackDetailActivity : AppCompatActivity() {
 
     var isDownloadBtnShown: Boolean = false
     lateinit var metadata: PackageMetadata
-    var timer: Timer = Timer()
-    var timerRunning: Boolean = false
+
+    val downloadListener = object : FetchListener {
+        override fun onAdded(download: Download) {
+            updateUI()
+        }
+
+        override fun onCancelled(download: Download) {}
+        override fun onQueued(download: Download, waitingOnNetwork: Boolean) {}
+        override fun onRemoved(download: Download) {
+            updateUI()
+            PackDownloadManager.fetch.removeListener(this)
+        }
+
+        override fun onResumed(download: Download) {}
+        override fun onDownloadBlockUpdated(download: Download, downloadBlock: DownloadBlock, totalBlocks: Int) {}
+        override fun onPaused(download: Download) {}
+        override fun onStarted(download: Download, downloadBlocks: List<DownloadBlock>, totalBlocks: Int) {
+            updateUI()
+        }
+
+        override fun onCompleted(download: Download) {
+            updateUI()
+            PackDownloadManager.fetch.removeListener(this)
+        }
+
+        override fun onDeleted(download: Download) {
+            updateUI()
+            PackDownloadManager.fetch.removeListener(this)
+        }
+
+        override fun onError(download: Download, error: Error, throwable: Throwable?) {
+            updateUI()
+            PackDownloadManager.fetch.removeListener(this)
+        }
+
+        override fun onProgress(download: Download, etaInMilliSeconds: Long, downloadedBytesPerSecond: Long) {
+            Log.i("BCSUi", download.progress.toString())
+            runOnUiThread {
+                downloadSpeed.text = String.format(
+                    "%s/s",
+                    android.text.format.Formatter.formatShortFileSize(this@PackDetailActivity, downloadedBytesPerSecond)
+                )
+                val animation = ObjectAnimator.ofInt(downloadProgress, "progress", download.progress)
+                animation.duration = 200
+                animation.interpolator = DecelerateInterpolator()
+                animation.start()
+            }
+        }
+
+        override fun onWaitingNetwork(download: Download) {}
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,8 +126,10 @@ class PackDetailActivity : AppCompatActivity() {
                 }
             }
         })
-
-        setButtonState()
+        if (PackDownloadManager.isDownloading(metadata)) {
+            PackDownloadManager.fetch.addListener(downloadListener)
+        }
+        updateUI()
         val packMetadataView = MetadataView(this, metadata, object : View.OnClickListener {
             override fun onClick(v: View?) {
                 val intent = Intent(this@PackDetailActivity, AuthorActivity::class.java)
@@ -87,11 +141,12 @@ class PackDetailActivity : AppCompatActivity() {
         sourceMetadataPlaceholder.replaceView(MetadataView(this, metadata.Source))
         indexMetadataPlaceholder.replaceView(MetadataView(this, metadata.Source.Index))
         appMetadataPlaceholder.replaceView((MetadataView(this)))
+        noticePlaceholder.replaceView(DescriptionView(this, metadata.Source.DevSpec))
         descriptionPlaceholder.replaceView(DescriptionView(this, metadata))
         ImageLoader.setPackImageAsync(thumbnailView, metadata)
 
-        fab.setOnClickListener { startDownload() }
-        downloadButton.setOnClickListener { startDownload() }
+        fab.setOnClickListener { onButtonClick() }
+        downloadButton.setOnClickListener { onButtonClick() }
         if (UGCSelector.getActiveUGCServer() == null){
             ugcButton.visibility = View.GONE
         }
@@ -109,39 +164,23 @@ class PackDetailActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        timer.cancel(); timer.purge()
-        Log.i("BCSUi", "Timer stopped")
+        PackDownloadManager.fetch.removeListener(downloadListener)
+        Log.i("BCSUi", "Activity Destroyed")
         super.onDestroy()
     }
 
-    private fun startDownload() {
+    private fun onButtonClick() {
         Log.i("BCSUi", "startDownload called")
-        val packState = PackLocalManager.getLocalState(metadata)
         val dlgAlert = AlertDialog.Builder(this)
         dlgAlert.setNegativeButton(android.R.string.no, null)
         dlgAlert.setCancelable(true)
         dlgAlert.setTitle(R.string.app_name)
-        setButtonState()
+        updateUI()
         if (metadata.UpdateAvailable) {
             PackLocalManager.removeLocalPacks(metadata.ID)
-            if (PackDownloadManager.startDownload(metadata)) {
-                setResult(Activity.RESULT_OK, null)
-                timer = Timer()
-                timer.schedule(timerTask { setButtonState(true) }, 500, 500)
-            } else {
-                Toast.makeText(
-                    this as Context, ApplicationContext.context.resources.getString(
-                        R.string.info_download_start_failed
-                    ), Toast.LENGTH_SHORT
-                ).show()
-            }
-        } else if (packState > 100) {
-            dlgAlert.setMessage(
-                String.format(
-                    resources.getString(R.string.alert_remove),
-                    metadata.Name
-                )
-            )
+            startDownload()
+        } else if (PackLocalManager.isInstalled(metadata)) {
+            dlgAlert.setMessage(String.format(resources.getString(R.string.alert_remove), metadata.Name))
             dlgAlert.setPositiveButton(android.R.string.yes) { _: DialogInterface, i: Int ->
                 if (i == DialogInterface.BUTTON_POSITIVE) {
                     PackLocalManager.removeLocalPacks(metadata.ID)
@@ -150,13 +189,8 @@ class PackDetailActivity : AppCompatActivity() {
                 }
             }
             dlgAlert.create().show()
-        } else if (packState >= 0) {
-            dlgAlert.setMessage(
-                String.format(
-                    resources.getString(R.string.alert_abort),
-                    metadata.Name
-                )
-            )
+        } else if (PackDownloadManager.isDownloading(metadata)) {
+            dlgAlert.setMessage(String.format(resources.getString(R.string.alert_abort), metadata.Name))
             dlgAlert.setPositiveButton(android.R.string.yes) { _: DialogInterface, i: Int ->
                 if (i == DialogInterface.BUTTON_POSITIVE) {
                     PackDownloadManager.abortDownload(metadata)
@@ -170,18 +204,18 @@ class PackDetailActivity : AppCompatActivity() {
                 intent.putExtra("metadata", metadata)
                 startActivityForResult(intent, 9376)
             } else {
-                startActualDownload()
+                startDownload()
             }
         }
     }
 
-    private fun startActualDownload(){
+    private fun startDownload() {
         UGCSelector.runActionAsync(metadata, "download")
+        PackDownloadManager.fetch.addListener(downloadListener)
         if (PackDownloadManager.startDownload(metadata)) {
             setResult(Activity.RESULT_OK, null)
-            timer = Timer()
-            timer.schedule(timerTask { setButtonState(true) }, 500, 500)
         } else {
+            PackDownloadManager.fetch.removeListener(downloadListener)
             Toast.makeText(
                 this as Context, ApplicationContext.context.resources.getString(
                     R.string.info_download_start_failed
@@ -192,64 +226,50 @@ class PackDetailActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == 9376 && resultCode == Activity.RESULT_OK) {
-            startActualDownload()
+            startDownload()
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun setButtonState(onTimer: Boolean = false) {
-        if (onTimer) timerRunning = true
+    private fun updateUI() {
         runOnUiThread {
-            val packState = PackLocalManager.getLocalState(metadata)
             downloadButton.text =
-                when {
-                    packState < 0 -> {
-                        if (metadata.NoFile) {
-                            resources.getString(R.string.text_continue_download)
+                if (PackDownloadManager.isDownloading(metadata)) {
+                    downloadProgress.secondaryProgress = 0
+                    resources.getString(R.string.text_downloading)
+                } else if (PackLocalManager.isInstalled(metadata)) {
+                    downloadProgress.secondaryProgress = 100
+                    resources.getString(R.string.text_remove)
+                } else {
+                    downloadProgress.secondaryProgress = 0
+                    if (metadata.NoFile) {
+                        resources.getString(R.string.text_continue_download)
+                    } else {
+                        if (metadata.UpdateAvailable) {
+                            String.format(
+                                resources.getString(R.string.text_update),
+                                metadata.FileSize
+                            )
                         } else {
-                            if (metadata.UpdateAvailable) {
-                                String.format(
-                                    resources.getString(R.string.text_update),
-                                    metadata.FileSize
-                                )
-                            } else {
-                                String.format(
-                                    resources.getString(R.string.text_download),
-                                    metadata.FileSize
-                                )
-                            }
+                            String.format(
+                                resources.getString(R.string.text_download),
+                                metadata.FileSize
+                            )
                         }
                     }
-                    packState < 100 -> resources.getString(R.string.text_downloading)
-                    packState == 100 -> resources.getString(R.string.text_finishing)
-                    packState > 100 -> resources.getString(R.string.text_remove)
-                    else -> resources.getString(R.string.bullshit)
                 }
-            val animation = ObjectAnimator.ofInt(
-                downloadProgress,
-                "progress", when {
-                    packState < 0 -> 0
-                    packState <= 100 -> packState
-                    packState > 100 -> 0
-                    else -> 0
-                }
-            )
-            animation.duration = 200
-            animation.interpolator = DecelerateInterpolator()
-            animation.start()
-            when {
-                packState <= 100 -> downloadProgress.secondaryProgress = 0
-                packState > 100 -> downloadProgress.secondaryProgress = 100
-            }
-            //Log.i("BCSUi", "PackState: " + packState)
-            if ((packState > 100 || packState < 0) && timerRunning) {
-                timer.cancel(); timer.purge()
-                Log.i("BCSUi", "Timer stopped")
-                timerRunning = false
-            } else if (packState >= 0 && !timerRunning) {
-                timer = Timer()
-                timer.schedule(timerTask { setButtonState(true) }, 0, 500)
-                Log.i("BCSUi", "Timer started")
+            if (!PackDownloadManager.isDownloading(metadata)) {
+                downloadButton.gravity = Gravity.CENTER
+                downloadSpeed.visibility = View.GONE
+                downloadProgress.clearAnimation()
+                downloadProgress.progress = 0
+                val animation = ObjectAnimator.ofInt(downloadProgress, "progress", 0)
+                animation.duration = 200
+                animation.interpolator = DecelerateInterpolator()
+                animation.start()
+            } else {
+                downloadButton.gravity = Gravity.CENTER_VERTICAL or Gravity.START
+                downloadSpeed.visibility = View.VISIBLE
             }
         }
     }
@@ -270,7 +290,7 @@ class PackDetailActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_download -> {
-                startDownload()
+                onButtonClick()
             }
         }
         return super.onOptionsItemSelected(item)

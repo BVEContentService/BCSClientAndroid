@@ -62,11 +62,18 @@
             android:text="@string/about_info"
             android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/textUUID"
+        <LinearLayout
+            android:id="@+id/aboutHidden"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
-            android:visibility="gone" />
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/buttonSubmitLogcat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Submit Logcat Dump" />
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

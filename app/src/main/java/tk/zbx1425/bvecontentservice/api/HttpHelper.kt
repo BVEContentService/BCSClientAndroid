@@ -15,6 +15,7 @@
 
 package tk.zbx1425.bvecontentservice.api
 
+import Identification
 import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -22,32 +23,55 @@ import tk.zbx1425.bvecontentservice.api.model.SourceMetadata
 
 object HttpHelper {
     val client = OkHttpClient()
+    val cachedResponse = HashMap<String, String>()
 
-    fun fetchArray(source: SourceMetadata, sub: String): JSONArray? {
-        return JSONArray(fetchString(source, sub) ?: return null)
+    fun fetchApiArray(source: SourceMetadata, sub: String): JSONArray? {
+        return JSONArray(fetchApiString(source, sub) ?: return null)
     }
 
-    fun fetchObject(source: SourceMetadata, sub: String): JSONObject? {
-        return JSONObject(fetchString(source, sub) ?: return null)
+    fun fetchApiObject(source: SourceMetadata, sub: String): JSONObject? {
+        return JSONObject(fetchApiString(source, sub) ?: return null)
     }
 
-    fun fetchString(source: SourceMetadata, sub: String): String? {
-        val request =
-            if (ManagerConfig.reverseProxy && source.APIRProxy != "") {
+    fun fetchApiString(source: SourceMetadata, sub: String): String? {
+        val url = if (ManagerConfig.reverseProxy && source.APIRProxy != "") {
                 //Log.i("BCSHttpHelper", "Built request with RPROXY "+source.APIRProxy)
-                Request.Builder().url(source.APIRProxy.trim() + sub).build()
+            source.APIRProxy.trim() + sub
             } else {
-                Request.Builder().url(source.APIURL.trim() + sub).build()
+            source.APIURL.trim() + sub
             }
+        return fetchString(source, url)
+    }
+
+    fun fetchArray(url: String): JSONArray? {
+        return JSONArray(fetchString(url) ?: return null)
+    }
+
+    fun fetchObject(url: String): JSONObject? {
+        return JSONObject(fetchString(url) ?: return null)
+    }
+
+    fun fetchString(source: SourceMetadata, url: String): String? {
+        if (cachedResponse[url] != null) return cachedResponse[url]
+        val request = Request.Builder()
+            .url(url)
+            .addHeader("Referer", "https://anti-hotlink.zbx1425.tk")
+            .addHeader("X-BCS-UUID", Identification.deviceID)
+            .addHeader("X-BCS-CHECKSUM", Identification.getDateChecksum())
+            .build()
         val response = getSourceClient(source).newCall(request).execute()
         return response.body()?.string() ?: return null
     }
 
-    fun fetchNonapiString(source: SourceMetadata, url: String): String? {
+    fun fetchString(url: String): String? {
+        if (cachedResponse[url] != null) return cachedResponse[url]
         val request = Request.Builder()
             .url(url)
+            .addHeader("Referer", "https://anti-hotlink.zbx1425.tk")
+            .addHeader("X-BCS-UUID", Identification.deviceID)
+            .addHeader("X-BCS-CHECKSUM", Identification.getDateChecksum())
             .build()
-        val response = getSourceClient(source).newCall(request).execute()
+        val response = client.newCall(request).execute()
         return response.body()?.string() ?: return null
     }
 
@@ -55,7 +79,7 @@ object HttpHelper {
         return when (source.APIType) {
             "httpSimple" -> OkHttpClient()
             "httpBasicAuth" -> OkHttpClient.Builder()
-                .authenticator { route: Route, response: Response ->
+                .authenticator { route: Route?, response: Response ->
                     val credential: String = Credentials.basic(source.Username, source.Password)
                     response.request().newBuilder()
                         .header("Authorization", credential).build()

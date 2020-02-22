@@ -16,7 +16,7 @@
     <string name="fetch_err_update">ERROR: 你嘅程式版本過低，請下載最新版本！最低通訊協定版本: %s</string>
     <string name="info_clear_temp">已清空下載內容</string>
     <string name="info_download_abort_failed">啊啊啊點解下載停唔低㗎！！！</string>
-    <string name="info_download_aborted">%s\n下載已暫停%s設置入面可Delete已經下載咗嘅部分</string>
+    <string name="info_download_aborted">%s\n下載已停止%s</string>
     <string name="info_download_failed">%s\n啊啊啊又要重新下載啦......\n%s</string>
     <string name="info_download_finished">%s\nDownload job finished%s</string>
     <string name="info_download_start_failed">啊啊啊點解冇得下載㗎！！！</string>

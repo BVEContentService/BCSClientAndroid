@@ -16,8 +16,10 @@
 package tk.zbx1425.bvecontentservice.api.model
 
 import org.json.JSONObject
+import tk.zbx1425.bvecontentservice.api.HttpHelper
+import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.chooseString
-
+import tk.zbx1425.bvecontentservice.log.Log
 import java.io.Serializable
 
 data class SourceMetadata(
@@ -32,7 +34,8 @@ data class SourceMetadata(
     val Contact: String,
     val Username: String,
     val Password: String,
-    val Index: IndexMetadata
+    val Index: IndexMetadata,
+    var DevSpec: DevSpecMetadata
 ) : Serializable {
     constructor (src: JSONObject, index: IndexMetadata) : this(
         src.getString("Name_LO"),
@@ -46,8 +49,17 @@ data class SourceMetadata(
         src.getString("Contact"),
         src.optString("Username"),
         src.optString("Password"),
-        index
-    )
+        index,
+        DevSpecMetadata("", 0, SourceMetadata(""))
+    ) {
+        try {
+            val obj = HttpHelper.fetchApiObject(this, MetadataManager.API_SUB_DEVSPEC)
+            if (obj != null) DevSpec = DevSpecMetadata(obj, this)
+            Log.i("BCSDebug", Name + " Throttle " + DevSpec.Throttle + " Notice " + DevSpec.Notice)
+        } catch (ex: Exception) {
+            //Discard it. Server does not support DevSpec.
+        }
+    }
 
     constructor (url: String) : this(
         "手动设定源服务器",
@@ -61,7 +73,8 @@ data class SourceMetadata(
         "Unknown",
         "",
         "",
-        IndexMetadata()
+        IndexMetadata(),
+        DevSpecMetadata("", 0, null)
     )
 
     val Name: String

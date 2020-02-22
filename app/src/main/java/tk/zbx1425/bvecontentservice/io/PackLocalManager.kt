@@ -16,7 +16,6 @@
 package tk.zbx1425.bvecontentservice.io
 
 import android.os.Environment
-import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.log.Log
 import java.io.File
@@ -60,16 +59,10 @@ object PackLocalManager {
         return String(chars)
     }
 
-    fun getLocalState(metadata: PackageMetadata): Int {
+    fun isInstalled(metadata: PackageMetadata): Boolean {
         ensureHmmsimDir()
         val packFile = getLocalPackFile(metadata)
-        if (packFile.exists()) {
-            return 200
-        } else if (PackDownloadManager.downloadingMap.containsKey(metadata.VSID)) {
-            return PackDownloadManager.getProgress(metadata)
-        } else {
-            return -100
-        }
+        return packFile.exists()
     }
 
     fun getLocalPackFile(metadata: PackageMetadata): File {
@@ -86,11 +79,11 @@ object PackLocalManager {
     }
 
     fun getLocalTempFile(VSID: String): File {
-        return File(hmmDir, BCS_SUFFIX + BCS_DELIMITER + convertVSID(VSID) + BCS_DELIMITER + ".tmp")
+        return File(appDir, BCS_SUFFIX + BCS_DELIMITER + convertVSID(VSID) + BCS_DELIMITER + ".tmp")
     }
 
     fun getUpdateTempFile(): File {
-        val tempFile = File(ApplicationContext.context.getExternalFilesDir(null), "update.apk")
+        val tempFile = File(appDir, "update.apk")
         //if (tempFile.exists()) Log.i("DEBUG", tempFile.delete().toString())
         return tempFile
     }

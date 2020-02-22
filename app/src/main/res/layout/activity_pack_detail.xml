@@ -82,6 +82,13 @@
             </FrameLayout>
 
             <FrameLayout
+                android:id="@+id/noticePlaceholder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="" />
+
+            <FrameLayout
                 android:id="@+id/descriptionPlaceholder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -184,11 +191,24 @@
             android:id="@+id/downloadButton"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
             android:gravity="center_horizontal|center_vertical"
             android:text="@string/text_download"
             android:textColor="@android:color/primary_text_dark"
             android:textSize="24sp"
             android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/downloadSpeed"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:gravity="end|center_vertical"
+            android:text="20 KB/s"
+            android:textColor="@android:color/primary_text_dark"
+            android:textSize="20sp" />
     </FrameLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
