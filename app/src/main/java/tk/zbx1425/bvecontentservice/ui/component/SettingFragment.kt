@@ -90,8 +90,7 @@ class SettingFragment : PreferenceFragmentCompat() {
         indexServerTextBox.isEnabled = useIndex.isChecked
         useSpiderSwitch.isEnabled = useIndex.isChecked
         sourceServerTextBox.isEnabled = !useIndex.isChecked
-        popularitySort.isEnabled = useIndex.isChecked && useSpiderSwitch.isChecked
-                && !allPacksSwitch.isChecked
+        popularitySort.isEnabled = !allPacksSwitch.isChecked
         val entries = ArrayList<CharSequence>()
         val entryValues = ArrayList<CharSequence>()
         entries.add(resources.getString(R.string.pref_ugc_disable))

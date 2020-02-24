@@ -67,13 +67,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="gone">
 
             <Button
                 android:id="@+id/buttonSubmitLogcat"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Submit Logcat Dump" />
+                android:text="@string/text_submit_log" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

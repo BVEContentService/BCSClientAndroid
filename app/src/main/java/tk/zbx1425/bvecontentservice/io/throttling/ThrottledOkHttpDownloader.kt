@@ -15,11 +15,16 @@
 
 package tk.zbx1425.bvecontentservice.io.throttling
 
-import com.tonyodev.fetch2core.*
+import Identification
+import com.tonyodev.fetch2core.Downloader
 import com.tonyodev.fetch2core.Downloader.Response
+import com.tonyodev.fetch2core.InterruptMonitor
+import com.tonyodev.fetch2core.copyStreamToString
+import com.tonyodev.fetch2core.getContentLengthFromHeader
 import com.tonyodev.fetch2okhttp.OkHttpDownloader
 import okhttp3.Headers
 import okhttp3.OkHttpClient
+import tk.zbx1425.bvecontentservice.api.HttpHelper
 import java.io.BufferedInputStream
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -27,13 +32,12 @@ import com.tonyodev.fetch2core.Downloader.ServerRequest as ServerRequest1
 
 class ThrottledOkHttpDownloader(okHttpClient: OkHttpClient) : OkHttpDownloader(okHttpClient) {
     override fun execute(request: ServerRequest1, interruptMonitor: InterruptMonitor): Response? {
-        var okHttpRequest = onPreClientExecute(client, request)
-        if (okHttpRequest.header("Referer") == null) {
-            val referer = getRefererFromUrl(request.url)
-            okHttpRequest = okHttpRequest.newBuilder()
-                .addHeader("Referer", referer)
-                .build()
-        }
+        var okHttpRequest = onPreClientExecute(client, request).newBuilder()
+            .header("Referer", request.extras.getString("Referer", HttpHelper.REFERER))
+            .header("User-Agent", HttpHelper.FAKEUA)
+            .header("X-BCS-UUID", Identification.deviceID)
+            .header("X-BCS-CHECKSUM", Identification.getDateChecksum())
+            .build()
         var okHttpResponse = client.newCall(okHttpRequest).execute()
         var responseHeaders = getResponseHeaders(okHttpResponse.headers())
         var code = okHttpResponse.code()
@@ -41,18 +45,13 @@ class ThrottledOkHttpDownloader(okHttpClient: OkHttpClient) : OkHttpDownloader(o
                     || code == HttpURLConnection.HTTP_MOVED_PERM
                     || code == HttpURLConnection.HTTP_SEE_OTHER) && responseHeaders.containsKey("location")
         ) {
-            okHttpRequest = onPreClientExecute(
-                client, getRedirectedServerRequest(
-                    request,
-                    responseHeaders["location"]?.firstOrNull() ?: ""
-                )
-            )
-            if (okHttpRequest.header("Referer") == null) {
-                val referer = getRefererFromUrl(request.url)
-                okHttpRequest = okHttpRequest.newBuilder()
-                    .addHeader("Referer", referer)
-                    .build()
-            }
+            okHttpRequest = onPreClientExecute(client, getRedirectedServerRequest(request, responseHeaders["location"]?.firstOrNull() ?: ""))
+                .newBuilder()
+                .header("Referer", request.extras.getString("Referer", HttpHelper.REFERER))
+                .header("User-Agent", HttpHelper.FAKEUA)
+                .header("X-BCS-UUID", Identification.deviceID)
+                .header("X-BCS-CHECKSUM", Identification.getDateChecksum())
+                .build()
             okHttpResponse = client.newCall(okHttpRequest).execute()
             responseHeaders = getResponseHeaders(okHttpResponse.headers())
             code = okHttpResponse.code()

@@ -16,6 +16,8 @@
 package tk.zbx1425.bvecontentservice.ui
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -76,10 +78,12 @@ class SectionsPagerAdapter(
     }
 
     fun notifyAllAdapters() {
-        for (fragment in fragments) {
-            if (fragment !is PackListFragment) continue
-            if (!fragment.isAdapterInitialized) continue
-            fragment.listAdapter.notifyDataSetChanged()
+        Handler(Looper.getMainLooper()).post {
+            for (fragment in fragments) {
+                if (fragment !is PackListFragment) continue
+                if (!fragment.isAdapterInitialized) continue
+                fragment.listAdapter.notifyDataSetChanged()
+            }
         }
     }
 }

@@ -69,7 +69,7 @@
     <string name="pref_engname_sum">以英文顯示線路包名稱</string>
     <string name="pref_server">服務器</string>
     <string name="pref_sort">按熱門程度排序</string>
-    <string name="pref_sort_sum">同時响下面啟用源抓取先至生效</string>
+    <string name="pref_sort_sum">同時選中UGC評論源先至生效</string>
     <string name="pref_source">編輯源服務器列表</string>
     <string name="pref_source_sum">用來獲取線路包的服務器</string>
     <string name="pref_useindex">使用索引服務器</string>
@@ -87,8 +87,8 @@
     <string name="info_no_network">好似冇網絡，\n暫時冇得下載線路\n不過想删除已經下載嘅線路，仲係可以嘅</string>
     <string name="pref_disklru">設定磁盤緩存大小 (MB)</string>
     <string name="pref_disklru_sum">用於本地緩存圖片嘅空間</string>
-    <string name="pref_usespider">使用源抓取數據</string>
-    <string name="pref_usespider_sum">下載已合並嘅數據以加快加載速度</string>
+    <string name="pref_usespider">使用合併響應緩存</string>
+    <string name="pref_usespider_sum">下載已合併嘅數據以加快加載速度</string>
     <string name="pref_disklru_err">%s 唔係有效數字！</string>
 
     <string name="about_info">
@@ -109,11 +109,11 @@ OkHttp 是個簡單慳事嘅 HTTP 客戶端。\
 此為公共版權軟件，以 Apache 2.0 開源許可證授權。\
 https://square.github.io/okhttp\
 \
-BCSC 使用 OkDownload 進行多線程下載。\
-OkDownload 是個極好、可靠、靈活、快速而強大嘅下載引擎。\
-多謝上海流利說信息技術有限公司嘅慷慨奉獻。\
+BCSC 使用 Fetch 進行多線程下載。\
+Fetch 是個極好、可靠、靈活、快速而強大嘅下載引擎。\
+多謝 Tonyo Francis 嘅慷慨奉獻。\
 此為公共版權軟件，以 Apache 2.0 開源許可證授權。\
-https://github.com/lingochamp/okdownload\
+https://github.com/tonyofrancis/Fetch\
 \
 BCSC 使用 DiskLruCache 進行圖片緩存。\
 DiskLruCache 是個簡單易用嘅本地LRU算法緩存庫。\
@@ -127,4 +127,8 @@ BCSC嘅開發過程中仲用到咗數不勝數嘅開源程序同資源，在此�
 個人在此謹向所有Open-Source社區嘅合作者致以最崇高嘅敬意，多謝你哋嘅支持！</string>
     <string name="action_about">關於</string>
     <string name="tab_text_info">公告</string>
+    <string name="info_log_sent">報告已發送！</string>
+    <string name="text_log_settag">設定標籤並發送報告</string>
+    <string name="text_log_warning">如非受程式製作組請求，請勿上傳。</string>
+    <string name="text_submit_log">上傳程式日誌</string>
 </resources>

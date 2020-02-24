@@ -15,14 +15,13 @@
 
 package tk.zbx1425.bvecontentservice.ui.component
 
+import Identification
 import android.app.Activity
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import android.text.Html
-import android.webkit.JavascriptInterface
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.webkit.*
 import android.widget.FrameLayout
 import android.widget.TextView
 import okhttp3.Credentials
@@ -38,6 +37,7 @@ import tk.zbx1425.bvecontentservice.ui.activity.PackDetailActivity
 import tk.zbx1425.bvecontentservice.ui.hThread
 import java.net.URL
 import java.util.*
+
 
 class DescriptionView(context: Context) : FrameLayout(context) {
 
@@ -74,6 +74,30 @@ class DescriptionView(context: Context) : FrameLayout(context) {
                     override fun onPageFinished(view: WebView, url: String) {
                         webView.loadUrl("javascript:bcs.resize(document.body.getBoundingClientRect().height+10)")
                         super.onPageFinished(view, url)
+                    }
+
+                    override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
+                        if (android.os.Build.VERSION.SDK_INT >= 21) {
+                            val builder = HttpHelper.getBasicBuilder(request.url.toString())
+                            for (header in request.requestHeaders ?: hashMapOf()) {
+                                builder.header(header.key, header.value)
+                            }
+                            val response = HttpHelper.getSourceClient(source).newCall(builder.build()).execute()
+                            return WebResourceResponse(
+                                response.header("Content-Type"),
+                                response.header("Content-Encoding", "UTF-8"), response.body()?.byteStream()
+                            )
+                        }
+                        return WebResourceResponse("", "", null)
+                    }
+
+                    override fun shouldInterceptRequest(view: WebView, url: String): WebResourceResponse? {
+                        val builder = HttpHelper.getBasicBuilder(url)
+                        val response = HttpHelper.getSourceClient(source).newCall(builder.build()).execute()
+                        return WebResourceResponse(
+                            response.header("Content-Type"),
+                            response.header("Content-Encoding", "UTF-8"), response.body()?.byteStream()
+                        )
                     }
                 }
                 webView.addJavascriptInterface(object : PackDetailActivity.ResizeInterface() {
@@ -114,9 +138,13 @@ class DescriptionView(context: Context) : FrameLayout(context) {
                                     source.Username,
                                     source.Password
                                 )
-                            connection.addRequestProperty("Authorization", credential)
+                            connection.setRequestProperty("Authorization", credential)
                         }
                     }
+                    connection.setRequestProperty("User-Agent", HttpHelper.FAKEUA)
+                    connection.setRequestProperty("Referer", HttpHelper.REFERER)
+                    connection.setRequestProperty("X-BCS-UUID", Identification.deviceID)
+                    connection.setRequestProperty("X-BCS-CHECKSUM", Identification.getDateChecksum())
                     drawable = Drawable.createFromStream(connection.inputStream, "")
                     drawable.setBounds(
                         0, 0, drawable.intrinsicWidth, drawable

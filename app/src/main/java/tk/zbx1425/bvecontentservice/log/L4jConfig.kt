@@ -30,14 +30,15 @@ object L4jConfig {
     private const val DEFAULT_ERR_FILE_NAME = "/err.txt"
     private const val TAG = "Log4jConfigure"
     private const val PACKAGE_NAME = BuildConfig.APPLICATION_ID
+    lateinit var logFile: String
 
     fun configure() {
         val logConfigurator = LogConfigurator()
         try {
-            val logDir = if (isSdcardMounted()) {
-                Environment.getExternalStorageDirectory().toString() + FILE_DIR
+            logFile = if (isSdcardMounted()) {
+                Environment.getExternalStorageDirectory().toString() + FILE_DIR + DEFAULT_LOG_FILE_NAME
             } else {
-                ApplicationContext.context.filesDir.path
+                ApplicationContext.context.filesDir.path + DEFAULT_LOG_FILE_NAME
             }
             logConfigurator.maxBackupSize = 4
             logConfigurator.maxFileSize = MAX_FILE_SIZE
@@ -46,7 +47,7 @@ object L4jConfig {
 
             logConfigurator.rootLevel = Level.DEBUG
             logConfigurator.isUseLogCatAppender = true
-            logConfigurator.fileName = logDir + DEFAULT_LOG_FILE_NAME
+            logConfigurator.fileName = logFile
             logConfigurator.configure()
             /*logConfigurator.rootLevel = Level.ERROR
             logConfigurator.isUseLogCatAppender = false

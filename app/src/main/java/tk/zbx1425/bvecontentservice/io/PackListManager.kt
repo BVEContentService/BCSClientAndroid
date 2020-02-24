@@ -20,6 +20,7 @@ import tk.zbx1425.bvecontentservice.api.Version
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.getPreference
 import tk.zbx1425.bvecontentservice.io.PackLocalManager.decodeInvisibleString
+import tk.zbx1425.bvecontentservice.io.UGCSelector.getPopSequence
 import tk.zbx1425.bvecontentservice.log.Log
 import tk.zbx1425.bvecontentservice.ui.SectionsPagerAdapter
 
@@ -73,11 +74,15 @@ object PackListManager {
         if (getPreference("allPacks", false)) {
             onlineList = MetadataManager.packs
         }
-        if (!(popSort ?: getPreference("popSort", false))
-            || !getPreference("useIndexServer", true)
-            || !getPreference("useSourceSpider", true)){
+        if (!(popSort ?: getPreference("popSort", false))) {
             Log.i(LOGCAT_TAG, "Sorted by Timestamp")
             onlineList.sortByDescending { it.Timestamp }
+        } else {
+            Log.i(LOGCAT_TAG, "Sorted by PopSequence")
+            val popSequence = getPopSequence()
+            Log.i(LOGCAT_TAG, popSequence.joinToString(","))
+            onlineList.sortWith(compareByDescending<PackageMetadata> { popSequence.indexOf(it.ID) }
+                .thenByDescending { it.Timestamp })
         }
         localList.sortWith(compareBy({ it.DummyPack }, { !it.UpdateAvailable }))
         if (::pagerAdapter.isInitialized) {

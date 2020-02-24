@@ -25,7 +25,6 @@ import android.util.LruCache
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import com.jakewharton.disklrucache.DiskLruCache
-import okhttp3.Request
 import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.HttpHelper
@@ -98,16 +97,7 @@ object ImageLoader {
         }
         var networkBitmap: Bitmap? = null
         try {
-            val inStream: InputStream =
-                if (source != null) {
-                    val request: Request = Request.Builder().url(url).build()
-                    HttpHelper.getSourceClient(source).newCall(request).execute().body()
-                        ?.byteStream() ?: return null
-                } else {
-                    val request: Request = Request.Builder().url(url).build()
-                    HttpHelper.client.newCall(request).execute().body()
-                        ?.byteStream() ?: return null
-                }
+            val inStream: InputStream = HttpHelper.openStream(source, url) ?: return null
             networkBitmap = BitmapFactory.decodeStream(inStream) ?: return null
             Log.i(LOGCAT_TAG, "Put image in memory: " + url)
             lruCache.put(

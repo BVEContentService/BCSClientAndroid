@@ -33,6 +33,7 @@
     <string name="info_update_start">Download started, Please wait…</string>
     <string name="info_hmmsim_fail">Hmmsim is not installed.</string>
     <string name="info_exit_again">Press again to exit.</string>
+    <string name="info_log_sent">Report sent!</string>
 
     <string name="text_update_avail">Updated: %s</string>
     <string name="action_search">Search</string>
@@ -60,6 +61,9 @@
     <string name="text_finishing">Finishing up…</string>
     <string name="text_update">Update %s</string>
     <string name="text_remove">Remove</string>
+    <string name="text_submit_log">Submit Logcat to Developers</string>
+    <string name="text_log_settag">Set a tag and submit report</string>
+    <string name="text_log_warning">Only send a dump if you are instructed by the developers!</string>
 
     <string name="pref_ugc_disable">Disable UGC</string>
     <string name="pref_ugc_custom">Custom Source</string>
@@ -69,7 +73,7 @@
     <string name="pref_cleartemp_sum">Remove download and image cache</string>
     <string name="pref_disklru_err">%s is not an valid number!</string>
     <string name="pref_sort">Sort by popularity</string>
-    <string name="pref_sort_sum">Must enable Source Spider below to actually get it working</string>
+    <string name="pref_sort_sum">Must select a UGC source to actually get it working</string>
     <string name="pref_allpacks">Show All Packages</string>
     <string name="pref_allpacks_sum">Including the outdated ones</string>
     <string name="pref_rproxy">Use Reverse Proxy</string>
@@ -80,7 +84,7 @@
     <string name="pref_customugc_sum">Manually specify a UGC server that you prefer</string>
     <string name="pref_useindex">Use Index Servers</string>
     <string name="pref_useindex_sum">Fetch source server list from index servers</string>
-    <string name="pref_usespider">Use Source Spider</string>
+    <string name="pref_usespider">Use Merged Response Cache</string>
     <string name="pref_usespider_sum">Metadata merged to speed up loading</string>
     <string name="pref_index">Edit Index Servers</string>
     <string name="pref_index_sum">Servers used to fetch Source Servers</string>
@@ -116,15 +120,15 @@ Thanks Square Open Source Inc.\
 Licensed under Apache 2.0.\
 https://square.github.io/okhttp\
 \
-BCSC uses OkDownload for multi-thread downloading.\
+BCSC uses Fetch for multi-thread downloading.\
 OkDownload is a awesome reliable, flexible, fast and powerful download engine.\
 Thanks LAIX Inc. for such a generous project.\
 Licensed under Apache 2.0.\
-https://github.com/lingochamp/okdownload\
+https://github.com/tonyofrancis/Fetch\
 \
 BCSC uses DiskLruCache for image caching.\
 DiskLruCache is an easy-to-use disk-based LRU cache.\
-Thanks Jake Wharton for such a beautiful library.\
+Thanks Tonyo Francis for such a beautiful library.\
 Licensed under Apache 2.0.\
 https://github.com/JakeWharton/DiskLruCache\
 \

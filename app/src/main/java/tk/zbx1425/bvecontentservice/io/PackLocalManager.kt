@@ -15,6 +15,7 @@
 
 package tk.zbx1425.bvecontentservice.io
 
+import Identification
 import android.os.Environment
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.log.Log
@@ -89,11 +90,10 @@ object PackLocalManager {
     }
 
     fun flushCache() {
-        val allCache = hmmDir.listFiles { file: File ->
-            file.isFile && file.name.toLowerCase(Locale.US).endsWith(".tmp")
-        } ?: arrayOf()
+        val allCache = appDir.listFiles() ?: arrayOf()
         for (cache in allCache) {
-            cache.delete()
+            if (cache.name != Identification.idFileName)
+                cache.delete()
         }
     }
 

@@ -21,8 +21,8 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 object MetadataManager {
-    const val PROTOCOL_VER = "1.6"
-    const val PROTOCOL_DATE = "2020-2-21"
+    const val PROTOCOL_VER = "1.8"
+    const val PROTOCOL_DATE = "2020-2-23"
     const val API_SUB_INDEX = "/sources.json"
     const val API_SUB_UPDATE = "/clients.json"
     const val API_SUB_AUTHOR = "/index/authors.json"
@@ -42,6 +42,7 @@ object MetadataManager {
     var indexHomepage: String = ""
 
     fun cleanUp() {
+        HttpHelper.cachedResponse.clear()
         indexHomepage = ""
         updateMetadata = null
         indexServers.clear()
@@ -101,37 +102,18 @@ object MetadataManager {
                     val indexServerTotalJSON = HttpHelper.fetchObject(indexServerURL.trim() + API_SUB_INDEX) ?: continue
                     val indexServerJSONArray = indexServerTotalJSON.getJSONArray("Servers")
                     val indexServer = IndexMetadata(indexServerTotalJSON, indexServerURL.trim())
-                    var spiderServer: SourceMetadata? = null
                     if (indexServer.Homepage != "") indexHomepage = indexServer.Homepage
-                    if (indexServer.Protocol != "" &&
-                        Version(indexServer.Protocol) > Version(PROTOCOL_VER)
-                    ) {
-                        progress(String.format(ManagerConfig.strErrUpdate, indexServer.Protocol))
-                        for (i in 0 until indexServerJSONArray.length()) {
-                            try {
-                                val indexServerJSON: JSONObject =
-                                    indexServerJSONArray[i] as? JSONObject ?: continue
-                                val APIURL = indexServerJSON.getString("APIURL")
-                                if (indexServerJSON.getString("Type") == "Update") {
-                                    progress(String.format(ManagerConfig.strGetContent, ManagerConfig.strUpdate, APIURL))
-                                    val updateServer = SourceMetadata(indexServerJSON, indexServer)
-                                    val content = JSONObject(HttpHelper.fetchApiString(updateServer, API_SUB_UPDATE) ?: "{}")
-                                    if (!content.has(ManagerConfig.arch)) continue
-                                    updateMetadata =
-                                        UpdateMetadata(content.getJSONObject(ManagerConfig.arch), updateServer).chooseNewer(updateMetadata)
-                                }
-                            } catch (ex: Exception) {
-                                progress(
-                                    String.format(ManagerConfig.strErrParser, ManagerConfig.strSource, i, ex.message)
-                                )
-                            }
-                        }
-                        continue
-                    }
                     for (i in 0 until indexServerJSONArray.length()) {
                         try {
-                            val indexServerJSON: JSONObject =
-                                indexServerJSONArray[i] as? JSONObject ?: continue
+                            val indexServerJSON: JSONObject = indexServerJSONArray[i] as? JSONObject ?: continue
+                            if (indexServerJSON.getString("Type") == "Protocol") {
+                                if (Version(indexServerJSON.getString("Version")) > Version(PROTOCOL_VER)) {
+                                    progress(String.format(ManagerConfig.strUpdate, indexServerJSON.getString("Version")))
+                                    break
+                                } else {
+                                    continue
+                                }
+                            }
                             val APIURL = indexServerJSON.getString("APIURL")
                             when (indexServerJSON.getString("Type")) {
                                 "Index" -> {
@@ -149,20 +131,19 @@ object MetadataManager {
                                             UpdateMetadata(content.getJSONObject(ManagerConfig.arch), updateServer).chooseNewer(updateMetadata)
                                     }
                                 }
-                                "SourceSpider" -> {
-                                    progress(String.format(ManagerConfig.strGetContent, ManagerConfig.strSpider, APIURL))
-                                    spiderServer = SourceMetadata(indexServerJSON, indexServer)
+                                "ResponseCache" -> {
+                                    if (ManagerConfig.mergedResponseCache) {
+                                        progress(String.format(ManagerConfig.strGetContent, ManagerConfig.strResponseCache, APIURL))
+                                        HttpHelper.cachedResponse.putAll(HttpHelper.fetchString(APIURL) ?: "")
+                                    }
                                 }
                                 "Source" -> {
                                     progress(String.format(ManagerConfig.strGetContent, ManagerConfig.strSource, APIURL))
                                     val newServer = SourceMetadata(indexServerJSON, indexServer)
                                     if (sourceServers.find { it.APIURL == newServer.APIURL && it.Username == newServer.Username } == null) {
                                         sourceServers.add(newServer)
-                                        //A spider server is present, it holds all the data of the following servers
-                                        if (spiderServer == null || !ManagerConfig.useSpider) {
-                                            if (fetchAuthors(newServer, progress)) {
-                                                fetchPackages(newServer, progress)
-                                            }
+                                        if (fetchAuthors(newServer, progress)) {
+                                            fetchPackages(newServer, progress)
                                         }
                                     }
                                 }
@@ -173,11 +154,6 @@ object MetadataManager {
                             }
                         } catch (ex: Exception) {
                             progress(String.format(ManagerConfig.strErrParser, ManagerConfig.strSource, i, ex.message))
-                        }
-                    }
-                    if (spiderServer != null && ManagerConfig.useSpider) {
-                        if (fetchAuthors(spiderServer, progress)) {
-                            fetchPackages(spiderServer, progress, true)
                         }
                     }
                     break
@@ -219,11 +195,7 @@ object MetadataManager {
         return true
     }
 
-    private fun fetchPackages(
-        sourceServer: SourceMetadata,
-        progress: (String) -> Unit,
-        bySpider: Boolean = false
-    ) {
+    private fun fetchPackages(sourceServer: SourceMetadata, progress: (String) -> Unit) {
         progress(String.format(ManagerConfig.strBeginFetch, ManagerConfig.strPack, sourceServer.APIURL))
         try {
             val packJSONArray = HttpHelper.fetchApiArray(sourceServer, API_SUB_PACK) ?: return
@@ -231,12 +203,7 @@ object MetadataManager {
                 try {
                     val packJSON: JSONObject = packJSONArray[i] as? JSONObject ?: continue
                     progress(String.format(ManagerConfig.strGetContent, ManagerConfig.strPack, packJSON.getString("ID")))
-                    val metadata =
-                        PackageMetadata(
-                            packJSON,
-                            sourceServer,
-                            bySpider
-                        )
+                    val metadata = PackageMetadata(packJSON, sourceServer)
                     if (metadata.File == "" && (metadata.Homepage == "" || !metadata.NoFile)) continue
                     packs.add(metadata)
                     if (!packMap.containsKey(metadata.ID) ||

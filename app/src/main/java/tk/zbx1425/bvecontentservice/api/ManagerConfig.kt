@@ -8,19 +8,20 @@ object ManagerConfig {
     const val arch = "Official-Android"
     const val simulator = "H2"
 
-    val useSpider: Boolean
+    val mergedResponseCache: Boolean
         get() {
             return getPreference("useSourceSpider", false)
         }
     val reverseProxy: Boolean
         get() {
-            return getPreference("useSourceSpider", false)
+            return getPreference("reverseProxy", false)
         }
 
     //Important strings that should get localized
     val strIndex = "Index"
     val strUpdate = "Update"
     val strSpider = "Spider"
+    val strResponseCache = "Response Cache"
     val strUGC = "UGC"
     val strSource = "Source"
     val strAuthor = "Author"

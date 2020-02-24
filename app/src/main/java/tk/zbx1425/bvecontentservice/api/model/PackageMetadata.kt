@@ -30,6 +30,7 @@ data class PackageMetadata(
     var ID: String = "",
     var Version: Version = Version("0.0"),
     var File_REL: String = "",
+    var Referer: String = "",
     var FileSize: String = "",
     var Author: AuthorMetadata = AuthorMetadata(SourceMetadata("")),
     var Name_LO: String = "",
@@ -47,8 +48,6 @@ data class PackageMetadata(
     var ForceView: Boolean = false,
     var Timestamp: Date = Date(),
     var Source: SourceMetadata = SourceMetadata(""),
-    var SpiderSourceURL: String = "",
-    var SpiderSourceUsername: String = "",
     var UpdateAvailable: Boolean = false,
     var DummyPack: Boolean = false
 ) : Comparable<PackageMetadata>, Serializable {
@@ -58,19 +57,13 @@ data class PackageMetadata(
 
     val VSID: String = this.ID + "_" + this.Version.get()
 
-    constructor (
-        src: JSONObject, source: SourceMetadata,
-        bySpider: Boolean = false
-    ) : this(
+    constructor (src: JSONObject, source: SourceMetadata) : this(
         src.getString("ID"),
         Version(src.getString("Version")),
         src.optString("File_" + ManagerConfig.simulator),
+        src.optString("Referer_" + ManagerConfig.simulator),
         src.optString("FileSize_" + ManagerConfig.simulator),
-        MetadataManager.getAuthor(
-            src.optString(
-                "Author"
-            )
-        ) ?: AuthorMetadata(source),
+        MetadataManager.getAuthor(src.optString("Author")) ?: AuthorMetadata(source),
         src.optString("Name_LO"),
         src.optString("Name_EN"),
         src.optString("Name_SA"),
@@ -85,17 +78,8 @@ data class PackageMetadata(
         src.optBoolean("AutoOpen", false),
         src.optBoolean("ForceView", false),
         Date(src.getLong("TimeStamp") * 1000),
-        source,
-        src.optString("SourceURL"),
-        src.optString("SourceUsername")
-    ) {
-        if (bySpider) {
-            Source = MetadataManager.sourceServers.find {
-                it.APIURL == SpiderSourceURL &&
-                        it.Username == SpiderSourceUsername
-            } ?: throw IllegalArgumentException("Bad Spider Source!")
-        }
-    }
+        source
+    )
 
     constructor(localName: String) : this(
         File_REL = localName, Name_LO = PackLocalManager.trimEncryptedName(localName)

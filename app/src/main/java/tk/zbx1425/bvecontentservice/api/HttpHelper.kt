@@ -20,10 +20,14 @@ import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONObject
 import tk.zbx1425.bvecontentservice.api.model.SourceMetadata
+import tk.zbx1425.bvecontentservice.log.Log
+import java.io.InputStream
 
 object HttpHelper {
     val client = OkHttpClient()
-    val cachedResponse = HashMap<String, String>()
+    val cachedResponse = SimpleStringMap()
+    const val REFERER = "https://anti-hotlink.zbx1425.tk"
+    const val FAKEUA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36"
 
     fun fetchApiArray(source: SourceMetadata, sub: String): JSONArray? {
         return JSONArray(fetchApiString(source, sub) ?: return null)
@@ -52,27 +56,43 @@ object HttpHelper {
     }
 
     fun fetchString(source: SourceMetadata, url: String): String? {
-        if (cachedResponse[url] != null) return cachedResponse[url]
-        val request = Request.Builder()
-            .url(url)
-            .addHeader("Referer", "https://anti-hotlink.zbx1425.tk")
-            .addHeader("X-BCS-UUID", Identification.deviceID)
-            .addHeader("X-BCS-CHECKSUM", Identification.getDateChecksum())
-            .build()
+        if (source.APIType == "httpBasicAuth") {
+            if (cachedResponse[source.Username + "@" + url] != null) return cachedResponse[source.Username + "@" + url]
+            Log.i("BCSNetwork", "Requested " + source.Username + "@" + url)
+        } else {
+            if (cachedResponse[url] != null) return cachedResponse[url]
+            Log.i("BCSNetwork", "Requested " + url)
+        }
+        val request = getBasicBuilder(url).build()
         val response = getSourceClient(source).newCall(request).execute()
         return response.body()?.string() ?: return null
     }
 
     fun fetchString(url: String): String? {
         if (cachedResponse[url] != null) return cachedResponse[url]
-        val request = Request.Builder()
-            .url(url)
-            .addHeader("Referer", "https://anti-hotlink.zbx1425.tk")
-            .addHeader("X-BCS-UUID", Identification.deviceID)
-            .addHeader("X-BCS-CHECKSUM", Identification.getDateChecksum())
-            .build()
+        Log.i("BCSNetwork", "Requested " + url)
+        val request = getBasicBuilder(url).build()
         val response = client.newCall(request).execute()
         return response.body()?.string() ?: return null
+    }
+
+    fun openStream(source: SourceMetadata?, url: String): InputStream? {
+        val request: Request = getBasicBuilder(url).build()
+        return if (source != null) {
+            getSourceClient(source).newCall(request).execute().body()
+                ?.byteStream()
+        } else {
+            client.newCall(request).execute().body()
+                ?.byteStream()
+        }
+    }
+
+    fun getBasicBuilder(url: String): Request.Builder {
+        return Request.Builder().url(url)
+            .header("User-Agent", FAKEUA)
+            .header("Referer", REFERER)
+            .header("X-BCS-UUID", Identification.deviceID)
+            .header("X-BCS-CHECKSUM", Identification.getDateChecksum())
     }
 
     fun getSourceClient(source: SourceMetadata): OkHttpClient {

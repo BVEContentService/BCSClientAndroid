@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import okhttp3.MediaType
-import okhttp3.Request
 import okhttp3.RequestBody
 import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.BuildConfig
@@ -33,6 +32,7 @@ fun bindHandlerToThread(thread: Thread){
             val writer = PrintWriter(dumpFile)
             writer.println("BCS Exception Trace")
             writer.println("UUID: " + Identification.deviceID)
+            writer.println("IPV4: " + Identification.IPAddress)
             writer.println(BuildConfig.VERSION_NAME + " " +
                     BuildConfig.BUILD_TYPE + " " + BuildConfig.BUILD_TIME)
             writer.println("Triggered " + Date().toString())
@@ -67,7 +67,7 @@ fun showPreviousCrash() {
     if (lines.count() < 2) return
     val metadata = MetadataManager.updateMetadata
     val message: String = if (metadata != null && metadata.CrashReport_REL != "") {
-        sendReport(File(lines[1]).readText(), "text")
+        sendReport(File(lines[1]).readText(), "crash")
         String.format(ApplicationContext.context.resources.getString(R.string.bullshit_eaten), lines[0])
     } else {
         String.format(ApplicationContext.context.resources.getString(R.string.bullshit), lines[0], lines[1])
@@ -81,14 +81,12 @@ fun sendReport(text: String, type: String) {
         Thread {
             val body = RequestBody.create(MediaType.parse("text/plain"), text)
             try {
-                val builder = Request.Builder().url(
+                val builder = HttpHelper.getBasicBuilder(
                     String.format(
                         metadata.CrashReport,
                         type, "and" + BuildConfig.VERSION_NAME, SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
                     )
                 )
-                    .addHeader("X-BCS-UUID", Identification.deviceID)
-                    .addHeader("X-BCS-CHECKSUM", Identification.getDateChecksum())
                 val request = when (metadata.ReportMethod) {
                     "DAV" -> builder.put(body).build()
                     else -> builder.post(body).build()

@@ -162,16 +162,14 @@ object PackDownloadManager {
             PackLocalManager.ensureHmmsimDir()
             Log.i(LOGCAT_TAG, metadata.File)
             val request = Request(metadata.File, PackLocalManager.getLocalTempFile(metadata.VSID).absolutePath)
-            request.addHeader(
-                "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
-                        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
-            )
+            request.addHeader("User-Agent", HttpHelper.FAKEUA)
             request.addHeader("X-BCS-UUID", Identification.deviceID)
             request.addHeader("X-BCS-CHECKSUM", Identification.getChecksum(metadata))
             request.extras = Extras(
                 mapOf(
-                    Pair("VSID", metadata.VSID), Pair("Name", metadata.Name),
-                    Pair("Throttle", metadata.Source.DevSpec.Throttle.toString())
+                    "VSID" to metadata.VSID, "Name" to metadata.Name,
+                    "Throttle" to metadata.Source.DevSpec.Throttle.toString(),
+                    "Referer" to if (metadata.Referer != "") metadata.Referer else HttpHelper.REFERER
                 )
             )
             when (metadata.Source.APIType) {
@@ -207,10 +205,7 @@ object PackDownloadManager {
             Log.i(LOGCAT_TAG, PackLocalManager.getUpdateTempFile().absolutePath)
             if (PackLocalManager.getUpdateTempFile().exists()) PackLocalManager.getUpdateTempFile().delete()
             val request = Request(url, PackLocalManager.getUpdateTempFile().absolutePath)
-            request.addHeader(
-                "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
-                        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
-            )
+            request.addHeader("User-Agent", HttpHelper.FAKEUA)
             request.addHeader("X-BCS-UUID", Identification.deviceID)
             request.extras = Extras(mapOf(Pair("VSID", MAGIC_UPDATE), Pair("Name", MAGIC_UPDATE)))
             val updateListener = object : FetchListener {

@@ -21,20 +21,20 @@ import android.os.Bundle
 import android.text.InputType
 import android.view.View
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_about.*
 import tk.zbx1425.bvecontentservice.BuildConfig
 import tk.zbx1425.bvecontentservice.R
+import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.getPreference
+import tk.zbx1425.bvecontentservice.log.L4jConfig
 import tk.zbx1425.bvecontentservice.replaceView
 import tk.zbx1425.bvecontentservice.ui.component.MetadataView
 import tk.zbx1425.bvecontentservice.ui.sendReport
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.io.PrintWriter
-import java.io.StringWriter
+import java.io.*
 import java.util.*
 
 
@@ -56,8 +56,8 @@ class AboutActivity : AppCompatActivity() {
         }
         buttonSubmitLogcat.setOnClickListener {
             val builder = AlertDialog.Builder(this)
-            builder.setTitle("Set a tag and submit report")
-            builder.setMessage("Only send a dump if you are instructed by the developers!")
+            builder.setTitle(R.string.text_log_settag)
+            builder.setMessage(R.string.text_log_warning)
             val input = EditText(this)
             input.inputType = InputType.TYPE_CLASS_TEXT
             builder.setView(input)
@@ -69,6 +69,7 @@ class AboutActivity : AppCompatActivity() {
                     writer.println("BCS LogCat Dump")
                     writer.println("Tag: " + input.text)
                     writer.println("UUID: " + Identification.deviceID)
+                    writer.println("IPV4: " + Identification.IPAddress)
                     writer.println(
                         BuildConfig.VERSION_NAME + " " +
                                 BuildConfig.BUILD_TYPE + " " + BuildConfig.BUILD_TIME
@@ -83,8 +84,21 @@ class AboutActivity : AppCompatActivity() {
                         writer.write(buffer, 0, len)
                     }
                     writer.flush()
-                    sendReport(outputWriter.toString(), "logcat")
-                    Toast.makeText(this, "Report sent!", Toast.LENGTH_SHORT).show()
+                    if (input.text.startsWith("full")) {
+                        writer.write("\nSaved BCS Log:\n")
+                        writer.write(File(L4jConfig.logFile).readText())
+                    }
+                    val metadata = MetadataManager.updateMetadata
+                    if (metadata != null && metadata.CrashReport_REL != "") {
+                        sendReport(outputWriter.toString(), "logcat")
+                        Toast.makeText(this, R.string.info_log_sent, Toast.LENGTH_SHORT).show()
+                    } else {
+                        val showText = TextView(this)
+                        showText.text = outputWriter.toString()
+                        showText.setTextIsSelectable(true)
+                        val copyableTextDlg = AlertDialog.Builder(this)
+                        copyableTextDlg.setView(showText).setCancelable(true).show()
+                    }
                 }
             }
             builder.setNegativeButton(android.R.string.no, null)
