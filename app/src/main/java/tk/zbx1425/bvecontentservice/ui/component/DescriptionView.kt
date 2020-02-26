@@ -20,6 +20,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.text.Html
 import android.webkit.*
 import android.widget.FrameLayout
@@ -32,9 +33,9 @@ import tk.zbx1425.bvecontentservice.api.model.DevSpecMetadata
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.api.model.SourceMetadata
 import tk.zbx1425.bvecontentservice.getPreference
-import tk.zbx1425.bvecontentservice.log.Log
+import tk.zbx1425.bvecontentservice.io.hThread
+import tk.zbx1425.bvecontentservice.io.log.Log
 import tk.zbx1425.bvecontentservice.ui.activity.PackDetailActivity
-import tk.zbx1425.bvecontentservice.ui.hThread
 import java.net.URL
 import java.util.*
 
@@ -171,7 +172,7 @@ class DescriptionView(context: Context) : FrameLayout(context) {
                             if (url.trim().toLowerCase(Locale.US).endsWith(".txt")) {
                                 result
                             } else {
-                                if (android.os.Build.VERSION.SDK_INT > 24) {
+                                if (Build.VERSION.SDK_INT > 24) {
                                     Html.fromHtml(
                                         result, Html.FROM_HTML_MODE_COMPACT,
                                         imageGetter, null

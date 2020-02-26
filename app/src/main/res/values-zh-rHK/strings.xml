@@ -37,7 +37,6 @@
     <string name="text_noinfo">唔使望啦，乜都冇，望望隔籬啦！</string>
     <string name="text_contact">聯絡</string>
     <string name="text_uploader">上傳</string>
-    <string name="text_continue_download">去下載</string>
     <string name="text_date">日期</string>
     <string name="text_developer">BVE內容服務系統用戶端\n(BVE線路庫)</string>
     <string name="text_download">下載 %s</string>
@@ -131,4 +130,6 @@ BCSC嘅開發過程中仲用到咗數不勝數嘅開源程序同資源，在此�
     <string name="text_log_settag">設定標籤並發送報告</string>
     <string name="text_log_warning">如非受程式製作組請求，請勿上傳。</string>
     <string name="text_submit_log">上傳程式日誌</string>
+    <string name="text_goto_download">去下載</string>
+    <string name="text_continue_download">繼續下載</string>
 </resources>

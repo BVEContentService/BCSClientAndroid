@@ -3,6 +3,7 @@ import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.api.HttpHelper
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.io.PackLocalManager
+import tk.zbx1425.bvecontentservice.io.hThread
 import java.io.File
 import java.io.UnsupportedEncodingException
 import java.nio.charset.Charset
@@ -88,7 +89,7 @@ object Identification {
     private const val DELIMITER = "]"
     private val random = SecureRandom()
 
-    private fun encrypt(plaintext: String, password: String): String? {
+    fun encrypt(plaintext: String, password: String): String? {
         val salt = generateSalt()
         val key: SecretKey = deriveKey(password, salt)
         return try {
@@ -121,7 +122,7 @@ object Identification {
         }
     }
 
-    private fun decrypt(ciphertext: String, password: String): String? {
+    fun decrypt(ciphertext: String, password: String): String? {
         val fields = ciphertext.split(DELIMITER).toTypedArray()
         require(fields.size == 3) { "Invalid encypted text format" }
         val salt = fromBase64(fields[0])
@@ -166,11 +167,11 @@ object Identification {
         }
     }
 
-    private fun toBase64(bytes: ByteArray): String {
+    fun toBase64(bytes: ByteArray): String {
         return Base64.encodeToString(bytes, Base64.NO_WRAP)
     }
 
-    private fun fromBase64(base64: String): ByteArray {
+    fun fromBase64(base64: String): ByteArray {
         return Base64.decode(base64, Base64.NO_WRAP)
     }
 
@@ -178,7 +179,7 @@ object Identification {
         get() {
             val latch = CountDownLatch(1)
             var response = ""
-            Thread {
+            hThread {
                 try {
                     response = HttpHelper.fetchString("http://ipv4.icanhazip.com") ?: ""
                 } catch (ex: Exception) {

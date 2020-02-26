@@ -20,8 +20,8 @@ import tk.zbx1425.bvecontentservice.api.Version
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.getPreference
 import tk.zbx1425.bvecontentservice.io.PackLocalManager.decodeInvisibleString
-import tk.zbx1425.bvecontentservice.io.UGCSelector.getPopSequence
-import tk.zbx1425.bvecontentservice.log.Log
+import tk.zbx1425.bvecontentservice.io.log.Log
+import tk.zbx1425.bvecontentservice.io.network.UGCManager.getPopSequence
 import tk.zbx1425.bvecontentservice.ui.SectionsPagerAdapter
 
 object PackListManager {

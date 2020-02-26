@@ -37,7 +37,7 @@
     <string name="text_noinfo">没有此类路线。</string>
     <string name="text_contact">联络</string>
     <string name="text_uploader">上传</string>
-    <string name="text_continue_download">前往下载</string>
+    <string name="text_continue_download">继续下载</string>
     <string name="text_date">日期</string>
     <string name="text_developer">BVE内容服务系统客户端\n(BVE线路库)</string>
     <string name="text_download">下载 %s</string>
@@ -131,4 +131,5 @@ BCSC的开发过程中还用到了数不胜数的开源程序与资源，在此�
     <string name="text_log_settag">设定标签并发送报告</string>
     <string name="text_log_warning">如非受程序开发人员请求，请勿上传。</string>
     <string name="text_submit_log">上传程序日志</string>
+    <string name="text_goto_download">前往下载</string>
 </resources>

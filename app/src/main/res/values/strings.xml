@@ -139,4 +139,5 @@ I will pay my personal respect to all the collaborators of the open source commu
     <string name="default_index" translatable="false">https://bvecontentservice.gitee.io/bcs-index,https://bvecontentservice.github.io/bcs-index</string>
     <string name="default_src" translatable="false">https://api.zbx1425.tk:8953/bcs-src</string>
     <string name="url_start_download" translatable="false">bcs://startDownload</string>
+    <string name="text_goto_download">Go to Download</string>
 </resources>

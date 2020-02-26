@@ -13,7 +13,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with BCSC.  If not, see <https://www.gnu.org/licenses/>.
 
-package tk.zbx1425.bvecontentservice.io
+package tk.zbx1425.bvecontentservice.io.network
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -31,7 +31,7 @@ import tk.zbx1425.bvecontentservice.api.HttpHelper
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.api.model.SourceMetadata
 import tk.zbx1425.bvecontentservice.getPreference
-import tk.zbx1425.bvecontentservice.log.Log
+import tk.zbx1425.bvecontentservice.io.log.Log
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -46,8 +46,8 @@ object ImageLoader {
     lateinit var diskLruCache: DiskLruCache
 
     fun initCache() {
-        if (::lruCache.isInitialized) lruCache.evictAll()
-        if (::diskLruCache.isInitialized) diskLruCache.delete()
+        if (ImageLoader::lruCache.isInitialized) lruCache.evictAll()
+        if (ImageLoader::diskLruCache.isInitialized) diskLruCache.delete()
         lruCache = object : LruCache<String, Bitmap>
             ((Runtime.getRuntime().maxMemory() / 1024 / 8).toInt()) {
             override fun sizeOf(key: String, bitmap: Bitmap): Int {
@@ -105,7 +105,11 @@ object ImageLoader {
                     url
                 ), networkBitmap
             )
-            val editor = diskLruCache.edit(hashKeyForDisk(url))
+            val editor = diskLruCache.edit(
+                hashKeyForDisk(
+                    url
+                )
+            )
             if (editor != null) {
                 val outputStream: OutputStream = editor.newOutputStream(0)
                 if (networkBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)) {

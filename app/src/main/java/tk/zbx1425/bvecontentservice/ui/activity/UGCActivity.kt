@@ -30,8 +30,8 @@ import kotlinx.android.synthetic.main.activity_webview.*
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.getPreference
-import tk.zbx1425.bvecontentservice.io.UGCSelector
-import tk.zbx1425.bvecontentservice.log.Log
+import tk.zbx1425.bvecontentservice.io.log.Log
+import tk.zbx1425.bvecontentservice.io.network.UGCManager
 
 
 class UGCActivity : AppCompatActivity() {
@@ -42,7 +42,7 @@ class UGCActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_webview)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        if (UGCSelector.getActiveUGCServer() == null) {
+        if (UGCManager.getActiveUGCServer() == null) {
             finish()
             return
         }
@@ -51,7 +51,7 @@ class UGCActivity : AppCompatActivity() {
         webView.settings.javaScriptEnabled = getPreference("enableJavascript", true)
         webView.settings.javaScriptCanOpenWindowsAutomatically = true
         webView.settings.setSupportMultipleWindows(true)
-        webView.loadUrl(UGCSelector.getURL(metadata))
+        webView.loadUrl(UGCManager.getURL(metadata))
         webView.webChromeClient =
             MultiPageChromeClient(
                 this

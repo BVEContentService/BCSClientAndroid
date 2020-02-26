@@ -29,7 +29,7 @@ import androidx.recyclerview.widget.RecyclerView
 import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
-import tk.zbx1425.bvecontentservice.io.ImageLoader
+import tk.zbx1425.bvecontentservice.io.network.ImageLoader
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList

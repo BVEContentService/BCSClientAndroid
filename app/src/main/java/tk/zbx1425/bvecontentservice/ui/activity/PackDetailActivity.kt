@@ -38,9 +38,14 @@ import com.tonyodev.fetch2core.DownloadBlock
 import kotlinx.android.synthetic.main.activity_pack_detail.*
 import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
+import tk.zbx1425.bvecontentservice.api.HttpHelper
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
-import tk.zbx1425.bvecontentservice.io.*
-import tk.zbx1425.bvecontentservice.log.Log
+import tk.zbx1425.bvecontentservice.io.PackListManager
+import tk.zbx1425.bvecontentservice.io.PackLocalManager
+import tk.zbx1425.bvecontentservice.io.log.Log
+import tk.zbx1425.bvecontentservice.io.network.ImageLoader
+import tk.zbx1425.bvecontentservice.io.network.PackDownloadManager
+import tk.zbx1425.bvecontentservice.io.network.UGCManager
 import tk.zbx1425.bvecontentservice.replaceView
 import tk.zbx1425.bvecontentservice.ui.component.DescriptionView
 import tk.zbx1425.bvecontentservice.ui.component.MetadataView
@@ -144,13 +149,27 @@ class PackDetailActivity : AppCompatActivity() {
         noticePlaceholder.replaceView(DescriptionView(this, metadata.Source.DevSpec))
         descriptionPlaceholder.replaceView(DescriptionView(this, metadata))
         ImageLoader.setPackImageAsync(thumbnailView, metadata)
+        Thread {
+            try {
+                val url = UGCManager.getURL(metadata, "query") ?: return@Thread
+                val response = HttpHelper.fetchObject(url) ?: return@Thread
+                val viewCount = response.getString("VIEW")
+                val downloadCount = response.getString("DOWNLOAD")
+                runOnUiThread {
+                    textUGCView.text = viewCount
+                    textUGCDownload.text = downloadCount
+                    UGCLayout.visibility = View.VISIBLE
+                }
+            } catch (ex: Exception) {/*Pretty normal for the network to fail, isn't it?*/
+            }
+        }.start()
 
         fab.setOnClickListener { onButtonClick() }
         downloadButton.setOnClickListener { onButtonClick() }
-        if (UGCSelector.getActiveUGCServer() == null){
+        if (UGCManager.getActiveUGCServer() == null) {
             ugcButton.visibility = View.GONE
         }
-        UGCSelector.runActionAsync(metadata, "view")
+        UGCManager.runActionAsync(metadata, "view")
         ugcButton.setOnClickListener {
             val intent = Intent(this as Context, UGCActivity::class.java)
             intent.putExtra("metadata", metadata)
@@ -199,7 +218,7 @@ class PackDetailActivity : AppCompatActivity() {
             dlgAlert.create().show()
         } else {
             if (metadata.AutoOpen || metadata.NoFile) {
-                if (metadata.NoFile) UGCSelector.runActionAsync(metadata, "download")
+                if (metadata.NoFile) UGCManager.runActionAsync(metadata, "download")
                 val intent = Intent(this as Context, ForceViewActivity::class.java)
                 intent.putExtra("metadata", metadata)
                 startActivityForResult(intent, 9376)
@@ -210,10 +229,11 @@ class PackDetailActivity : AppCompatActivity() {
     }
 
     private fun startDownload() {
-        UGCSelector.runActionAsync(metadata, "download")
+        UGCManager.runActionAsync(metadata, "download")
         PackDownloadManager.fetch.addListener(downloadListener)
         if (PackDownloadManager.startDownload(metadata)) {
             setResult(Activity.RESULT_OK, null)
+            updateUI()
         } else {
             PackDownloadManager.fetch.removeListener(downloadListener)
             Toast.makeText(
@@ -243,7 +263,7 @@ class PackDetailActivity : AppCompatActivity() {
                 } else {
                     downloadProgress.secondaryProgress = 0
                     if (metadata.NoFile) {
-                        resources.getString(R.string.text_continue_download)
+                        resources.getString(R.string.text_goto_download)
                     } else {
                         if (metadata.UpdateAvailable) {
                             String.format(

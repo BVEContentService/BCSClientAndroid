@@ -15,7 +15,7 @@
 
 package tk.zbx1425.bvecontentservice.io.throttling
 
-import tk.zbx1425.bvecontentservice.log.Log
+import tk.zbx1425.bvecontentservice.io.log.Log
 import java.io.IOException
 import java.io.InputStream
 import kotlin.math.max

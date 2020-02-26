@@ -38,10 +38,10 @@ import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.api.Version
 import tk.zbx1425.bvecontentservice.getPreference
-import tk.zbx1425.bvecontentservice.io.PackDownloadManager
 import tk.zbx1425.bvecontentservice.io.PackListManager
-import tk.zbx1425.bvecontentservice.log.Log
-import tk.zbx1425.bvecontentservice.ui.hThread
+import tk.zbx1425.bvecontentservice.io.hThread
+import tk.zbx1425.bvecontentservice.io.log.Log
+import tk.zbx1425.bvecontentservice.io.network.PackDownloadManager
 import java.util.*
 import kotlin.system.exitProcess
 
@@ -153,7 +153,9 @@ class LoaderActivity : AppCompatActivity() {
                             callMainActivity()
                         }
                     }
-                    dlgAlert.create().show()
+                    if (!isFinishing) {
+                        dlgAlert.create().show()
+                    }
                 } else if (updateCnt > 0) {
                     dlgAlert.setMessage(String.format(resources.getString(R.string.info_update_pack), updateCnt))
                     dlgAlert.setCancelable(false)
@@ -162,7 +164,9 @@ class LoaderActivity : AppCompatActivity() {
                             callMainActivity()
                         }
                     }
-                    dlgAlert.create().show()
+                    if (!isFinishing) {
+                        dlgAlert.create().show()
+                    }
                 } else if (errorCount == 0) {
                     if (getPreference("showLoadLog", false)) {
                         continueButton.visibility = View.VISIBLE
@@ -262,7 +266,9 @@ class LoaderActivity : AppCompatActivity() {
                 dlgAlert.setPositiveButton(android.R.string.ok) { _: DialogInterface, _: Int ->
                     finishAffinity()
                 }
-                dlgAlert.create().show()
+                if (!isFinishing) {
+                    dlgAlert.create().show()
+                }
                 Log.e("BCSBullshit", "You fucking stubborn bastard!")
                 exitProcess(0)
             }

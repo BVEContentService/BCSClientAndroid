@@ -19,7 +19,7 @@ import org.json.JSONObject
 import tk.zbx1425.bvecontentservice.api.HttpHelper
 import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.chooseString
-import tk.zbx1425.bvecontentservice.log.Log
+import tk.zbx1425.bvecontentservice.io.log.Log
 import java.io.Serializable
 
 data class SourceMetadata(

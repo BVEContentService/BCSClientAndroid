@@ -1,4 +1,4 @@
-package tk.zbx1425.bvecontentservice.io
+package tk.zbx1425.bvecontentservice.io.network
 
 import Identification
 import tk.zbx1425.bvecontentservice.api.HttpHelper
@@ -6,11 +6,11 @@ import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.api.model.IndexMetadata
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.getPreference
-import tk.zbx1425.bvecontentservice.log.Log
-import tk.zbx1425.bvecontentservice.ui.hThread
+import tk.zbx1425.bvecontentservice.io.hThread
+import tk.zbx1425.bvecontentservice.io.log.Log
 import java.net.URLEncoder
 
-object UGCSelector {
+object UGCManager {
     fun getActiveUGCServer(): IndexMetadata? {
         val ugcSrc = getPreference("listUGCSource", "********")
         val customUgc = getPreference("customUGCSource", "")
@@ -48,13 +48,17 @@ object UGCSelector {
         val devID = Identification.deviceID
         val checkSum = Identification.getChecksum(metadata)
         hThread {
-            val request = HttpHelper.getBasicBuilder(url)
-                .header("X-BCS-UUID", devID)
-                .header("X-BCS-CHECKSUM", checkSum)
-                .build()
-            val response = HttpHelper.client.newCall(request).execute()
-            val result = response.body()?.string()
-            Log.i("BCSUGC", result ?: "NOINFO")
+            try {
+                val request = HttpHelper.getBasicBuilder(url)
+                    .header("X-BCS-UUID", devID)
+                    .header("X-BCS-CHECKSUM", checkSum)
+                    .build()
+                val response = HttpHelper.client.newCall(request).execute()
+                val result = response.body()?.string()
+                Log.i("BCSUGC", result ?: "NOINFO")
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+            }
         }.start()
     }
 

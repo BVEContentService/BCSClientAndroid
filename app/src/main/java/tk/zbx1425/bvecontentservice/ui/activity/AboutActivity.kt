@@ -15,7 +15,6 @@
 
 package tk.zbx1425.bvecontentservice.ui.activity
 
-import Identification
 import android.content.DialogInterface
 import android.os.Bundle
 import android.text.InputType
@@ -30,10 +29,10 @@ import tk.zbx1425.bvecontentservice.BuildConfig
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.getPreference
-import tk.zbx1425.bvecontentservice.log.L4jConfig
+import tk.zbx1425.bvecontentservice.io.log.L4jConfig
+import tk.zbx1425.bvecontentservice.io.sendReport
 import tk.zbx1425.bvecontentservice.replaceView
 import tk.zbx1425.bvecontentservice.ui.component.MetadataView
-import tk.zbx1425.bvecontentservice.ui.sendReport
 import java.io.*
 import java.util.*
 
@@ -68,8 +67,6 @@ class AboutActivity : AppCompatActivity() {
                     val writer = PrintWriter(outputWriter)
                     writer.println("BCS LogCat Dump")
                     writer.println("Tag: " + input.text)
-                    writer.println("UUID: " + Identification.deviceID)
-                    writer.println("IPV4: " + Identification.IPAddress)
                     writer.println(
                         BuildConfig.VERSION_NAME + " " +
                                 BuildConfig.BUILD_TYPE + " " + BuildConfig.BUILD_TIME

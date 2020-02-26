@@ -16,9 +16,9 @@
 package tk.zbx1425.bvecontentservice
 
 import android.app.Application
-import tk.zbx1425.bvecontentservice.io.ImageLoader
-import tk.zbx1425.bvecontentservice.io.PackDownloadManager
-import tk.zbx1425.bvecontentservice.ui.bindHandlerToThread
+import tk.zbx1425.bvecontentservice.io.bindHandlerToThread
+import tk.zbx1425.bvecontentservice.io.network.ImageLoader
+import tk.zbx1425.bvecontentservice.io.network.PackDownloadManager
 
 
 class Application : Application() {
@@ -28,6 +28,7 @@ class Application : Application() {
         bindHandlerToThread(Thread.currentThread())
         ImageLoader.initCache()
         PackDownloadManager.syncDownloadMap()
+        //PackLocalManager.deleteUnqualifiedFile()
     }
 
 }

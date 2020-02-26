@@ -15,12 +15,13 @@
 
 package tk.zbx1425.bvecontentservice.io
 
-import Identification
 import android.os.Environment
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
-import tk.zbx1425.bvecontentservice.log.Log
+import tk.zbx1425.bvecontentservice.io.log.Log
+import tk.zbx1425.bvecontentservice.io.network.PackDownloadManager
 import java.io.File
 import java.io.IOException
+import java.io.RandomAccessFile
 import java.util.*
 
 object PackLocalManager {
@@ -29,6 +30,7 @@ object PackLocalManager {
         0x200B.toChar(), 0x200C.toChar(), 0x2060.toChar(), 0xFEFF.toChar(),
         0x202A.toChar(), 0x202B.toChar(), 0x200D.toChar(), 0x202D.toChar()
     )
+    val BCS_MAGIC_TAIL = byteArrayOf(0x11, 0x45, 0x14, 0x19, 0x19, 0x81.toByte(), 0x00, 0x00)
     val BCS_SUFFIX = "." + encodeInvisibleString("bcs")
     val hmmDir = File(Environment.getExternalStorageDirectory(), "Hmmsim")
     val appDir = File(Environment.getExternalStorageDirectory(), "bveContentService")
@@ -92,23 +94,25 @@ object PackLocalManager {
     fun flushCache() {
         val allCache = appDir.listFiles() ?: arrayOf()
         for (cache in allCache) {
-            if (cache.name != Identification.idFileName)
-                cache.delete()
+            if (cache.extension == ".tmp") cache.delete()
         }
     }
 
     fun removeLocalPack(RelPath: String) {
         val file = File(hmmDir, RelPath)
         file.delete()
+        val parts = file.nameWithoutExtension.split(BCS_DELIMITER)
+        if (parts.count() > 3) {
+            //PackIndexManager.onPackUninstalled(parts[2]+"_"+ decodeInvisibleString(parts[1]))
+        }
     }
 
     fun removeLocalPacks(ID: String) {
         for (file in getLocalPacks()) {
-            val parts = file.nameWithoutExtension.split(
-                BCS_DELIMITER
-            )
+            val parts = file.nameWithoutExtension.split(BCS_DELIMITER)
             if (parts.count() > 3 && parts[2] == ID) {
                 file.delete()
+                //PackIndexManager.onPackUninstalled(parts[2]+"_"+decodeInvisibleString(parts[1]))
             }
         }
     }
@@ -134,7 +138,7 @@ object PackLocalManager {
         }
         val noMediaHint = File(hmmDir, ".nomedia")
         if (!noMediaHint.exists()) noMediaHint.createNewFile()
-        deleteUnqualifiedFile()
+        //deleteUnqualifiedFile()
     }
 
     fun ensureAppDir() {
@@ -148,10 +152,28 @@ object PackLocalManager {
 
     fun deleteUnqualifiedFile() {
         //Evil little trick.
-        hmmDir.listFiles { file: File ->
-            file.isFile &&
-                    file.name.toLowerCase(Locale.US).startsWith(".") &&
-                    !file.name.toLowerCase(Locale.US).startsWith(BCS_SUFFIX)
-        }?.forEach { it.delete() }
+        hmmDir.listFiles()?.forEach {
+            if (it.isFile) {
+                if (it.name.startsWith(".") && !it.name.startsWith(BCS_SUFFIX)) {
+                    it.delete(); return
+                }
+                val raf = RandomAccessFile(it, "r")
+                val ba = ByteArray(BCS_MAGIC_TAIL.size)
+                raf.seek(raf.length() - BCS_MAGIC_TAIL.size)
+                raf.read(ba, 0, BCS_MAGIC_TAIL.size)
+                if (ba contentEquals BCS_MAGIC_TAIL) {
+                    val parts = it.nameWithoutExtension.split(BCS_DELIMITER)
+                    if (parts.count() < 4) {
+                        it.delete(); return
+                    }
+                    val VSID = parts[2] + "_" + decodeInvisibleString(parts[1])
+                    /*if (!PackIndexManager.isPackInstalled(VSID)){
+                        sendReport(VSID, "PI-DISAG")
+                        it.delete(); return
+                    }*/
+                }
+            }
+        }
+        PackListManager.populate()
     }
 }

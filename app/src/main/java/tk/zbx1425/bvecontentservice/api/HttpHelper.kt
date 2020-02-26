@@ -20,7 +20,7 @@ import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONObject
 import tk.zbx1425.bvecontentservice.api.model.SourceMetadata
-import tk.zbx1425.bvecontentservice.log.Log
+import tk.zbx1425.bvecontentservice.io.log.Log
 import java.io.InputStream
 
 object HttpHelper {

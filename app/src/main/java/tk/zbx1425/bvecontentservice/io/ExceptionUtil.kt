@@ -1,4 +1,4 @@
-package tk.zbx1425.bvecontentservice.ui
+package tk.zbx1425.bvecontentservice.io
 
 import Identification
 import android.app.AlarmManager
@@ -14,8 +14,7 @@ import tk.zbx1425.bvecontentservice.MainActivity
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.HttpHelper
 import tk.zbx1425.bvecontentservice.api.MetadataManager
-import tk.zbx1425.bvecontentservice.io.PackLocalManager
-import tk.zbx1425.bvecontentservice.log.Log
+import tk.zbx1425.bvecontentservice.io.log.Log
 import java.io.File
 import java.io.PrintWriter
 import java.text.SimpleDateFormat
@@ -31,8 +30,6 @@ fun bindHandlerToThread(thread: Thread){
                 SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date()) + ".txt")
             val writer = PrintWriter(dumpFile)
             writer.println("BCS Exception Trace")
-            writer.println("UUID: " + Identification.deviceID)
-            writer.println("IPV4: " + Identification.IPAddress)
             writer.println(BuildConfig.VERSION_NAME + " " +
                     BuildConfig.BUILD_TYPE + " " + BuildConfig.BUILD_TIME)
             writer.println("Triggered " + Date().toString())
@@ -78,8 +75,11 @@ fun showPreviousCrash() {
 fun sendReport(text: String, type: String) {
     val metadata = MetadataManager.updateMetadata
     if (metadata != null && metadata.CrashReport_REL != "") {
-        Thread {
-            val body = RequestBody.create(MediaType.parse("text/plain"), text)
+        hThread {
+            val body = RequestBody.create(
+                MediaType.parse("text/plain"),
+                String.format("UUID: %s\nIPV4: %s\n%s", Identification.deviceID, Identification.IPAddress, text)
+            )
             try {
                 val builder = HttpHelper.getBasicBuilder(
                     String.format(

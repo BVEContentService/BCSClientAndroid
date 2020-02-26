@@ -70,6 +70,46 @@
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
+            <LinearLayout
+                android:id="@+id/UGCLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@drawable/ic_eye_black_24dp" />
+
+                <TextView
+                    android:id="@+id/textUGCView"
+                    android:layout_width="60dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="10dp"
+                    android:text="100000" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@drawable/ic_file_download_black_24dp" />
+
+                <TextView
+                    android:id="@+id/textUGCDownload"
+                    android:layout_width="60dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="10dp"
+                    android:text="100000" />
+
+            </LinearLayout>
+
             <FrameLayout
                 android:id="@+id/packMetadataPlaceholder"
                 android:layout_width="match_parent"

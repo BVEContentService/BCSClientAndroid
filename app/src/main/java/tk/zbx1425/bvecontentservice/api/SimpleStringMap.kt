@@ -1,6 +1,6 @@
 package tk.zbx1425.bvecontentservice.api
 
-import tk.zbx1425.bvecontentservice.log.Log
+import tk.zbx1425.bvecontentservice.io.log.Log
 
 class SimpleStringMap : HashMap<String, String>() {
 

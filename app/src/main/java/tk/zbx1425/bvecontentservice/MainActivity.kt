@@ -31,12 +31,12 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_webview.*
 import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.io.PackListManager
+import tk.zbx1425.bvecontentservice.io.showPreviousCrash
 import tk.zbx1425.bvecontentservice.ui.SectionsPagerAdapter
 import tk.zbx1425.bvecontentservice.ui.activity.AboutActivity
 import tk.zbx1425.bvecontentservice.ui.activity.LoaderActivity
 import tk.zbx1425.bvecontentservice.ui.activity.SettingActivity
 import tk.zbx1425.bvecontentservice.ui.component.InfoFragment
-import tk.zbx1425.bvecontentservice.ui.showPreviousCrash
 import kotlin.system.exitProcess
 
 

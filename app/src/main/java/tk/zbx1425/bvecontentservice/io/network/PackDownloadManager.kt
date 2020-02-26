@@ -13,7 +13,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with BCSC.  If not, see <https://www.gnu.org/licenses/>.
 
-package tk.zbx1425.bvecontentservice.io
+package tk.zbx1425.bvecontentservice.io.network
 
 import Identification
 import android.content.Intent
@@ -30,8 +30,10 @@ import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.HttpHelper
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
+import tk.zbx1425.bvecontentservice.io.PackListManager
+import tk.zbx1425.bvecontentservice.io.PackLocalManager
+import tk.zbx1425.bvecontentservice.io.log.Log
 import tk.zbx1425.bvecontentservice.io.throttling.ThrottledOkHttpDownloader
-import tk.zbx1425.bvecontentservice.log.Log
 import java.io.*
 import kotlin.system.exitProcess
 
@@ -67,9 +69,12 @@ object PackDownloadManager {
                 ), Toast.LENGTH_LONG
             ).show()
             fetch.remove(download.id)
-            if (download.extras.getString("VSID", "") != MAGIC_UPDATE) {
-                PackLocalManager.getLocalTempFile(download.extras.getString("VSID", "BULLSHIT"))
-                    .renameTo(PackLocalManager.getLocalPackFile(download.extras.getString("VSID", "BULLSHIT")))
+            val VSID = download.extras.getString("VSID", "BULLSHIT")
+            if (VSID != MAGIC_UPDATE) {
+                PackLocalManager.getLocalPackFile(VSID).delete()
+                PackLocalManager.getLocalTempFile(VSID).renameTo(PackLocalManager.getLocalPackFile(VSID))
+                PackLocalManager.getLocalPackFile(VSID).appendBytes(PackLocalManager.BCS_MAGIC_TAIL)
+                //PackIndexManager.onPackInstalled(VSID)
                 PackListManager.populate()
             }
         }
@@ -140,7 +145,9 @@ object PackDownloadManager {
         }
 
     }
-    val fetch = Fetch.Impl.getInstance(fetchConfiguration).addListener(fetchListener)
+    val fetch = Fetch.Impl.getInstance(fetchConfiguration).addListener(
+        fetchListener
+    )
 
     fun isDownloading(metadata: PackageMetadata): Boolean {
         return downloadingMap.containsKey(metadata.VSID)
@@ -161,13 +168,14 @@ object PackDownloadManager {
         try {
             PackLocalManager.ensureHmmsimDir()
             Log.i(LOGCAT_TAG, metadata.File)
+            if (metadata.Source.DevSpec.Throttle < 0) throw IOException("Could not establish connection to server!")
             val request = Request(metadata.File, PackLocalManager.getLocalTempFile(metadata.VSID).absolutePath)
             request.addHeader("User-Agent", HttpHelper.FAKEUA)
             request.addHeader("X-BCS-UUID", Identification.deviceID)
             request.addHeader("X-BCS-CHECKSUM", Identification.getChecksum(metadata))
             request.extras = Extras(
                 mapOf(
-                    "VSID" to metadata.VSID, "Name" to metadata.Name,
+                    "VSID" to metadata.VSID, "Name" to metadata.Name, "ID" to metadata.ID,
                     "Throttle" to metadata.Source.DevSpec.Throttle.toString(),
                     "Referer" to if (metadata.Referer != "") metadata.Referer else HttpHelper.REFERER
                 )
@@ -207,7 +215,14 @@ object PackDownloadManager {
             val request = Request(url, PackLocalManager.getUpdateTempFile().absolutePath)
             request.addHeader("User-Agent", HttpHelper.FAKEUA)
             request.addHeader("X-BCS-UUID", Identification.deviceID)
-            request.extras = Extras(mapOf(Pair("VSID", MAGIC_UPDATE), Pair("Name", MAGIC_UPDATE)))
+            request.extras = Extras(
+                mapOf(
+                    Pair("VSID", MAGIC_UPDATE), Pair(
+                        "Name",
+                        MAGIC_UPDATE
+                    )
+                )
+            )
             val updateListener = object : FetchListener {
                 override fun onStarted(download: Download, downloadBlocks: List<DownloadBlock>, totalBlocks: Int) {}
                 override fun onAdded(download: Download) {}
@@ -239,7 +254,8 @@ object PackDownloadManager {
                         FileProvider.getUriForFile(
                             ApplicationContext.context,
                             ApplicationContext.context.packageName + ".provider",
-                            PackLocalManager.getUpdateTempFile())
+                            PackLocalManager.getUpdateTempFile()
+                        )
                     } else {
                         Uri.fromFile(PackLocalManager.getUpdateTempFile())
                     }
