@@ -21,8 +21,8 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 object MetadataManager {
-    const val PROTOCOL_VER = "1.8"
-    const val PROTOCOL_DATE = "2020-2-23"
+    const val PROTOCOL_VER = "1.9"
+    const val PROTOCOL_DATE = "2020-2-27"
     const val API_SUB_INDEX = "/sources.json"
     const val API_SUB_UPDATE = "/clients.json"
     const val API_SUB_AUTHOR = "/index/authors.json"

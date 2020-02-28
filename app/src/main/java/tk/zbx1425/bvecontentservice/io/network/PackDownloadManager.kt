@@ -24,6 +24,7 @@ import androidx.core.content.FileProvider
 import com.tonyodev.fetch2.*
 import com.tonyodev.fetch2core.DownloadBlock
 import com.tonyodev.fetch2core.Extras
+import com.tonyodev.fetch2core.FetchLogger
 import com.tonyodev.fetch2core.Func
 import okhttp3.Credentials
 import tk.zbx1425.bvecontentservice.ApplicationContext
@@ -47,7 +48,10 @@ object PackDownloadManager {
 
     private val fetchConfiguration = FetchConfiguration.Builder(ApplicationContext.context)
         .setDownloadConcurrentLimit(3).enableLogging(true)
-        .setHttpDownloader(ThrottledOkHttpDownloader(HttpHelper.client)).enableRetryOnNetworkGain(true)
+        .enableLogging(true)
+        .setLogger(FetchLogger(true, "Fetch"))
+        .setHttpDownloader(ThrottledOkHttpDownloader())
+        .enableRetryOnNetworkGain(true)
         .build()
 
     private val fetchListener: FetchListener = object : FetchListener {
@@ -95,7 +99,7 @@ object PackDownloadManager {
 
         }
 
-        override fun onError(download: Download, error: com.tonyodev.fetch2.Error, throwable: Throwable?) {
+        override fun onError(download: Download, error: Error, throwable: Throwable?) {
             Toast.makeText(
                 ApplicationContext.context, String.format(
                     ApplicationContext.context.resources.getText(R.string.info_download_failed).toString(),
@@ -103,6 +107,8 @@ object PackDownloadManager {
                 ), Toast.LENGTH_LONG
             ).show()
             Log.e(LOGCAT_TAG, download.id.toString() + " Failed")
+            error.throwable?.printStackTrace()
+            Log.e(LOGCAT_TAG, error.throwable?.message ?: "")
             Log.e(LOGCAT_TAG, error.httpResponse?.errorResponse ?: "")
             fetch.delete(download.id)
         }
@@ -145,7 +151,7 @@ object PackDownloadManager {
         }
 
     }
-    val fetch = Fetch.Impl.getInstance(fetchConfiguration).addListener(
+    val fetch = Fetch.getInstance(fetchConfiguration).addListener(
         fetchListener
     )
 
@@ -162,22 +168,24 @@ object PackDownloadManager {
         })
     }
 
-    fun startDownload(metadata: PackageMetadata): Boolean {
+    fun startDownload(metadata: PackageMetadata, url: String, referer: String? = null, cookie: String? = null): Boolean {
         if (downloadingMap.containsKey(metadata.VSID)) return true
         Log.i(LOGCAT_TAG, "Not in VSID-db, starting")
         try {
             PackLocalManager.ensureHmmsimDir()
-            Log.i(LOGCAT_TAG, metadata.File)
+            //Log.i(LOGCAT_TAG, url)
             if (metadata.Source.DevSpec.Throttle < 0) throw IOException("Could not establish connection to server!")
-            val request = Request(metadata.File, PackLocalManager.getLocalTempFile(metadata.VSID).absolutePath)
-            request.addHeader("User-Agent", HttpHelper.FAKEUA)
-            request.addHeader("X-BCS-UUID", Identification.deviceID)
-            request.addHeader("X-BCS-CHECKSUM", Identification.getChecksum(metadata))
+            val request = Request(url, PackLocalManager.getLocalTempFile(metadata.VSID).absolutePath)
+            request.headers.clear()
+            request.addHeader("User-Agent", HttpHelper.deviceUA)
+            request.addHeader("Referer", referer ?: (if (metadata.Referer != "") metadata.Referer else HttpHelper.REFERER))
+            //if (cookie != null) request.addHeader("cookie", cookie)
+            /*request.addHeader("X-BCS-UUID", Identification.deviceID)
+            request.addHeader("X-BCS-CHECKSUM", Identification.getChecksum(metadata))*/
             request.extras = Extras(
                 mapOf(
                     "VSID" to metadata.VSID, "Name" to metadata.Name, "ID" to metadata.ID,
-                    "Throttle" to metadata.Source.DevSpec.Throttle.toString(),
-                    "Referer" to if (metadata.Referer != "") metadata.Referer else HttpHelper.REFERER
+                    "Throttle" to metadata.Source.DevSpec.Throttle.toString()
                 )
             )
             when (metadata.Source.APIType) {
@@ -187,11 +195,12 @@ object PackDownloadManager {
                     request.addHeader("Authorization", credential)
                 }
             }
+            Log.i("BCSDownload", request.toString())
             fetch.enqueue(request,
                 Func { updatedRequest: Request ->
                     downloadingMap[metadata.VSID] = updatedRequest.id
                 },
-                Func { error: com.tonyodev.fetch2.Error ->
+                Func { error: Error ->
                     throw error.throwable ?: RuntimeException("Something wrong during downloading")
                 }
             )
@@ -213,7 +222,7 @@ object PackDownloadManager {
             Log.i(LOGCAT_TAG, PackLocalManager.getUpdateTempFile().absolutePath)
             if (PackLocalManager.getUpdateTempFile().exists()) PackLocalManager.getUpdateTempFile().delete()
             val request = Request(url, PackLocalManager.getUpdateTempFile().absolutePath)
-            request.addHeader("User-Agent", HttpHelper.FAKEUA)
+            request.addHeader("User-Agent", HttpHelper.deviceUA)
             request.addHeader("X-BCS-UUID", Identification.deviceID)
             request.extras = Extras(
                 mapOf(
@@ -236,7 +245,7 @@ object PackDownloadManager {
                 override fun onResumed(download: Download) {}
                 override fun onWaitingNetwork(download: Download) {}
 
-                override fun onError(download: Download, error: com.tonyodev.fetch2.Error, throwable: Throwable?) {
+                override fun onError(download: Download, error: Error, throwable: Throwable?) {
                     val infoText = String.format(
                         ApplicationContext.context.resources.getText(R.string.info_download_failed).toString()
                         , "", error.throwable?.message
@@ -271,7 +280,7 @@ object PackDownloadManager {
                 Func { updatedRequest: Request ->
                     downloadingMap[MAGIC_UPDATE] = updatedRequest.id
                 },
-                Func { error: com.tonyodev.fetch2.Error ->
+                Func { error: Error ->
                     throw error.throwable ?: RuntimeException("Something wrong during downloading")
                 }
             )

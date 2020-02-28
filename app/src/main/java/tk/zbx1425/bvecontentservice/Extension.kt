@@ -31,6 +31,12 @@ fun View.replaceView(newView: View) {
     parent.addView(newView, index)
 }
 
+fun String.replace(replacements: Map<String, String>): String {
+    var result = this
+    replacements.forEach { result = result.replace(it.key, it.value) }
+    return result
+}
+
 fun chooseString(lo: String, en: String): String {
     return if (getPreference("englishName", false)
     ) en; else lo

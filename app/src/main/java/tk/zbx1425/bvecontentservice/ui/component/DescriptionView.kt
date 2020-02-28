@@ -142,7 +142,7 @@ class DescriptionView(context: Context) : FrameLayout(context) {
                             connection.setRequestProperty("Authorization", credential)
                         }
                     }
-                    connection.setRequestProperty("User-Agent", HttpHelper.FAKEUA)
+                    connection.setRequestProperty("User-Agent", HttpHelper.deviceUA)
                     connection.setRequestProperty("Referer", HttpHelper.REFERER)
                     connection.setRequestProperty("X-BCS-UUID", Identification.deviceID)
                     connection.setRequestProperty("X-BCS-CHECKSUM", Identification.getDateChecksum())

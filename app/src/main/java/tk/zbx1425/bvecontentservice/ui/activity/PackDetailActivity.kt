@@ -195,10 +195,7 @@ class PackDetailActivity : AppCompatActivity() {
         dlgAlert.setCancelable(true)
         dlgAlert.setTitle(R.string.app_name)
         updateUI()
-        if (metadata.UpdateAvailable) {
-            PackLocalManager.removeLocalPacks(metadata.ID)
-            startDownload()
-        } else if (PackLocalManager.isInstalled(metadata)) {
+        if (PackLocalManager.isInstalled(metadata) && !metadata.UpdateAvailable) {
             dlgAlert.setMessage(String.format(resources.getString(R.string.alert_remove), metadata.Name))
             dlgAlert.setPositiveButton(android.R.string.yes) { _: DialogInterface, i: Int ->
                 if (i == DialogInterface.BUTTON_POSITIVE) {
@@ -217,21 +214,22 @@ class PackDetailActivity : AppCompatActivity() {
             }
             dlgAlert.create().show()
         } else {
-            if (metadata.AutoOpen || metadata.NoFile) {
+            if (metadata.AutoOpen || metadata.NoFile || metadata.GuidedDownload) {
                 if (metadata.NoFile) UGCManager.runActionAsync(metadata, "download")
                 val intent = Intent(this as Context, ForceViewActivity::class.java)
                 intent.putExtra("metadata", metadata)
                 startActivityForResult(intent, 9376)
             } else {
-                startDownload()
+                startDownload(metadata.File)
             }
         }
     }
 
-    private fun startDownload() {
+    private fun startDownload(url: String, referer: String? = null, cookie: String? = null) {
         UGCManager.runActionAsync(metadata, "download")
+        if (metadata.UpdateAvailable) PackLocalManager.removeLocalPacks(metadata.ID)
         PackDownloadManager.fetch.addListener(downloadListener)
-        if (PackDownloadManager.startDownload(metadata)) {
+        if (PackDownloadManager.startDownload(metadata, url, referer, cookie)) {
             setResult(Activity.RESULT_OK, null)
             updateUI()
         } else {
@@ -246,7 +244,10 @@ class PackDetailActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == 9376 && resultCode == Activity.RESULT_OK) {
-            startDownload()
+            startDownload(
+                data?.getStringExtra("url") ?: metadata.File,
+                data?.getStringExtra("referer"), data?.getStringExtra("cookie")
+            )
         }
         super.onActivityResult(requestCode, resultCode, data)
     }

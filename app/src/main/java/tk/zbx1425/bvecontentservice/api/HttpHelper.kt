@@ -21,13 +21,21 @@ import org.json.JSONArray
 import org.json.JSONObject
 import tk.zbx1425.bvecontentservice.api.model.SourceMetadata
 import tk.zbx1425.bvecontentservice.io.log.Log
+import tk.zbx1425.bvecontentservice.replace
 import java.io.InputStream
 
 object HttpHelper {
     val client = OkHttpClient()
     val cachedResponse = SimpleStringMap()
+    val requestInterceptMap: Map<String, String> = mapOf(
+        //Nicely done, CPC. NICELY done.
+        "ajax.googleapis.com/ajax/libs/jquery" to "cdn.staticfile.org/jquery",
+        "maxcdn.bootstrapcdn.com/bootstrap" to "cdn.staticfile.org/twitter-bootstrap",
+        "translate.google.com" to "127.0.0.1"
+    )
     const val REFERER = "https://anti-hotlink.zbx1425.tk"
-    const val FAKEUA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36"
+    val deviceUA = System.getProperty("http.agent")
+        ?: "Mozilla/5.0 (Linux; Android 4.4.4; SAMSUNG-SM-N900A Build/tt) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/33.0.0.0 Mobile Safari/537.36"
 
     fun fetchApiArray(source: SourceMetadata, sub: String): JSONArray? {
         return JSONArray(fetchApiString(source, sub) ?: return null)
@@ -87,12 +95,17 @@ object HttpHelper {
         }
     }
 
-    fun getBasicBuilder(url: String): Request.Builder {
-        return Request.Builder().url(url)
-            .header("User-Agent", FAKEUA)
+    fun getBasicBuilder(url: String, noHack: Boolean = false): Request.Builder {
+        return Request.Builder().url(url.replace(requestInterceptMap))
+            .header("User-Agent", deviceUA)
             .header("Referer", REFERER)
             .header("X-BCS-UUID", Identification.deviceID)
             .header("X-BCS-CHECKSUM", Identification.getDateChecksum())
+    }
+
+    fun shouldInterceptRequest(url: String): Boolean {
+        requestInterceptMap.forEach { if (url.contains(it.key)) return true }
+        return false
     }
 
     fun getSourceClient(source: SourceMetadata): OkHttpClient {
