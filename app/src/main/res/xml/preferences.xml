@@ -70,6 +70,11 @@
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_advanced">
         <SwitchPreference
+            android:defaultValue="true"
+            android:key="interceptRequest"
+            android:summary="@string/pref_interceptrequest_sum"
+            android:title="@string/pref_interceptrequest" />
+        <SwitchPreference
             android:defaultValue="false"
             android:key="showLoadLog"
             android:summary="@string/pref_loadlog_sum"

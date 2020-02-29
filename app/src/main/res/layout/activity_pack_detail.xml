@@ -246,7 +246,7 @@
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
             android:gravity="end|center_vertical"
-            android:text="20 KB/s"
+            android:text="..."
             android:textColor="@android:color/primary_text_dark"
             android:textSize="20sp" />
     </FrameLayout>

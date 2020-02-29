@@ -132,4 +132,6 @@ BCSC的开发过程中还用到了数不胜数的开源程序与资源，在此�
     <string name="text_log_warning">如非受程序开发人员请求，请勿上传。</string>
     <string name="text_submit_log">上传程序日志</string>
     <string name="text_goto_download">前往下载</string>
+    <string name="pref_interceptrequest">截取并重定向部分请求</string>
+    <string name="pref_interceptrequest_sum">仅在中国大陆地区必须打开</string>
 </resources>

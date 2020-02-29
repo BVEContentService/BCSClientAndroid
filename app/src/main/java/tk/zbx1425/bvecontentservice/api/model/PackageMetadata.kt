@@ -85,7 +85,8 @@ data class PackageMetadata(
 
     constructor(localName: String) : this(
         File_REL = localName, Name_LO = PackLocalManager.trimEncryptedName(localName)
-        , Name_EN = PackLocalManager.trimEncryptedName(localName), DummyPack = true
+        , Name_EN = PackLocalManager.trimEncryptedName(localName), DummyPack = true,
+        ID = localName, Version = Version("1.0")
     )
 
     override fun compareTo(other: PackageMetadata): Int {

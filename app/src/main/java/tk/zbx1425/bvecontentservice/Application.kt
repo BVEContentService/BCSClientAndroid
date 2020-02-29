@@ -27,7 +27,7 @@ class Application : Application() {
         ApplicationContext.initialize(this)
         bindHandlerToThread(Thread.currentThread())
         ImageLoader.initCache()
-        PackDownloadManager.syncDownloadMap()
+        PackDownloadManager.register(this)
         //PackLocalManager.deleteUnqualifiedFile()
     }
 

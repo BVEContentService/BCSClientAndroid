@@ -16,16 +16,14 @@
 package tk.zbx1425.bvecontentservice.io.network
 
 import Identification
-import android.content.Intent
+import android.app.DownloadManager
+import android.content.*
+import android.database.Cursor
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
 import android.widget.Toast
 import androidx.core.content.FileProvider
-import com.tonyodev.fetch2.*
-import com.tonyodev.fetch2core.DownloadBlock
-import com.tonyodev.fetch2core.Extras
-import com.tonyodev.fetch2core.FetchLogger
-import com.tonyodev.fetch2core.Func
 import okhttp3.Credentials
 import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
@@ -34,228 +32,198 @@ import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.io.PackListManager
 import tk.zbx1425.bvecontentservice.io.PackLocalManager
 import tk.zbx1425.bvecontentservice.io.log.Log
-import tk.zbx1425.bvecontentservice.io.throttling.ThrottledOkHttpDownloader
 import java.io.*
+import kotlin.collections.HashMap
+import kotlin.collections.elementAt
+import kotlin.collections.filterValues
+import kotlin.collections.set
 import kotlin.system.exitProcess
 
 
 object PackDownloadManager {
 
     const val LOGCAT_TAG = "BCSDownloadManager"
-    const val MAGIC_UPDATE = "__SELF_UPDATE"
-    private var mapInitialized: Boolean = false
-    val downloadingMap = HashMap<String, Int>()
+    const val CALLBACK_INTERVAL = 1000L
+    val MAGIC_UPDATE = PackageMetadata("__SELF_UPDATE")
+    val downloadingMap = HashMap<String, Long>()
+    val handlerMap = HashMap<String, Pair<((succeed: Boolean) -> Unit)?, ((bytesDownloaded: Long, bytesTotal: Long) -> Unit)?>>()
+    val handler = Handler()
+    var downloadManager: DownloadManager? = null
+    var contentResolver: ContentResolver? = null
 
-    private val fetchConfiguration = FetchConfiguration.Builder(ApplicationContext.context)
-        .setDownloadConcurrentLimit(3).enableLogging(true)
-        .enableLogging(true)
-        .setLogger(FetchLogger(true, "Fetch"))
-        .setHttpDownloader(ThrottledOkHttpDownloader())
-        .enableRetryOnNetworkGain(true)
-        .build()
-
-    private val fetchListener: FetchListener = object : FetchListener {
-        override fun onAdded(download: Download) {
-            Log.i(LOGCAT_TAG, download.id.toString() + " Added")
-        }
-
-        override fun onCancelled(download: Download) {
-            Log.i(LOGCAT_TAG, download.id.toString() + " Cancelled")
-            fetch.delete(download.id) //Make it simple & dirty
-        }
-
-        override fun onCompleted(download: Download) {
-            Log.i(LOGCAT_TAG, download.id.toString() + " Completed")
-            Toast.makeText(
-                ApplicationContext.context, String.format(
-                    ApplicationContext.context.resources.getText(R.string.info_download_finished).toString(),
-                    download.extras.getString("Name", ""), ""
-                ), Toast.LENGTH_LONG
-            ).show()
-            fetch.remove(download.id)
-            val VSID = download.extras.getString("VSID", "BULLSHIT")
-            if (VSID != MAGIC_UPDATE) {
-                PackLocalManager.getLocalPackFile(VSID).delete()
-                PackLocalManager.getLocalTempFile(VSID).renameTo(PackLocalManager.getLocalPackFile(VSID))
-                PackLocalManager.getLocalPackFile(VSID).appendBytes(PackLocalManager.BCS_MAGIC_TAIL)
-                //PackIndexManager.onPackInstalled(VSID)
-                PackListManager.populate()
+    private val onDownloadComplete = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent) {
+            val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+            Log.i(LOGCAT_TAG, "Download completed " + id)
+            val dm: DownloadManager =
+                downloadManager ?: throw NullPointerException("Cannot get downloadManager")
+            val query = DownloadManager.Query()
+            val cursor: Cursor = dm.query(query.setFilterById(id))
+            if (cursor.moveToFirst()) {
+                val targetVSID = downloadingMap.filterValues { it == id }.keys.elementAt(0)
+                val targetFile = PackLocalManager.getLocalPackFile(targetVSID)
+                Log.i(
+                    LOGCAT_TAG,
+                    "Received status " + cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
+                )
+                when (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))) {
+                    DownloadManager.STATUS_SUCCESSFUL -> {
+                        val localFileUri = Uri.parse(
+                            cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI))
+                        )
+                        /*val localFile = contentResolver?.openInputStream(localFileUri)
+                            ?: throw java.lang.NullPointerException("Failed get ContentResolver")*/
+                        val tempFile = File(
+                            ApplicationContext.context.getExternalFilesDir("downloadCache"),
+                            PackLocalManager.getLocalTempFile(targetVSID).name
+                        )
+                        Log.i(LOGCAT_TAG, "Downloaded file at " + localFileUri.toString())
+                        Log.i(LOGCAT_TAG, "Moving file to " + targetFile.absolutePath)
+                        /*if (!targetFile.exists()) targetFile.createNewFile()
+                        copy(localFile, targetFile)*/
+                        tempFile.renameTo(PackLocalManager.getLocalPackFile(targetVSID))
+                        //Log.i(LOGCAT_TAG, "Removing cache file")
+                        //contentResolver!!.delete(localFileUri, null, null)
+                        Log.i(LOGCAT_TAG, "Notifying PackListManager")
+                        PackListManager.populate()
+                        Toast.makeText(
+                            ApplicationContext.context, String.format(
+                                ApplicationContext.context.resources.getText(R.string.info_download_finished).toString(),
+                                targetVSID, ""
+                            ), Toast.LENGTH_SHORT
+                        ).show()
+                        downloadingMap.values.remove(id)
+                        handlerMap[targetVSID]?.first?.invoke(true)
+                    }
+                    DownloadManager.STATUS_FAILED -> {
+                        Toast.makeText(
+                            ApplicationContext.context, String.format(
+                                ApplicationContext.context.resources.getText(R.string.info_download_failed).toString(),
+                                targetVSID, cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON))
+                            ), Toast.LENGTH_SHORT
+                        ).show()
+                        Log.e(LOGCAT_TAG, "Download failed " + id + " " + cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON)))
+                        downloadingMap.values.remove(id)
+                        handlerMap[targetVSID]?.first?.invoke(false)
+                    }
+                }
+            } else {
+                Log.e(LOGCAT_TAG, "Cannot query DownloadManager Cursor")
             }
         }
-
-        override fun onDeleted(download: Download) {
-            Log.i(LOGCAT_TAG, download.id.toString() + " Deleted")
-            Toast.makeText(
-                ApplicationContext.context, String.format(
-                    ApplicationContext.context.resources.getText(R.string.info_download_aborted).toString(),
-                    download.extras.getString("Name", ""), ""
-                ), Toast.LENGTH_LONG
-            ).show()
-            downloadingMap.remove(download.extras.getString("VSID", ""))
-            fetch.remove(download.id)
-        }
-
-        override fun onDownloadBlockUpdated(download: Download, downloadBlock: DownloadBlock, totalBlocks: Int) {
-
-        }
-
-        override fun onError(download: Download, error: Error, throwable: Throwable?) {
-            Toast.makeText(
-                ApplicationContext.context, String.format(
-                    ApplicationContext.context.resources.getText(R.string.info_download_failed).toString(),
-                    download.extras.getString("Name", ""), error.throwable?.message ?: ""
-                ), Toast.LENGTH_LONG
-            ).show()
-            Log.e(LOGCAT_TAG, download.id.toString() + " Failed")
-            error.throwable?.printStackTrace()
-            Log.e(LOGCAT_TAG, error.throwable?.message ?: "")
-            Log.e(LOGCAT_TAG, error.httpResponse?.errorResponse ?: "")
-            fetch.delete(download.id)
-        }
-
-        override fun onPaused(download: Download) {
-            Log.i(LOGCAT_TAG, download.id.toString() + " Paused. deleting")
-            fetch.delete(download.id) //Make it simple & dirty, No need to pause a download
-        }
-
-        override fun onProgress(download: Download, etaInMilliSeconds: Long, downloadedBytesPerSecond: Long) {
-            Log.i(LOGCAT_TAG, download.id.toString() + " ETA(ms) " + etaInMilliSeconds)
-        }
-
-        override fun onQueued(download: Download, waitingOnNetwork: Boolean) {
-            Log.i(LOGCAT_TAG, download.id.toString() + " Queued")
-        }
-
-        override fun onRemoved(download: Download) {
-            Log.i(LOGCAT_TAG, download.id.toString() + " Removed.")
-            downloadingMap.remove(download.extras.getString("VSID", ""))
-            //fetch.delete(download.id) //Make it simple & dirty
-        }
-
-        override fun onResumed(download: Download) {
-            Log.i(LOGCAT_TAG, download.id.toString() + " Resumed")
-        }
-
-        override fun onStarted(download: Download, downloadBlocks: List<DownloadBlock>, totalBlocks: Int) {
-            Log.i(LOGCAT_TAG, download.id.toString() + " Started")
-            Toast.makeText(
-                ApplicationContext.context, String.format(
-                    ApplicationContext.context.resources.getText(R.string.info_download_started)
-                        .toString()/*, download.extras.getString("Name", "Unknown")*/
-                ), Toast.LENGTH_SHORT
-            ).show()
-        }
-
-        override fun onWaitingNetwork(download: Download) {
-            Log.i(LOGCAT_TAG, download.id.toString() + " Waiting for network...")
-        }
-
-    }
-    val fetch = Fetch.getInstance(fetchConfiguration).addListener(
-        fetchListener
-    )
-
-    fun isDownloading(metadata: PackageMetadata): Boolean {
-        return downloadingMap.containsKey(metadata.VSID)
     }
 
-    fun syncDownloadMap() {
-        fetch.getDownloads(Func {
-            downloadingMap.clear()
-            for (download in it) {
-                downloadingMap[download.extras.getString("VSID", "")] = download.id
-            }
-        })
+    fun register(context: Context) {
+        downloadManager = context.applicationContext.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        contentResolver = context.applicationContext.contentResolver
+        context.applicationContext.registerReceiver(
+            onDownloadComplete,
+            IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
+        )
+        Log.i(LOGCAT_TAG, "Manager and Receiver registered")
     }
 
-    fun startDownload(metadata: PackageMetadata, url: String, referer: String? = null, cookie: String? = null): Boolean {
+    fun setHandler(
+        metadata: PackageMetadata,
+        finishHandler: ((succeed: Boolean) -> Unit)?, progressHandler: ((bytesDownloaded: Long, bytesTotal: Long) -> Unit)?
+    ) {
+        handlerMap[metadata.VSID] = Pair(finishHandler, progressHandler)
+    }
+
+    fun startDownload(
+        metadata: PackageMetadata, url: String,
+        referer: String? = null, cookie: String? = null
+    ): Boolean {
+        Log.i(LOGCAT_TAG, "Trying download manager...")
+        val dm: DownloadManager = downloadManager ?: return false
+        Log.i(LOGCAT_TAG, "Got download manager")
         if (downloadingMap.containsKey(metadata.VSID)) return true
         Log.i(LOGCAT_TAG, "Not in VSID-db, starting")
         try {
             PackLocalManager.ensureHmmsimDir()
-            //Log.i(LOGCAT_TAG, url)
-            if (metadata.Source.DevSpec.Throttle < 0) throw IOException("Could not establish connection to server!")
-            val request = Request(url, PackLocalManager.getLocalTempFile(metadata.VSID).absolutePath)
-            request.headers.clear()
-            request.addHeader("User-Agent", HttpHelper.deviceUA)
-            request.addHeader("Referer", referer ?: (if (metadata.Referer != "") metadata.Referer else HttpHelper.REFERER))
-            //if (cookie != null) request.addHeader("cookie", cookie)
-            /*request.addHeader("X-BCS-UUID", Identification.deviceID)
-            request.addHeader("X-BCS-CHECKSUM", Identification.getChecksum(metadata))*/
-            request.extras = Extras(
-                mapOf(
-                    "VSID" to metadata.VSID, "Name" to metadata.Name, "ID" to metadata.ID,
-                    "Throttle" to metadata.Source.DevSpec.Throttle.toString()
-                )
-            )
+            Log.i(LOGCAT_TAG, url)
+            val request =
+                DownloadManager.Request(Uri.parse(url))
+                    /*.setTitle(metadata.Name) // Title of the Download Notification
+                    .setDescription(url) // Description of the Download Notification*/
+                    .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE) // Visibility of the download Notification
+                    .setDestinationInExternalFilesDir(
+                        ApplicationContext.context,
+                        "downloadCache", PackLocalManager.getLocalTempFile(metadata.VSID).name
+                    )
+            //.setDestinationUri(Uri.fromFile(file)) // Uri of the destination file
+            /*.setAllowedOverMetered(true) // Set if download is allowed on Mobile network
+            .setAllowedOverRoaming(true) // Set if download is allowed on roaming network*/
+            request.setMimeType("application/octet-stream")
+            request.addRequestHeader("User-Agent", HttpHelper.deviceUA)
+            request.addRequestHeader("Referer", referer ?: HttpHelper.REFERER)
+            request.addRequestHeader("cookie", cookie)
+            request.addRequestHeader("X-BCS-UUID", Identification.deviceID)
+            request.addRequestHeader("X-BCS-CHECKSUM", Identification.getChecksum(metadata))
+            request.addRequestHeader("X-BCS-Throttle", metadata.Source.DevSpec.Throttle.toString())
             when (metadata.Source.APIType) {
                 "httpBasicAuth" -> {
                     val credential: String =
                         Credentials.basic(metadata.Source.Username, metadata.Source.Password)
-                    request.addHeader("Authorization", credential)
+                    request.addRequestHeader("Authorization", credential)
                 }
             }
-            Log.i("BCSDownload", request.toString())
-            fetch.enqueue(request,
-                Func { updatedRequest: Request ->
-                    downloadingMap[metadata.VSID] = updatedRequest.id
-                },
-                Func { error: Error ->
-                    throw error.throwable ?: RuntimeException("Something wrong during downloading")
+            Log.i(LOGCAT_TAG, HttpHelper.deviceUA + " " + referer + " " + cookie)
+            val downloadID = dm.enqueue(request)
+            downloadingMap[metadata.VSID] = downloadID
+            handler.postDelayed(object : Runnable {
+                override fun run() {
+                    if (downloadingMap.containsKey(metadata.VSID)) {
+                        val query = DownloadManager.Query()
+                        val cursor: Cursor = dm.query(query.setFilterById(downloadingMap[metadata.VSID]!!))
+                        if (cursor.moveToFirst()) {
+                            val bytesDownloaded: Long =
+                                cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
+                            val bytesTotal: Long =
+                                cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
+                            cursor.close()
+                            handlerMap[metadata.VSID]?.second?.invoke(bytesDownloaded, bytesTotal)
+                            handler.postDelayed(this, CALLBACK_INTERVAL)
+                        } else {
+                            Log.e(LOGCAT_TAG, "Cannot move cursor")
+                        }
+                    }
                 }
-            )
-            Log.i(LOGCAT_TAG, "Download started")
+            }, CALLBACK_INTERVAL)
+            Log.i(LOGCAT_TAG, "Download started " + downloadID)
             return true
         } catch (ex: Exception) {
-            Log.e(LOGCAT_TAG, "Download Fail", ex)
+            Log.i(LOGCAT_TAG, ex.message ?: "")
             ex.printStackTrace()
             return false
         }
     }
 
+    fun abortDownload(metadata: PackageMetadata): Boolean {
+        val dm: DownloadManager = downloadManager ?: return false
+        if (!downloadingMap.containsKey(metadata.VSID)) return false
+        try {
+            dm.remove(downloadingMap[metadata.VSID]!!)
+            downloadingMap.remove(metadata.VSID)
+            handlerMap[metadata.VSID]?.first?.invoke(false)
+            Log.i(LOGCAT_TAG, "Download aborted " + metadata.VSID)
+            return true
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            return false
+        }
+    }
+
+    fun isDownloading(metadata: PackageMetadata): Boolean {
+        return downloadingMap.containsKey(metadata.VSID)
+    }
+
     fun startSelfUpdateDownload(url: String, failureCallback: (String) -> Unit): Boolean {
-        if (downloadingMap.containsKey(MAGIC_UPDATE)) return true
+        if (downloadingMap.containsKey(MAGIC_UPDATE.VSID)) return true
         Log.i(LOGCAT_TAG, "Not in VSID-db, starting")
         try {
-            PackLocalManager.ensureAppDir()
-            Log.i(LOGCAT_TAG, url)
-            Log.i(LOGCAT_TAG, PackLocalManager.getUpdateTempFile().absolutePath)
-            if (PackLocalManager.getUpdateTempFile().exists()) PackLocalManager.getUpdateTempFile().delete()
-            val request = Request(url, PackLocalManager.getUpdateTempFile().absolutePath)
-            request.addHeader("User-Agent", HttpHelper.deviceUA)
-            request.addHeader("X-BCS-UUID", Identification.deviceID)
-            request.extras = Extras(
-                mapOf(
-                    Pair("VSID", MAGIC_UPDATE), Pair(
-                        "Name",
-                        MAGIC_UPDATE
-                    )
-                )
-            )
-            val updateListener = object : FetchListener {
-                override fun onStarted(download: Download, downloadBlocks: List<DownloadBlock>, totalBlocks: Int) {}
-                override fun onAdded(download: Download) {}
-                override fun onCancelled(download: Download) {}
-                override fun onDeleted(download: Download) {}
-                override fun onDownloadBlockUpdated(download: Download, downloadBlock: DownloadBlock, totalBlocks: Int) {}
-                override fun onPaused(download: Download) {}
-                override fun onProgress(download: Download, etaInMilliSeconds: Long, downloadedBytesPerSecond: Long) {}
-                override fun onQueued(download: Download, waitingOnNetwork: Boolean) {}
-                override fun onRemoved(download: Download) {}
-                override fun onResumed(download: Download) {}
-                override fun onWaitingNetwork(download: Download) {}
-
-                override fun onError(download: Download, error: Error, throwable: Throwable?) {
-                    val infoText = String.format(
-                        ApplicationContext.context.resources.getText(R.string.info_download_failed).toString()
-                        , "", error.throwable?.message
-                    )
-                    Toast.makeText(ApplicationContext.context, infoText, Toast.LENGTH_LONG).show()
-                    failureCallback(infoText)
-                    fetch.removeListener(this)
-                }
-
-                override fun onCompleted(download: Download) {
+            setHandler(MAGIC_UPDATE, {
+                if (it) {
                     val intent = Intent(Intent.ACTION_VIEW)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -271,41 +239,18 @@ object PackDownloadManager {
                     Log.i(LOGCAT_TAG, uri.toString())
                     intent.setDataAndType(uri, "application/vnd.android.package-archive")
                     ApplicationContext.context.startActivity(intent)
-                    fetch.removeListener(this)
                     exitProcess(0)
+                } else {
+                    failureCallback("Error during update")
+                    setHandler(MAGIC_UPDATE, null, null)
                 }
-            }
-            fetch.addListener(updateListener)
-            fetch.enqueue(request,
-                Func { updatedRequest: Request ->
-                    downloadingMap[MAGIC_UPDATE] = updatedRequest.id
-                },
-                Func { error: Error ->
-                    throw error.throwable ?: RuntimeException("Something wrong during downloading")
-                }
-            )
-            Log.i(LOGCAT_TAG, "Download started")
-            return true
+            }, null)
+            return startDownload(MAGIC_UPDATE, url)
         } catch (ex: Exception) {
             Log.e(LOGCAT_TAG, "Download Fail", ex)
             ex.printStackTrace()
             return false
         }
-    }
-
-    fun abortDownload(metadata: PackageMetadata): Boolean {
-        if (!downloadingMap.containsKey(metadata.VSID)) return false
-        try {
-            //According to the documentation pausing is stopping?
-            fetch.delete(downloadingMap[metadata.VSID]!!)
-            downloadingMap.remove(metadata.VSID)
-            Log.i(LOGCAT_TAG, "Download aborted " + metadata.VSID)
-        } catch (ex: Exception) {
-            Log.e(LOGCAT_TAG, "Cannot abort", ex)
-            ex.printStackTrace()
-            return false
-        }
-        return true
     }
 
     @Throws(IOException::class)

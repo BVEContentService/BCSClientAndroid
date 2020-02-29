@@ -31,10 +31,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.appbar.AppBarLayout
-import com.tonyodev.fetch2.Download
-import com.tonyodev.fetch2.Error
-import com.tonyodev.fetch2.FetchListener
-import com.tonyodev.fetch2core.DownloadBlock
 import kotlinx.android.synthetic.main.activity_pack_detail.*
 import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
@@ -57,56 +53,8 @@ class PackDetailActivity : AppCompatActivity() {
     var isDownloadBtnShown: Boolean = false
     lateinit var metadata: PackageMetadata
 
-    val downloadListener = object : FetchListener {
-        override fun onAdded(download: Download) {
-            updateUI()
-        }
-
-        override fun onCancelled(download: Download) {}
-        override fun onQueued(download: Download, waitingOnNetwork: Boolean) {}
-        override fun onRemoved(download: Download) {
-            updateUI()
-            PackDownloadManager.fetch.removeListener(this)
-        }
-
-        override fun onResumed(download: Download) {}
-        override fun onDownloadBlockUpdated(download: Download, downloadBlock: DownloadBlock, totalBlocks: Int) {}
-        override fun onPaused(download: Download) {}
-        override fun onStarted(download: Download, downloadBlocks: List<DownloadBlock>, totalBlocks: Int) {
-            updateUI()
-        }
-
-        override fun onCompleted(download: Download) {
-            updateUI()
-            PackDownloadManager.fetch.removeListener(this)
-        }
-
-        override fun onDeleted(download: Download) {
-            updateUI()
-            PackDownloadManager.fetch.removeListener(this)
-        }
-
-        override fun onError(download: Download, error: Error, throwable: Throwable?) {
-            updateUI()
-            PackDownloadManager.fetch.removeListener(this)
-        }
-
-        override fun onProgress(download: Download, etaInMilliSeconds: Long, downloadedBytesPerSecond: Long) {
-            Log.i("BCSUi", download.progress.toString())
-            runOnUiThread {
-                downloadSpeed.text = String.format(
-                    "%s/s",
-                    android.text.format.Formatter.formatShortFileSize(this@PackDetailActivity, downloadedBytesPerSecond)
-                )
-                val animation = ObjectAnimator.ofInt(downloadProgress, "progress", download.progress)
-                animation.duration = 200
-                animation.interpolator = DecelerateInterpolator()
-                animation.start()
-            }
-        }
-
-        override fun onWaitingNetwork(download: Download) {}
-    }
+    var lastProgressTime: Long = 0
+    var lastProgressByte: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -131,9 +79,31 @@ class PackDetailActivity : AppCompatActivity() {
                 }
             }
         })
-        if (PackDownloadManager.isDownloading(metadata)) {
-            PackDownloadManager.fetch.addListener(downloadListener)
-        }
+        PackDownloadManager.setHandler(metadata, { updateUI() }, { bytesDownloaded: Long, bytesTotal: Long ->
+            if (!this.isFinishing) runOnUiThread {
+                if (bytesDownloaded == lastProgressByte) return@runOnUiThread
+                if (lastProgressTime > 0) {
+                    downloadSpeed.text = String.format(
+                        "%s/s",
+                        android.text.format.Formatter.formatShortFileSize(
+                            this@PackDetailActivity,
+                            (bytesDownloaded - lastProgressByte) * 1000 / (System.currentTimeMillis() - lastProgressTime)
+                        )
+                    )
+                } else {
+                    downloadSpeed.text = "..."
+                }
+                lastProgressTime = System.currentTimeMillis()
+                lastProgressByte = bytesDownloaded
+                val animation = ObjectAnimator.ofInt(
+                    downloadProgress, "progress",
+                    (bytesDownloaded * 100 / bytesTotal).toInt()
+                )
+                animation.duration = 200
+                animation.interpolator = DecelerateInterpolator()
+                animation.start()
+            }
+        })
         updateUI()
         val packMetadataView = MetadataView(this, metadata, object : View.OnClickListener {
             override fun onClick(v: View?) {
@@ -183,7 +153,7 @@ class PackDetailActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        PackDownloadManager.fetch.removeListener(downloadListener)
+        PackDownloadManager.setHandler(metadata, null, null)
         Log.i("BCSUi", "Activity Destroyed")
         super.onDestroy()
     }
@@ -228,12 +198,10 @@ class PackDetailActivity : AppCompatActivity() {
     private fun startDownload(url: String, referer: String? = null, cookie: String? = null) {
         UGCManager.runActionAsync(metadata, "download")
         if (metadata.UpdateAvailable) PackLocalManager.removeLocalPacks(metadata.ID)
-        PackDownloadManager.fetch.addListener(downloadListener)
         if (PackDownloadManager.startDownload(metadata, url, referer, cookie)) {
             setResult(Activity.RESULT_OK, null)
             updateUI()
         } else {
-            PackDownloadManager.fetch.removeListener(downloadListener)
             Toast.makeText(
                 this as Context, ApplicationContext.context.resources.getString(
                     R.string.info_download_start_failed

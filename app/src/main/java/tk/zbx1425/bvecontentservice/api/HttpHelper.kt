@@ -16,10 +16,14 @@
 package tk.zbx1425.bvecontentservice.api
 
 import Identification
+import android.webkit.WebSettings
+import android.webkit.WebView
 import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONObject
+import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.api.model.SourceMetadata
+import tk.zbx1425.bvecontentservice.getPreference
 import tk.zbx1425.bvecontentservice.io.log.Log
 import tk.zbx1425.bvecontentservice.replace
 import java.io.InputStream
@@ -27,15 +31,20 @@ import java.io.InputStream
 object HttpHelper {
     val client = OkHttpClient()
     val cachedResponse = SimpleStringMap()
-    val requestInterceptMap: Map<String, String> = mapOf(
-        //Nicely done, CPC. NICELY done.
+    private val requestInterceptMap: Map<String, String> = mapOf(
+        //NICELY DONE!
         "ajax.googleapis.com/ajax/libs/jquery" to "cdn.staticfile.org/jquery",
         "maxcdn.bootstrapcdn.com/bootstrap" to "cdn.staticfile.org/twitter-bootstrap",
-        "translate.google.com" to "127.0.0.1"
+        "translate.google.com" to "127.0.0.1",
+        "platform.twitter.com" to "127.0.0.1"
     )
     const val REFERER = "https://anti-hotlink.zbx1425.tk"
-    val deviceUA = System.getProperty("http.agent")
-        ?: "Mozilla/5.0 (Linux; Android 4.4.4; SAMSUNG-SM-N900A Build/tt) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/33.0.0.0 Mobile Safari/537.36"
+    val deviceUA = if (android.os.Build.VERSION.SDK_INT < 19) {
+        WebView(ApplicationContext.context).settings.userAgentString
+    } else {
+        WebSettings.getDefaultUserAgent(ApplicationContext.context)
+    } ?: "Mozilla/5.0 (Linux; Android 4.4.4; SAMSUNG-SM-N900A Build/tt) " +
+    "AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/33.0.0.0 Mobile Safari/537.36"
 
     fun fetchApiArray(source: SourceMetadata, sub: String): JSONArray? {
         return JSONArray(fetchApiString(source, sub) ?: return null)
@@ -96,7 +105,12 @@ object HttpHelper {
     }
 
     fun getBasicBuilder(url: String, noHack: Boolean = false): Request.Builder {
-        return Request.Builder().url(url.replace(requestInterceptMap))
+        val builder = if (getPreference("interceptRequest", true)) {
+            Request.Builder().url(url.replace(requestInterceptMap))
+        } else {
+            Request.Builder().url(url)
+        }
+        return builder
             .header("User-Agent", deviceUA)
             .header("Referer", REFERER)
             .header("X-BCS-UUID", Identification.deviceID)
@@ -104,6 +118,7 @@ object HttpHelper {
     }
 
     fun shouldInterceptRequest(url: String): Boolean {
+        if (!getPreference("interceptRequest", true)) return false
         requestInterceptMap.forEach { if (url.contains(it.key)) return true }
         return false
     }
