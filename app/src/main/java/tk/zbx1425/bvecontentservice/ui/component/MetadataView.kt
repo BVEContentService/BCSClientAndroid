@@ -98,7 +98,8 @@ class MetadataView : TableLayout {
         rowVersion.visibility = View.GONE
         rowAuthor.visibility = View.GONE
         rowDate.visibility = View.GONE
-        rowAPIURL.visibility = View.VISIBLE
+        //rowAPIURL.visibility = View.VISIBLE
+        rowAPIURL.visibility = View.GONE
         rowMaintainer.visibility = View.VISIBLE
         textAPIURL.text = metadata.APIURL
         textName.text = metadata.Name
@@ -117,7 +118,8 @@ class MetadataView : TableLayout {
         rowVersion.visibility = View.GONE
         rowAuthor.visibility = View.GONE
         rowDate.visibility = View.GONE
-        rowAPIURL.visibility = View.VISIBLE
+        //rowAPIURL.visibility = View.VISIBLE
+        rowAPIURL.visibility = View.GONE
         rowMaintainer.visibility = View.VISIBLE
         textAPIURL.text = metadata.APIURL
         textName.text = metadata.Name
