@@ -18,18 +18,19 @@ package tk.zbx1425.bvecontentservice.ui.activity
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
-import android.webkit.*
+import android.webkit.CookieManager
+import android.webkit.WebChromeClient
+import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_webview.*
 import tk.zbx1425.bvecontentservice.R
-import tk.zbx1425.bvecontentservice.api.HttpHelper
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.getPreference
 import tk.zbx1425.bvecontentservice.io.log.Log
+import tk.zbx1425.bvecontentservice.ui.InterceptedWebViewClient
 import java.net.URL
 import java.net.URLDecoder
 
@@ -62,7 +63,7 @@ class ForceViewActivity : AppCompatActivity() {
                 setTitle(title)
             }
         }
-        webView.webViewClient = object : WebViewClient() {
+        webView.webViewClient = object : InterceptedWebViewClient() {
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 loadingProgress.visibility = View.VISIBLE
                 super.onPageStarted(view, url, favicon)
@@ -84,44 +85,6 @@ class ForceViewActivity : AppCompatActivity() {
                 return super.shouldOverrideUrlLoading(view, url)
             }
 
-            override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
-                if (android.os.Build.VERSION.SDK_INT >= 21) {
-                    if (!HttpHelper.shouldInterceptRequest(request.url.toString())) return null
-                    return try {
-                        val builder = HttpHelper.getBasicBuilder(request.url.toString(), true)
-                        request.requestHeaders.forEach { builder.header(it.key, it.value) }
-                        val response = HttpHelper.client.newCall(builder.build()).execute()
-                        WebResourceResponse(
-                        response.header("Content-Type")?.substringBefore(";")
-                            ?: this@ForceViewActivity.contentResolver.getType(request.url) ?: "text/html",
-                        response.header("Content-Type")?.substringAfter("charset=")?.trim()
-                            ?: response.header("Content-Encoding") ?: "UTF-8", response.body()?.byteStream()
-                        )
-                    } catch (ex: Exception) {
-                        Log.i("BCSWebView", "Non-fatal network fault: " + ex.message)
-                        WebResourceResponse("", "", null)
-                    }
-                }
-                return super.shouldInterceptRequest(view, request)
-            }
-
-            override fun shouldInterceptRequest(view: WebView, url: String): WebResourceResponse? {
-                if (!HttpHelper.shouldInterceptRequest(url)) return null
-                return try {
-                    val builder = HttpHelper.getBasicBuilder(url, true)
-                    val response = HttpHelper.client.newCall(builder.build()).execute()
-                    Log.i("BCSWebView", "LegacyCall")
-                    WebResourceResponse(
-                    response.header("Content-Type")?.substringBefore(";")
-                        ?: this@ForceViewActivity.contentResolver.getType(Uri.parse(url)) ?: "text/html",
-                    response.header("Content-Type")?.substringAfterLast(";")?.trim()
-                        ?: response.header("Content-Encoding") ?: "UTF-8", response.body()?.byteStream()
-                    )
-                } catch (ex: Exception) {
-                    Log.i("BCSWebView", "Non-fatal network fault: " + ex.message)
-                    WebResourceResponse("", "", null)
-                }
-            }
         }
         webView.setDownloadListener { url, userAgent, contentDisposition, mimetype, contentLength ->
             Log.i("BCSWebView", "DownloadListener Called")

@@ -3,4 +3,7 @@
     <external-path
         name="appDir"
         path="bveContentService" />
+    <external-files-path
+        name="dCache"
+        path="downloadCache" />
 </paths>

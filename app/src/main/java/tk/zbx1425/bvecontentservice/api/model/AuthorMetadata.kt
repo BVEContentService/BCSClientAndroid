@@ -17,8 +17,10 @@ package tk.zbx1425.bvecontentservice.api.model
 
 import org.json.JSONObject
 import tk.zbx1425.bvecontentservice.chooseString
+import tk.zbx1425.bvecontentservice.processRelUrl
 
 import java.io.Serializable
+import java.util.*
 
 
 data class AuthorMetadata(
@@ -27,7 +29,7 @@ data class AuthorMetadata(
     var Name_EN: String,
     var Name_SA: String,
     var Homepage: String,
-    var Description: String,
+    var Description_REL: String,
     var Source: SourceMetadata
 ) : Serializable {
     constructor (src: JSONObject, source: SourceMetadata) : this(
@@ -53,5 +55,16 @@ data class AuthorMetadata(
     val Name: String
         get() {
             return chooseString(Name_LO, Name_EN)
+        }
+    val Description: String
+        get() {
+            return if (Description_REL.startsWith("/")
+                || Description_REL.toLowerCase(Locale.US).startsWith("http://")
+                || Description_REL.toLowerCase(Locale.US).startsWith("https://")
+            ) {
+                processRelUrl(Source, Description_REL)
+            } else {
+                Description_REL
+            }
         }
 }

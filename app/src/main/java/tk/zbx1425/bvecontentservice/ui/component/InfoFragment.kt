@@ -42,10 +42,11 @@ class InfoFragment : Fragment() {
         if (MetadataManager.indexHomepage != "") {
             newView.webView.loadUrl(MetadataManager.indexHomepage)
         } else {
-            newView.webView.loadData(
+            newView.webView.loadDataWithBaseURL(
+                null,
                 "<table style='width:100%;height:100%'><td style='text-align:center;vertical-align:middle'>" +
                         resources.getString(R.string.text_noinfo) + "</td></table>",
-                "text/html", "UTF-8"
+                "text/html", "UTF-8", null
             )
         }
         newView.webView.webViewClient = object : WebViewClient() {

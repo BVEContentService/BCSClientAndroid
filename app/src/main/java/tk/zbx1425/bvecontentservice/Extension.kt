@@ -37,6 +37,10 @@ fun String.replace(replacements: Map<String, String>): String {
     return result
 }
 
+fun String.nullify(): String? {
+    return if (this == "") null; else this
+}
+
 fun chooseString(lo: String, en: String): String {
     return if (getPreference("englishName", false)
     ) en; else lo
@@ -60,6 +64,12 @@ fun getPreference(key: String, defValue: String): String {
     return PreferenceManager.getDefaultSharedPreferences(
         ApplicationContext.context
     ).getString(key, defValue) ?: ""
+}
+
+fun getPreference(key: String, defValue: Int): Int {
+    return PreferenceManager.getDefaultSharedPreferences(
+        ApplicationContext.context
+    ).getInt(key, defValue)
 }
 
 fun getPreference(key: String, defValue: Boolean): Boolean {

@@ -32,6 +32,7 @@ import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.getPreference
 import tk.zbx1425.bvecontentservice.io.log.Log
 import tk.zbx1425.bvecontentservice.io.network.UGCManager
+import tk.zbx1425.bvecontentservice.ui.InterceptedWebViewClient
 
 
 class UGCActivity : AppCompatActivity() {
@@ -56,7 +57,7 @@ class UGCActivity : AppCompatActivity() {
             MultiPageChromeClient(
                 this
             )
-        webView.webViewClient = object : WebViewClient() {
+        webView.webViewClient = object : InterceptedWebViewClient() {
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 loadingProgress.visibility = View.VISIBLE
                 super.onPageStarted(view, url, favicon)

@@ -108,12 +108,6 @@ OkHttp 是個簡單慳事嘅 HTTP 客戶端。\
 此為公共版權軟件，以 Apache 2.0 開源許可證授權。\
 https://square.github.io/okhttp\
 \
-BCSC 使用 Fetch 進行多線程下載。\
-Fetch 是個極好、可靠、靈活、快速而強大嘅下載引擎。\
-多謝 Tonyo Francis 嘅慷慨奉獻。\
-此為公共版權軟件，以 Apache 2.0 開源許可證授權。\
-https://github.com/tonyofrancis/Fetch\
-\
 BCSC 使用 DiskLruCache 進行圖片緩存。\
 DiskLruCache 是個簡單易用嘅本地LRU算法緩存庫。\
 多謝 Jake Wharton 大佬。\
@@ -134,4 +128,6 @@ BCSC嘅開發過程中仲用到咗數不勝數嘅開源程序同資源，在此�
     <string name="text_continue_download">繼續下載</string>
     <string name="pref_interceptrequest">截取並重定向部分請求</string>
     <string name="pref_interceptrequest_sum">僅在中國大陸地區必須打開</string>
+    <string name="pref_fontsize_sum">調理某字嘅大小</string>
+    <string name="pref_fontsize">部分文字大小</string>
 </resources>

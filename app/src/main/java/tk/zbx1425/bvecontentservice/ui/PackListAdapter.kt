@@ -17,6 +17,7 @@ package tk.zbx1425.bvecontentservice.ui
 
 import android.content.Context
 import android.graphics.Color
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView
 import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
+import tk.zbx1425.bvecontentservice.getPreference
 import tk.zbx1425.bvecontentservice.io.network.ImageLoader
 import java.text.SimpleDateFormat
 import java.util.*
@@ -59,6 +61,10 @@ class PackListAdapter(
 
     override fun onBindViewHolder(holder: PackListViewHolder, position: Int) {
         val metadata = valuesFiltered[position]
+        holder.textTitle.setTextSize(
+            TypedValue.COMPLEX_UNIT_SP,
+            0.24F * getPreference("fontSize", 100)
+        )
         if (metadata.DummyPack) {
             holder.textAuthor.visibility = View.GONE
             holder.textVersion.visibility = View.GONE

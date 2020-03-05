@@ -17,7 +17,10 @@ package tk.zbx1425.bvecontentservice.io.network
 
 import Identification
 import android.app.DownloadManager
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.ContentResolver
+import android.content.Context
+import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
@@ -33,9 +36,6 @@ import tk.zbx1425.bvecontentservice.io.PackListManager
 import tk.zbx1425.bvecontentservice.io.PackLocalManager
 import tk.zbx1425.bvecontentservice.io.log.Log
 import java.io.*
-import kotlin.collections.HashMap
-import kotlin.collections.elementAt
-import kotlin.collections.filterValues
 import kotlin.collections.set
 import kotlin.system.exitProcess
 
@@ -45,13 +45,12 @@ object PackDownloadManager {
     const val LOGCAT_TAG = "BCSDownloadManager"
     const val CALLBACK_INTERVAL = 1000L
     val MAGIC_UPDATE = PackageMetadata("__SELF_UPDATE")
-    val downloadingMap = HashMap<String, Long>()
     val handlerMap = HashMap<String, Pair<((succeed: Boolean) -> Unit)?, ((bytesDownloaded: Long, bytesTotal: Long) -> Unit)?>>()
     val handler = Handler()
     var downloadManager: DownloadManager? = null
     var contentResolver: ContentResolver? = null
 
-    private val onDownloadComplete = object : BroadcastReceiver() {
+    class CompleteReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
             Log.i(LOGCAT_TAG, "Download completed " + id)
@@ -60,7 +59,7 @@ object PackDownloadManager {
             val query = DownloadManager.Query()
             val cursor: Cursor = dm.query(query.setFilterById(id))
             if (cursor.moveToFirst()) {
-                val targetVSID = downloadingMap.filterValues { it == id }.keys.elementAt(0)
+                val targetVSID = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_DESCRIPTION))
                 val targetFile = PackLocalManager.getLocalPackFile(targetVSID)
                 Log.i(
                     LOGCAT_TAG,
@@ -78,12 +77,14 @@ object PackDownloadManager {
                             PackLocalManager.getLocalTempFile(targetVSID).name
                         )
                         Log.i(LOGCAT_TAG, "Downloaded file at " + localFileUri.toString())
-                        Log.i(LOGCAT_TAG, "Moving file to " + targetFile.absolutePath)
-                        /*if (!targetFile.exists()) targetFile.createNewFile()
+                        if (targetVSID != MAGIC_UPDATE.VSID) {
+                            Log.i(LOGCAT_TAG, "Moving file to " + targetFile.absolutePath)
+                            /*if (!targetFile.exists()) targetFile.createNewFile()
                         copy(localFile, targetFile)*/
-                        tempFile.renameTo(PackLocalManager.getLocalPackFile(targetVSID))
-                        //Log.i(LOGCAT_TAG, "Removing cache file")
-                        //contentResolver!!.delete(localFileUri, null, null)
+                            tempFile.renameTo(PackLocalManager.getLocalPackFile(targetVSID))
+                            //Log.i(LOGCAT_TAG, "Removing cache file")
+                            //contentResolver!!.delete(localFileUri, null, null)
+                        }
                         Log.i(LOGCAT_TAG, "Notifying PackListManager")
                         PackListManager.populate()
                         Toast.makeText(
@@ -92,8 +93,8 @@ object PackDownloadManager {
                                 targetVSID, ""
                             ), Toast.LENGTH_SHORT
                         ).show()
-                        downloadingMap.values.remove(id)
                         handlerMap[targetVSID]?.first?.invoke(true)
+                        dm.remove(id)
                     }
                     DownloadManager.STATUS_FAILED -> {
                         Toast.makeText(
@@ -103,10 +104,11 @@ object PackDownloadManager {
                             ), Toast.LENGTH_SHORT
                         ).show()
                         Log.e(LOGCAT_TAG, "Download failed " + id + " " + cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON)))
-                        downloadingMap.values.remove(id)
                         handlerMap[targetVSID]?.first?.invoke(false)
+                        dm.remove(id)
                     }
                 }
+                cursor.close()
             } else {
                 Log.e(LOGCAT_TAG, "Cannot query DownloadManager Cursor")
             }
@@ -116,10 +118,6 @@ object PackDownloadManager {
     fun register(context: Context) {
         downloadManager = context.applicationContext.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         contentResolver = context.applicationContext.contentResolver
-        context.applicationContext.registerReceiver(
-            onDownloadComplete,
-            IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
-        )
         Log.i(LOGCAT_TAG, "Manager and Receiver registered")
     }
 
@@ -127,7 +125,12 @@ object PackDownloadManager {
         metadata: PackageMetadata,
         finishHandler: ((succeed: Boolean) -> Unit)?, progressHandler: ((bytesDownloaded: Long, bytesTotal: Long) -> Unit)?
     ) {
-        handlerMap[metadata.VSID] = Pair(finishHandler, progressHandler)
+        if (!handlerMap.contains(metadata.VSID)) {
+            handlerMap[metadata.VSID] = Pair(finishHandler, progressHandler)
+            registerIntervalCallback(metadata)
+        } else {
+            handlerMap[metadata.VSID] = Pair(finishHandler, progressHandler)
+        }
     }
 
     fun startDownload(
@@ -137,15 +140,15 @@ object PackDownloadManager {
         Log.i(LOGCAT_TAG, "Trying download manager...")
         val dm: DownloadManager = downloadManager ?: return false
         Log.i(LOGCAT_TAG, "Got download manager")
-        if (downloadingMap.containsKey(metadata.VSID)) return true
+        if (isDownloading(metadata)) return true
         Log.i(LOGCAT_TAG, "Not in VSID-db, starting")
         try {
             PackLocalManager.ensureHmmsimDir()
             Log.i(LOGCAT_TAG, url)
             val request =
                 DownloadManager.Request(Uri.parse(url))
-                    /*.setTitle(metadata.Name) // Title of the Download Notification
-                    .setDescription(url) // Description of the Download Notification*/
+                    .setTitle(metadata.Name) // Title of the Download Notification
+                    .setDescription(metadata.VSID) // Description of the Download Notification
                     .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE) // Visibility of the download Notification
                     .setDestinationInExternalFilesDir(
                         ApplicationContext.context,
@@ -170,26 +173,7 @@ object PackDownloadManager {
             }
             Log.i(LOGCAT_TAG, HttpHelper.deviceUA + " " + referer + " " + cookie)
             val downloadID = dm.enqueue(request)
-            downloadingMap[metadata.VSID] = downloadID
-            handler.postDelayed(object : Runnable {
-                override fun run() {
-                    if (downloadingMap.containsKey(metadata.VSID)) {
-                        val query = DownloadManager.Query()
-                        val cursor: Cursor = dm.query(query.setFilterById(downloadingMap[metadata.VSID]!!))
-                        if (cursor.moveToFirst()) {
-                            val bytesDownloaded: Long =
-                                cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
-                            val bytesTotal: Long =
-                                cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
-                            cursor.close()
-                            handlerMap[metadata.VSID]?.second?.invoke(bytesDownloaded, bytesTotal)
-                            handler.postDelayed(this, CALLBACK_INTERVAL)
-                        } else {
-                            Log.e(LOGCAT_TAG, "Cannot move cursor")
-                        }
-                    }
-                }
-            }, CALLBACK_INTERVAL)
+            registerIntervalCallback(metadata)
             Log.i(LOGCAT_TAG, "Download started " + downloadID)
             return true
         } catch (ex: Exception) {
@@ -199,12 +183,38 @@ object PackDownloadManager {
         }
     }
 
+    private fun registerIntervalCallback(metadata: PackageMetadata) {
+        val dm: DownloadManager = downloadManager ?: return
+        val id: Long = getDownloadId(metadata)
+        if (id < 0) return
+        handler.postDelayed(object : Runnable {
+            override fun run() {
+                val query = DownloadManager.Query()
+                val cursor: Cursor = dm.query(query.setFilterById(id))
+                if (cursor.moveToFirst()) {
+                    val bytesDownloaded: Long =
+                        cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
+                    val bytesTotal: Long =
+                        cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
+                    val status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
+                    if (status != DownloadManager.STATUS_FAILED && status != DownloadManager.STATUS_SUCCESSFUL) {
+                        handlerMap[metadata.VSID]?.second?.invoke(bytesDownloaded, bytesTotal)
+                        handler.postDelayed(this, CALLBACK_INTERVAL)
+                    }
+                    cursor.close()
+                } else {
+                    Log.e(LOGCAT_TAG, "Cannot move cursor, maybe finished")
+                }
+            }
+        }, CALLBACK_INTERVAL)
+    }
+
     fun abortDownload(metadata: PackageMetadata): Boolean {
         val dm: DownloadManager = downloadManager ?: return false
-        if (!downloadingMap.containsKey(metadata.VSID)) return false
+        val id: Long = getDownloadId(metadata)
+        if (id < 0) return false
         try {
-            dm.remove(downloadingMap[metadata.VSID]!!)
-            downloadingMap.remove(metadata.VSID)
+            dm.remove(id)
             handlerMap[metadata.VSID]?.first?.invoke(false)
             Log.i(LOGCAT_TAG, "Download aborted " + metadata.VSID)
             return true
@@ -215,11 +225,33 @@ object PackDownloadManager {
     }
 
     fun isDownloading(metadata: PackageMetadata): Boolean {
-        return downloadingMap.containsKey(metadata.VSID)
+        return getDownloadId(metadata) >= 0
+    }
+
+    fun getDownloadId(metadata: PackageMetadata): Long {
+        val dm: DownloadManager =
+            downloadManager ?: throw NullPointerException("Cannot get downloadManager")
+        val query = DownloadManager.Query()
+        val cursor: Cursor = dm.query(
+            query.setFilterByStatus(
+                DownloadManager.STATUS_RUNNING
+                        or DownloadManager.STATUS_PENDING or DownloadManager.STATUS_PAUSED
+            )
+        )
+        while (cursor.moveToNext()) {
+            val targetVSID = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_DESCRIPTION))
+            if (targetVSID == metadata.VSID) {
+                val id = cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_ID))
+                cursor.close()
+                return id
+            }
+        }
+        cursor.close()
+        return -1
     }
 
     fun startSelfUpdateDownload(url: String, failureCallback: (String) -> Unit): Boolean {
-        if (downloadingMap.containsKey(MAGIC_UPDATE.VSID)) return true
+        if (isDownloading(MAGIC_UPDATE)) return true
         Log.i(LOGCAT_TAG, "Not in VSID-db, starting")
         try {
             setHandler(MAGIC_UPDATE, {
@@ -227,14 +259,18 @@ object PackDownloadManager {
                     val intent = Intent(Intent.ACTION_VIEW)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    val tempFile = File(
+                        ApplicationContext.context.getExternalFilesDir("downloadCache"),
+                        PackLocalManager.getLocalTempFile(MAGIC_UPDATE.VSID).name
+                    )
                     val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
                         FileProvider.getUriForFile(
                             ApplicationContext.context,
                             ApplicationContext.context.packageName + ".provider",
-                            PackLocalManager.getUpdateTempFile()
+                            tempFile
                         )
                     } else {
-                        Uri.fromFile(PackLocalManager.getUpdateTempFile())
+                        Uri.fromFile(tempFile)
                     }
                     Log.i(LOGCAT_TAG, uri.toString())
                     intent.setDataAndType(uri, "application/vnd.android.package-archive")

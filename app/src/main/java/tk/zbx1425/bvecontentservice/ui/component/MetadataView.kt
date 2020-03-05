@@ -70,6 +70,9 @@ class MetadataView : TableLayout {
         } else if (metadata.Author.Homepage == "") {
             textHomepage.text = metadata.Homepage
             textHomepage2.visibility = View.GONE
+        } else if (metadata.Homepage == metadata.Author.Homepage) {
+            textHomepage.text = metadata.Homepage
+            textHomepage2.visibility = View.GONE
         } else {
             textHomepage.text = metadata.Homepage
             textHomepage2.text = metadata.Author.Homepage

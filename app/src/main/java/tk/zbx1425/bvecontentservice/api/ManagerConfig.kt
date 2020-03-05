@@ -10,7 +10,7 @@ object ManagerConfig {
 
     val mergedResponseCache: Boolean
         get() {
-            return getPreference("useSourceSpider", false)
+            return getPreference("useSourceSpider", true)
         }
     val reverseProxy: Boolean
         get() {

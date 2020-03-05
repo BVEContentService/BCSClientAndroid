@@ -16,6 +16,7 @@
 package tk.zbx1425.bvecontentservice.io
 
 import android.os.Environment
+import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
 import tk.zbx1425.bvecontentservice.io.log.Log
 import tk.zbx1425.bvecontentservice.io.network.PackDownloadManager
@@ -96,6 +97,10 @@ object PackLocalManager {
         for (cache in allCache) {
             if (cache.extension == ".tmp") cache.delete()
         }
+        val downloadCache = ApplicationContext.context.getExternalFilesDir("downloadCache")?.listFiles() ?: arrayOf()
+        for (cache in downloadCache) {
+            if (cache.extension == ".tmp") cache.delete()
+        }
     }
 
     fun removeLocalPack(RelPath: String) {
@@ -138,6 +143,9 @@ object PackLocalManager {
         }
         val noMediaHint = File(hmmDir, ".nomedia")
         if (!noMediaHint.exists()) noMediaHint.createNewFile()
+
+        val hotFix1 = File(hmmDir, getLocalPackFile(PackDownloadManager.MAGIC_UPDATE).name)
+        if (hotFix1.exists()) hotFix1.delete()
         //deleteUnqualifiedFile()
     }
 

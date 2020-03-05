@@ -120,12 +120,6 @@ Thanks Square Open Source Inc.\
 Licensed under Apache 2.0.\
 https://square.github.io/okhttp\
 \
-BCSC uses Fetch for multi-thread downloading.\
-OkDownload is a awesome reliable, flexible, fast and powerful download engine.\
-Thanks LAIX Inc. for such a generous project.\
-Licensed under Apache 2.0.\
-https://github.com/tonyofrancis/Fetch\
-\
 BCSC uses DiskLruCache for image caching.\
 DiskLruCache is an easy-to-use disk-based LRU cache.\
 Thanks Tonyo Francis for such a beautiful library.\
@@ -142,4 +136,6 @@ I will pay my personal respect to all the collaborators of the open source commu
     <string name="text_goto_download">Go to Download</string>
     <string name="pref_interceptrequest">Intercept Some Requests</string>
     <string name="pref_interceptrequest_sum">Turn on only if you are in China Mainland</string>
+    <string name="pref_fontsize">Some Font Size</string>
+    <string name="pref_fontsize_sum">The percentage of the size of some word</string>
 </resources>

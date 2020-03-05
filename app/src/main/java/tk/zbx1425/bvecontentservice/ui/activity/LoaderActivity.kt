@@ -179,6 +179,7 @@ class LoaderActivity : AppCompatActivity() {
         MetadataManager.cleanUp()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val permSucceed = checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    && checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
             if (!permSucceed) {
                 progressBar.visibility = View.GONE
                 adapterData.add(resources.getString(R.string.permission_restart))

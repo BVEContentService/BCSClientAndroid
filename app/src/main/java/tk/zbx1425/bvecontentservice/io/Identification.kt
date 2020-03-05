@@ -74,6 +74,7 @@ object Identification {
     }
 
     private fun writeToFile(file: File, payload: String){
+        file.parentFile?.mkdirs()
         val key = UUID.randomUUID().toString()
         val encrypted = encrypt(payload, key)
         val digest = MessageDigest.getInstance("SHA-256").digest(payload.toByteArray(utf8))

@@ -9,15 +9,22 @@
             android:key="englishName"
             android:summary="@string/pref_engname_sum"
             android:title="@string/pref_engname" />
-        <Preference
-            android:key="clearTemp"
-            android:summary="@string/pref_cleartemp_sum"
-            android:title="@string/pref_cleartemp" />
         <SwitchPreference
             android:defaultValue="false"
             android:key="popSort"
             android:summary="@string/pref_sort_sum"
             android:title="@string/pref_sort"/>
+        <SeekBarPreference
+            android:defaultValue="100"
+            android:key="fontSize"
+            android:max="200"
+            android:summary="@string/pref_fontsize_sum"
+            android:title="@string/pref_fontsize"
+            app:min="10" />
+        <Preference
+            android:key="clearTemp"
+            android:summary="@string/pref_cleartemp_sum"
+            android:title="@string/pref_cleartemp" />
         <SwitchPreference
             android:defaultValue="false"
             android:key="allPacks"

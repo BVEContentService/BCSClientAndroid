@@ -21,12 +21,12 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.DecelerateInterpolator
-import android.webkit.JavascriptInterface
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -36,6 +36,7 @@ import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.HttpHelper
 import tk.zbx1425.bvecontentservice.api.model.PackageMetadata
+import tk.zbx1425.bvecontentservice.getPreference
 import tk.zbx1425.bvecontentservice.io.PackListManager
 import tk.zbx1425.bvecontentservice.io.PackLocalManager
 import tk.zbx1425.bvecontentservice.io.log.Log
@@ -65,6 +66,10 @@ class PackDetailActivity : AppCompatActivity() {
         metadata = intent.getSerializableExtra("metadata") as PackageMetadata
         toolbar_layout.title = metadata.Name
         textPackName.text = metadata.Name
+        textPackName.setTextSize(
+            TypedValue.COMPLEX_UNIT_SP,
+            0.24F * getPreference("fontSize", 100)
+        )
 
         app_bar.addOnOffsetChangedListener(object : AppBarLayout.OnOffsetChangedListener {
             override fun onOffsetChanged(appBarLayout: AppBarLayout, verticalOffset: Int) {
@@ -147,11 +152,6 @@ class PackDetailActivity : AppCompatActivity() {
         }
     }
 
-    abstract class ResizeInterface {
-        @JavascriptInterface
-        abstract fun resize(height: Float)
-    }
-
     override fun onDestroy() {
         PackDownloadManager.setHandler(metadata, null, null)
         Log.i("BCSUi", "Activity Destroyed")
@@ -180,6 +180,7 @@ class PackDetailActivity : AppCompatActivity() {
             dlgAlert.setPositiveButton(android.R.string.yes) { _: DialogInterface, i: Int ->
                 if (i == DialogInterface.BUTTON_POSITIVE) {
                     PackDownloadManager.abortDownload(metadata)
+                    updateUI()
                 }
             }
             dlgAlert.create().show()

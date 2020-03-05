@@ -17,6 +17,14 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/AppTheme">
+        <receiver
+            android:name=".io.network.PackDownloadManager$CompleteReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter android:priority="114514">
+                <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
+            </intent-filter>
+        </receiver>
         <!--<receiver
             android:enabled="true"
             android:exported="true"

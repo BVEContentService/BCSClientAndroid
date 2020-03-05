@@ -20,12 +20,14 @@ import android.app.Activity
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Build
 import android.text.Html
-import android.webkit.*
+import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
 import okhttp3.Credentials
+import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.HttpHelper
 import tk.zbx1425.bvecontentservice.api.model.AuthorMetadata
@@ -35,7 +37,9 @@ import tk.zbx1425.bvecontentservice.api.model.SourceMetadata
 import tk.zbx1425.bvecontentservice.getPreference
 import tk.zbx1425.bvecontentservice.io.hThread
 import tk.zbx1425.bvecontentservice.io.log.Log
-import tk.zbx1425.bvecontentservice.ui.activity.PackDetailActivity
+import tk.zbx1425.bvecontentservice.nullify
+import tk.zbx1425.bvecontentservice.ui.InterceptedWebViewClient
+import tk.zbx1425.bvecontentservice.ui.activity.AutoSizeWebView
 import java.net.URL
 import java.util.*
 
@@ -58,11 +62,13 @@ class DescriptionView(context: Context) : FrameLayout(context) {
             LayoutParams.MATCH_PARENT,
             LayoutParams.WRAP_CONTENT
         )
+        this.addView(textDescription)
         if (getPreference("useWebView", true)) {
             if (url.toLowerCase(Locale.US).startsWith("http://") ||
                 url.toLowerCase(Locale.US).startsWith("https://")
             ) {
-                val webView = WebView(context)
+                val webView = AutoSizeWebView(context)
+                webView.visibility = View.GONE
                 webView.settings.javaScriptEnabled = getPreference("enableJavascript", true)
                 if (webView.settings.javaScriptEnabled) {
                     webView.isVerticalScrollBarEnabled = false
@@ -71,48 +77,37 @@ class DescriptionView(context: Context) : FrameLayout(context) {
                 } else {
                     webView.layoutParams.height = Resources.getSystem().displayMetrics.heightPixels
                 }
-                webView.webViewClient = object : WebViewClient() {
-                    override fun onPageFinished(view: WebView, url: String) {
-                        webView.loadUrl("javascript:bcs.resize(document.body.getBoundingClientRect().height+10)")
-                        super.onPageFinished(view, url)
-                    }
-
-                    override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
-                        if (android.os.Build.VERSION.SDK_INT >= 21) {
-                            val builder = HttpHelper.getBasicBuilder(request.url.toString())
-                            for (header in request.requestHeaders ?: hashMapOf()) {
-                                builder.header(header.key, header.value)
-                            }
-                            val response = HttpHelper.getSourceClient(source).newCall(builder.build()).execute()
-                            return WebResourceResponse(
-                                response.header("Content-Type"),
-                                response.header("Content-Encoding", "UTF-8"), response.body()?.byteStream()
-                            )
-                        }
-                        return WebResourceResponse("", "", null)
-                    }
-
-                    override fun shouldInterceptRequest(view: WebView, url: String): WebResourceResponse? {
-                        val builder = HttpHelper.getBasicBuilder(url)
-                        val response = HttpHelper.getSourceClient(source).newCall(builder.build()).execute()
-                        return WebResourceResponse(
-                            response.header("Content-Type"),
-                            response.header("Content-Encoding", "UTF-8"), response.body()?.byteStream()
-                        )
-                    }
-                }
-                webView.addJavascriptInterface(object : PackDetailActivity.ResizeInterface() {
-                    @JavascriptInterface
-                    override fun resize(height: Float) {
+                webView.webViewClient = InterceptedWebViewClient()
+                textDescription.text = resources.getText(R.string.info_fetch_text)
+                hThread {
+                    try {
+                        //Fetch the response manually to bypass https limitation
+                        val response = HttpHelper.getSourceClient(source).newCall(HttpHelper.getBasicBuilder(url).build()).execute()
                         (context as Activity).runOnUiThread {
-                            webView.layoutParams = LayoutParams(
-                                LayoutParams.MATCH_PARENT,
-                                (height * resources.displayMetrics.density).toInt()
+                            this.addView(webView)
+                            webView.loadDataWithBaseURL(
+                                url,
+                                response.body()?.string(),
+                                response.header("Content-Type")?.substringBefore(";")
+                                    ?: ApplicationContext.context.contentResolver.getType(Uri.parse(url)) ?: "text/html",
+                                response.header("Content-Type")?.substringAfter("charset=", "")?.nullify()?.trim()
+                                    ?: response.header("Content-Encoding") ?: "utf-8",
+                                null
+                            )
+                            webView.visibility = View.VISIBLE
+                            textDescription.visibility = View.GONE
+                        }
+                    } catch (ex: Exception) {
+                        (context as Activity).runOnUiThread {
+                            ex.printStackTrace()
+                            Log.e("BCSUi", "Cannot fetch description", ex)
+                            textDescription.text = String.format(
+                                resources.getText(R.string.info_fetch_text_fail)
+                                    .toString(), url.trim(), ex.message
                             )
                         }
                     }
-                }, "bcs")
-                this.addView(webView)
+                }.start()
                 if (source.APIType == "httpBasicAuth") {
                     val credential: String =
                         Credentials.basic(source.Username, source.Password)
@@ -125,7 +120,6 @@ class DescriptionView(context: Context) : FrameLayout(context) {
                 }
             } else {
                 textDescription.text = url
-                this.addView(textDescription)
             }
         } else {
             val imageGetter = Html.ImageGetter { src: String ->
@@ -166,8 +160,6 @@ class DescriptionView(context: Context) : FrameLayout(context) {
                     try {
                         val result =
                             HttpHelper.fetchString(source, url)
-                        Log.i("BCSDescription", url)
-                        Log.i("BCSDescription", result ?: "")
                         val spanned =
                             if (url.trim().toLowerCase(Locale.US).endsWith(".txt")) {
                                 result
@@ -198,7 +190,6 @@ class DescriptionView(context: Context) : FrameLayout(context) {
             } else {
                 textDescription.text = url
             }
-            this.addView(textDescription)
         }
     }
 
