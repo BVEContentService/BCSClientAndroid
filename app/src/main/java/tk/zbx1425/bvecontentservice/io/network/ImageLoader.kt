@@ -55,11 +55,8 @@ object ImageLoader {
             }
         }
         diskLruCache = DiskLruCache.open(
-            getDiskCacheDir(
-                ApplicationContext.context,
-                "thumb"
-            ), 1, 1,
-            (getPreference("cacheSize", "10").toLongOrNull() ?: 10) * 1024 * 1024
+            getDiskCacheDir(ApplicationContext.context, "thumb"), 1, 1,
+            (getPreference("cacheSize", "50").toLongOrNull() ?: 50) * 1024 * 1024
         )
     }
 
@@ -75,7 +72,7 @@ object ImageLoader {
         return File(cachePath + File.separator.toString() + uniqueName)
     }
 
-    fun getBitmap(url: String, source: SourceMetadata? = null): Bitmap? {
+    fun getBitmap(url: String, source: SourceMetadata? = null, writeToDisk: Boolean = true): Bitmap? {
         if (url == "") return null
         val memoryBitmap = lruCache.get(
             hashKeyForDisk(url)
@@ -85,11 +82,7 @@ object ImageLoader {
             return memoryBitmap
         }
         if (!diskLruCache.isClosed) {
-            val diskBitmap = diskLruCache.get(
-                hashKeyForDisk(
-                    url
-                )
-            )
+            val diskBitmap = diskLruCache.get(hashKeyForDisk(url))
             if (diskBitmap != null) {
                 Log.i(LOGCAT_TAG, "Used Disk Bitmap for " + url)
                 return BitmapFactory.decodeStream(diskBitmap.getInputStream(0))
@@ -100,25 +93,19 @@ object ImageLoader {
             val inStream: InputStream = HttpHelper.openStream(source, url) ?: return null
             networkBitmap = BitmapFactory.decodeStream(inStream) ?: return null
             Log.i(LOGCAT_TAG, "Put image in memory: " + url)
-            lruCache.put(
-                hashKeyForDisk(
-                    url
-                ), networkBitmap
-            )
-            val editor = diskLruCache.edit(
-                hashKeyForDisk(
-                    url
-                )
-            )
-            if (editor != null) {
-                val outputStream: OutputStream = editor.newOutputStream(0)
-                if (networkBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)) {
-                    Log.i(LOGCAT_TAG, "Put image in disk: " + url)
-                    editor.commit()
-                } else {
-                    editor.abort()
+            lruCache.put(hashKeyForDisk(url), networkBitmap)
+            if (writeToDisk) {
+                val editor = diskLruCache.edit(hashKeyForDisk(url))
+                if (editor != null) {
+                    val outputStream: OutputStream = editor.newOutputStream(0)
+                    if (networkBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)) {
+                        Log.i(LOGCAT_TAG, "Put image in disk: " + url)
+                        editor.commit()
+                    } else {
+                        editor.abort()
+                    }
+                    diskLruCache.flush()
                 }
-                diskLruCache.flush()
             }
             return networkBitmap
         } catch (e: Exception) {
@@ -162,44 +149,25 @@ object ImageLoader {
         ) != null
     }
 
-    fun setImageAsync(bmImage: ImageView, uri: String) {
-        ImageTask(
-            bmImage,
-            this,
-            uri
-        ).execute()
+    fun setImageAsync(bmImage: ImageView, uri: String, writeToDisk: Boolean = true) {
+        ImageTask(bmImage, this, uri, null, writeToDisk).execute()
     }
 
-    fun setPackImageAsync(bmImage: ImageView, metadata: PackageMetadata) {
-        ImageTask(
-            bmImage,
-            this,
-            metadata.Thumbnail,
-            metadata.Source
-        ).execute()
+    fun setPackImageAsync(bmImage: ImageView, metadata: PackageMetadata, writeToDisk: Boolean = true) {
+        ImageTask(bmImage, this, metadata.Thumbnail, metadata.Source, writeToDisk).execute()
     }
 
-    fun setPackThumbImageAsync(bmImage: ImageView, metadata: PackageMetadata) {
+    fun setPackThumbImageAsync(bmImage: ImageView, metadata: PackageMetadata, writeToDisk: Boolean = true) {
         if (metadata.ThumbnailLQ_REL != "") {
-            ImageTask(
-                bmImage,
-                this,
-                metadata.ThumbnailLQ,
-                metadata.Source
-            ).execute()
+            ImageTask(bmImage, this, metadata.ThumbnailLQ, metadata.Source, writeToDisk).execute()
         } else {
-            ImageTask(
-                bmImage,
-                this,
-                metadata.Thumbnail,
-                metadata.Source
-            ).execute()
+            ImageTask(bmImage, this, metadata.Thumbnail, metadata.Source, writeToDisk).execute()
         }
     }
 
     class ImageTask(
         var bmImage: ImageView, val loader: ImageLoader,
-        val url: String, val source: SourceMetadata? = null
+        val url: String, val source: SourceMetadata? = null, val writeToDisk: Boolean = true
     ) :
         AsyncTask<String?, Void?, Bitmap?>() {
 

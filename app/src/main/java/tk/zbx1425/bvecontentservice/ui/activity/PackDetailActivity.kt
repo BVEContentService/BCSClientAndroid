@@ -123,7 +123,7 @@ class PackDetailActivity : AppCompatActivity() {
         appMetadataPlaceholder.replaceView((MetadataView(this)))
         noticePlaceholder.replaceView(DescriptionView(this, metadata.Source.DevSpec))
         descriptionPlaceholder.replaceView(DescriptionView(this, metadata))
-        ImageLoader.setPackImageAsync(thumbnailView, metadata)
+        ImageLoader.setPackImageAsync(thumbnailView, metadata, false)
         Thread {
             try {
                 val url = UGCManager.getURL(metadata, "query") ?: return@Thread
