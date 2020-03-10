@@ -15,13 +15,13 @@
     <string name="fetch_err_nosrc">ERROR: 無法連線到服務器\
         如果你依家使用嘅網路連接係正常嘅，請聯系程式製作組</string>
     <string name="fetch_err_update">ERROR: 你嘅程式版本過低，請下載最新版本！最低通訊協定版本: %s</string>
-    <string name="permission_fail">要有外部儲存寫入權限先至可以安裝線路</string>
+    <string name="permission_fail">要有 %s 權限先至可以安裝線路</string>
     <string name="permission_restart">請重新啓動程式</string>
     <string name="info_download_started">正在下載</string>
-    <string name="info_download_finished">%s\nDownload job finished%s</string>
-    <string name="info_download_aborted">%s\n下載已停止%s</string>
+    <string name="info_download_finished">%s\nDownload job finished!</string>
+    <string name="info_download_aborted">%s\n下載已停止</string>
     <string name="info_download_failed">%s\n啊啊啊又要重新下載啦......\n%s</string>
-    <string name="info_download_start_failed">啊啊啊點解冇得下載㗎！！！</string>
+    <string name="info_download_start_failed">啊啊啊冇得下載㗎！！！</string>
     <string name="info_download_abort_failed">啊啊啊點解下載停唔低㗎！！！</string>
     <string name="info_fetch_text">Loading……</string>
     <string name="info_fetch_text_fail">呢個頁面暫時不可描述\n%s\n%s</string>
@@ -118,19 +118,19 @@ OkHttp 是個簡單慳事嘅 HTTP 客戶端。\
 此為公共版權軟件，以 Apache 2.0 開源許可證授權。\
 https://square.github.io/okhttp\
 \
-BCSC 使用 Fetch 進行多線程下載。\
-Fetch 是個極好、可靠、靈活、快速而強大嘅下載引擎。\
-多謝 Tonyo Francis 嘅慷慨奉獻。\
-此為公共版權軟件，以 Apache 2.0 開源許可證授權。\
-https://github.com/tonyofrancis/Fetch\
-\
 BCSC 使用 DiskLruCache 進行圖片緩存。\
 DiskLruCache 是個簡單易用嘅本地LRU算法緩存庫。\
 多謝 Jake Wharton 大佬。\
 此為公共版權軟件，以 Apache 2.0 開源許可證授權。\
 https://github.com/JakeWharton/DiskLruCache\
 \
-多謝 @Asnacinjar, @Tucson, 及中國南方地鐵模擬中心(CSSSC)响本程序開發嘅過程中提出嘅建議同支持。\
+BCSC使用AndPermission申請與管理Android許可權。\
+AndPermission大简化咗Android複雜嘅許可權申請流程。\
+感謝嚴振傑先生嘅大作。\
+此為公共版權軟件，以Apache 2.0開源許可證授權。\
+https://github.com/yanzhenjie/AndPermission\
+\
+多謝 @Asnacinjar, @Tucson, 中國南方地鐵模擬中心(CSSSC), 及中國東方地鐵模擬中心(ECMSC)响本程序開發嘅過程中提出嘅建議同支持。\
 多謝 博丽·雾希明@bilibili.com 嘅粵語翻譯！\
 BCSC嘅開發過程中仲用到咗數不勝數嘅開源程序同資源，在此限於篇幅無法壹壹列出。
 個人在此謹向所有Open-Source社區嘅合作者致以最崇高嘅敬意，多謝你哋嘅支持！</string>
@@ -138,4 +138,6 @@ BCSC嘅開發過程中仲用到咗數不勝數嘅開源程序同資源，在此�
     <string name="text_goto_download">去下載</string>
     <string name="pref_interceptrequest">截取並重定向部分請求</string>
     <string name="pref_interceptrequest_sum">僅在中國大陸地區必須打開</string>
+    <string name="pref_fontsize">部分文字大小</string>
+    <string name="pref_fontsize_sum">調理某字嘅大小</string>
 </resources>
