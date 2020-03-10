@@ -17,11 +17,10 @@ package tk.zbx1425.bvecontentservice.io.log
 
 import android.text.TextUtils
 import org.apache.log4j.Logger
-import tk.zbx1425.bvecontentservice.BuildConfig
 
 object Log {
     var isConfigured: Boolean = false
-    var SWITCH_LOG: Boolean = BuildConfig.DEBUG
+    var SWITCH_LOG: Boolean = true
 
     fun d(tag: String, message: String) {
         if (SWITCH_LOG) {

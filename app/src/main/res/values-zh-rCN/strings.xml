@@ -16,16 +16,16 @@
     <string name="fetch_err_update">ERROR: 您的客户端程序版本过低！请更新！最低通信协议版本: %s</string>
     <string name="info_clear_temp">下载缓存已清空。</string>
     <string name="info_download_abort_failed">无法停止下载！</string>
-    <string name="info_download_aborted">%s\n下载已停止。%s</string>
+    <string name="info_download_aborted">%s\n下载已停止。</string>
     <string name="info_download_failed">%s\n下载中断！\n%s</string>
-    <string name="info_download_finished">%s\n下载完成。%s</string>
+    <string name="info_download_finished">%s\n下载完成。</string>
     <string name="info_download_start_failed">无法开始下载！</string>
     <string name="info_download_started">下载已开始。</string>
     <string name="info_fetch_text">正获取描述信息……</string>
     <string name="info_fetch_text_fail">未能获取描述信息！\n%s\n%s</string>
     <string name="info_hmmsim_fail">未安装 Hmmsim。</string>
     <string name="info_exit_again">再按一次退出程序。</string>
-    <string name="permission_fail">为安装线路，本程序必须获得外部存储写入权限。请到系统设置中打开。</string>
+    <string name="permission_fail">为安装线路，本程序必须获得 %s 权限。请到系统设置中打开。</string>
     <string name="permission_restart">请重启程序。</string>
     <string name="tab_text_download">下载</string>
     <string name="tab_text_manage">管理</string>
@@ -115,7 +115,13 @@ DiskLruCache 是个简单易用的本地LRU算法缓存库。\
 此为公共版权软件，以 Apache 2.0 开源许可证授权。\
 https://github.com/JakeWharton/DiskLruCache\
 \
-感谢 @Asnacinjar, @Tucson, 及中国南方地铁模拟中心(CSSSC)在本程序开发期间提出的建议与支持。\
+BCSC 使用 AndPermission 申请与管理 Android 权限。\
+AndPermission 大大简化了 Android 复杂的权限申请流程。\
+感谢严振杰先生的大作。\
+此为公共版权软件，以 Apache 2.0 开源许可证授权。\
+https://github.com/yanzhenjie/AndPermission\
+\
+感谢 @Asnacinjar, @Tucson, 中国南方地铁模拟中心(CSSSC), 及中国东方地铁模拟中心(ECMSC)在本程序开发期间提出的建议与支持。\
 感谢 博丽·雾希明@bilibili.com 制作粤语翻译。\
 BCSC的开发过程中还用到了数不胜数的开源程序与资源，在此限于篇幅无法一一列出。
 个人在此谨向所有开源社区的合作者们致以最崇高的敬意。</string>

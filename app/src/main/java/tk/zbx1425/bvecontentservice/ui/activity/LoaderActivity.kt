@@ -15,11 +15,9 @@
 
 package tk.zbx1425.bvecontentservice.ui.activity
 
-import android.Manifest
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -30,8 +28,6 @@ import android.view.Window
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import tk.zbx1425.bvecontentservice.BuildConfig
 import tk.zbx1425.bvecontentservice.MainActivity
 import tk.zbx1425.bvecontentservice.R
@@ -177,19 +173,6 @@ class LoaderActivity : AppCompatActivity() {
             }
         }
         MetadataManager.cleanUp()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val permSucceed = checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    && checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-            if (!permSucceed) {
-                progressBar.visibility = View.GONE
-                adapterData.add(resources.getString(R.string.permission_restart))
-                adapter.notifyDataSetChanged()
-                currentStep.text = resources.getString(R.string.permission_restart)
-                progressBar.visibility = View.GONE
-                continueButton.visibility = View.GONE
-                return
-            }
-        }
         if (!isInternetAvailable(this)) {
             MetadataManager.initialized = true
             PackListManager.populate()
@@ -225,55 +208,6 @@ class LoaderActivity : AppCompatActivity() {
             Log.i("BCSFetch", message)
         }
         adapter.notifyDataSetChanged()
-    }
-
-
-    private fun checkPermission(perm: String): Boolean {
-        val result = ContextCompat.checkSelfPermission(this, perm)
-        if (result != PackageManager.PERMISSION_GRANTED) {
-            requestPermission(perm)
-            return false
-        }
-        return true
-    }
-
-    private fun requestPermission(perm: String) {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, perm)) {
-            val dlgAlert = AlertDialog.Builder(this)
-            dlgAlert.setCancelable(false)
-            dlgAlert.setTitle(R.string.app_name)
-            dlgAlert.setMessage(R.string.permission_fail)
-            dlgAlert.setPositiveButton(android.R.string.ok) { _: DialogInterface, _: Int ->
-                finishAffinity()
-            }
-            dlgAlert.create().show()
-            Log.e("BCSBullshit", "You fucking careless bastard!")
-        } else {
-            ActivityCompat.requestPermissions(this, arrayOf(perm), 810)
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String?>,
-        grantResults: IntArray
-    ) {
-        if (requestCode == 810) {
-            if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                val dlgAlert = AlertDialog.Builder(this)
-                dlgAlert.setCancelable(false)
-                dlgAlert.setTitle(R.string.app_name)
-                dlgAlert.setMessage(R.string.permission_fail)
-                dlgAlert.setPositiveButton(android.R.string.ok) { _: DialogInterface, _: Int ->
-                    finishAffinity()
-                }
-                if (!isFinishing) {
-                    dlgAlert.create().show()
-                }
-                Log.e("BCSBullshit", "You fucking stubborn bastard!")
-                exitProcess(0)
-            }
-        }
     }
 
     private fun isInternetAvailable(context: Context): Boolean {

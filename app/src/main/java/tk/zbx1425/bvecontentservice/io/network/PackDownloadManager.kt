@@ -23,10 +23,9 @@ import android.content.Context
 import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
-import android.os.Build
 import android.os.Handler
 import android.widget.Toast
-import androidx.core.content.FileProvider
+import com.yanzhenjie.permission.AndPermission
 import okhttp3.Credentials
 import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.R
@@ -84,17 +83,17 @@ object PackDownloadManager {
                             tempFile.renameTo(PackLocalManager.getLocalPackFile(targetVSID))
                             //Log.i(LOGCAT_TAG, "Removing cache file")
                             //contentResolver!!.delete(localFileUri, null, null)
+                            Log.i(LOGCAT_TAG, "Notifying PackListManager")
+                            PackListManager.populate()
+                            dm.remove(id)
                         }
-                        Log.i(LOGCAT_TAG, "Notifying PackListManager")
-                        PackListManager.populate()
                         Toast.makeText(
                             ApplicationContext.context, String.format(
                                 ApplicationContext.context.resources.getText(R.string.info_download_finished).toString(),
-                                targetVSID, ""
+                                targetVSID
                             ), Toast.LENGTH_SHORT
                         ).show()
                         handlerMap[targetVSID]?.first?.invoke(true)
-                        dm.remove(id)
                     }
                     DownloadManager.STATUS_FAILED -> {
                         Toast.makeText(
@@ -137,6 +136,7 @@ object PackDownloadManager {
         metadata: PackageMetadata, url: String,
         referer: String? = null, cookie: String? = null
     ): Boolean {
+        if (metadata.DevSpec.Throttle < 0) return false
         Log.i(LOGCAT_TAG, "Trying download manager...")
         val dm: DownloadManager = downloadManager ?: return false
         Log.i(LOGCAT_TAG, "Got download manager")
@@ -163,7 +163,7 @@ object PackDownloadManager {
             request.addRequestHeader("cookie", cookie)
             request.addRequestHeader("X-BCS-UUID", Identification.deviceID)
             request.addRequestHeader("X-BCS-CHECKSUM", Identification.getChecksum(metadata))
-            request.addRequestHeader("X-BCS-Throttle", metadata.Source.DevSpec.Throttle.toString())
+            request.addRequestHeader("X-BCS-Throttle", metadata.DevSpec.Throttle.toString())
             when (metadata.Source.APIType) {
                 "httpBasicAuth" -> {
                     val credential: String =
@@ -253,16 +253,31 @@ object PackDownloadManager {
     fun startSelfUpdateDownload(url: String, failureCallback: (String) -> Unit): Boolean {
         if (isDownloading(MAGIC_UPDATE)) return true
         Log.i(LOGCAT_TAG, "Not in VSID-db, starting")
+        val tempFile = File(
+            ApplicationContext.context.getExternalFilesDir("downloadCache"),
+            PackLocalManager.getLocalTempFile(MAGIC_UPDATE.VSID).name
+        )
+        if (tempFile.exists()) tempFile.delete()
         try {
             setHandler(MAGIC_UPDATE, {
                 if (it) {
-                    val intent = Intent(Intent.ACTION_VIEW)
+                    AndPermission.with(ApplicationContext.context).install()
+                        .file(tempFile)
+                        .rationale { context, data, executor -> executor.execute() }
+                        .onDenied {
+                            Toast.makeText(
+                                ApplicationContext.context, String.format(
+                                    ApplicationContext.context.resources.getString(R.string.permission_fail),
+                                    String.format(ApplicationContext.context.resources.getString(R.string.text_update), "")
+                                ),
+                                Toast.LENGTH_LONG
+                            ).show()
+                            exitProcess(-1)
+                        }
+                        .start()
+                    /*val intent = Intent(Intent.ACTION_VIEW)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    val tempFile = File(
-                        ApplicationContext.context.getExternalFilesDir("downloadCache"),
-                        PackLocalManager.getLocalTempFile(MAGIC_UPDATE.VSID).name
-                    )
                     val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
                         FileProvider.getUriForFile(
                             ApplicationContext.context,
@@ -275,7 +290,7 @@ object PackDownloadManager {
                     Log.i(LOGCAT_TAG, uri.toString())
                     intent.setDataAndType(uri, "application/vnd.android.package-archive")
                     ApplicationContext.context.startActivity(intent)
-                    exitProcess(0)
+                    exitProcess(0)*/
                 } else {
                     failureCallback("Error during update")
                     setHandler(MAGIC_UPDATE, null, null)

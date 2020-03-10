@@ -23,14 +23,18 @@ import android.os.Bundle
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import com.google.android.material.snackbar.Snackbar
+import com.yanzhenjie.permission.AndPermission
+import com.yanzhenjie.permission.runtime.Permission
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_webview.*
 import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.io.PackListManager
+import tk.zbx1425.bvecontentservice.io.log.Log
 import tk.zbx1425.bvecontentservice.io.showPreviousCrash
 import tk.zbx1425.bvecontentservice.ui.SectionsPagerAdapter
 import tk.zbx1425.bvecontentservice.ui.activity.AboutActivity
@@ -48,45 +52,47 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        showPreviousCrash()
         if (!MetadataManager.initialized) {
-            val intent = Intent(this, LoaderActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-            startActivity(intent)
-            finish()
-            return
-        }
-        setContentView(R.layout.activity_main)
-        setSupportActionBar(toolbar)
-        sectionsPagerAdapter = SectionsPagerAdapter(this, supportFragmentManager)
-        tabs.setupWithViewPager(view_pager)
-        view_pager.adapter = sectionsPagerAdapter
-        PackListManager.pagerAdapter = sectionsPagerAdapter
-        fab.setOnClickListener {
-            val launchIntent =
-                packageManager.getLaunchIntentForPackage("com.Jeminie.Hmmsim2")
-                    ?: packageManager.getLaunchIntentForPackage("com.Jeminie.Hmmsim")
-            if (launchIntent == null) {
-                Snackbar.make(
-                    root_view,
-                    R.string.info_hmmsim_fail,
-                    Snackbar.LENGTH_SHORT
-                ).show()
-            } else {
-                val dlgAlert = AlertDialog.Builder(this)
-                dlgAlert.setNegativeButton(android.R.string.no, null)
-                dlgAlert.setCancelable(true)
-                dlgAlert.setTitle(R.string.app_name)
-                dlgAlert.setMessage(R.string.alert_hmmsim)
-                dlgAlert.setPositiveButton(android.R.string.yes) { _: DialogInterface, i: Int ->
-                    if (i == DialogInterface.BUTTON_POSITIVE) {
-                        startActivity(launchIntent)
-                        exitProcess(0)
+            requestPermission {
+                val intent = Intent(this, LoaderActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                startActivity(intent)
+                finish()
+            }
+        } else {
+            setContentView(R.layout.activity_main)
+            setSupportActionBar(toolbar)
+            sectionsPagerAdapter = SectionsPagerAdapter(this, supportFragmentManager)
+            tabs.setupWithViewPager(view_pager)
+            view_pager.adapter = sectionsPagerAdapter
+            PackListManager.pagerAdapter = sectionsPagerAdapter
+            fab.setOnClickListener {
+                val launchIntent =
+                    packageManager.getLaunchIntentForPackage("com.Jeminie.Hmmsim2")
+                        ?: packageManager.getLaunchIntentForPackage("com.Jeminie.Hmmsim")
+                if (launchIntent == null) {
+                    Snackbar.make(
+                        root_view,
+                        R.string.info_hmmsim_fail,
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                } else {
+                    val dlgAlert = AlertDialog.Builder(this)
+                    dlgAlert.setNegativeButton(android.R.string.no, null)
+                    dlgAlert.setCancelable(true)
+                    dlgAlert.setTitle(R.string.app_name)
+                    dlgAlert.setMessage(R.string.alert_hmmsim)
+                    dlgAlert.setPositiveButton(android.R.string.yes) { _: DialogInterface, i: Int ->
+                        if (i == DialogInterface.BUTTON_POSITIVE) {
+                            startActivity(launchIntent)
+                            exitProcess(0)
+                        }
                     }
+                    dlgAlert.create().show()
                 }
-                dlgAlert.create().show()
             }
         }
-        showPreviousCrash()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -150,5 +156,35 @@ class MainActivity : AppCompatActivity() {
             return true
         }
         return super.onKeyDown(keyCode, event)
+    }
+
+    private fun requestPermission(onGranted: (List<String>) -> Unit) {
+        AndPermission.with(this).runtime()
+            .permission(Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE)
+            .rationale { context, data, executor ->
+                val text = Permission.transformText(this, data).joinToString(",")
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.app_name)
+                    .setMessage(String.format(resources.getString(R.string.permission_fail), text))
+                    .setPositiveButton(android.R.string.ok) { _, _ -> executor.execute() }
+                    .setNegativeButton(android.R.string.no) { _, _ -> executor.cancel() }
+                    .setCancelable(false)
+                    .show()
+            }
+            .onGranted(onGranted)
+            .onDenied {
+                Log.e("BCSBullshit", "You fucking stubborn bastard!")
+                Toast.makeText(
+                    this, String.format(
+                        resources.getString(R.string.permission_fail),
+                        it.joinToString(",")
+                    ), Toast.LENGTH_LONG
+                ).show()
+                if (AndPermission.hasAlwaysDeniedPermission(this, Permission.WRITE_EXTERNAL_STORAGE)) {
+                    AndPermission.with(this).runtime().setting().start(-1)
+                }
+                exitProcess(-1)
+            }
+            .start()
     }
 }

@@ -40,7 +40,7 @@ class DevSpecMetadata : Serializable {
             throttleList.optInt("*", 0)
         }
         Notice_REL = if (src.optBoolean("NoticeOnlyForThrottled", false)) {
-            if (Throttle > 0) {
+            if (Throttle != 0) {
                 src.optString("Notice", "")
             } else {
                 ""

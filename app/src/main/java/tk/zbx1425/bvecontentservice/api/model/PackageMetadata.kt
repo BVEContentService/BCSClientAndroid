@@ -16,11 +16,13 @@
 package tk.zbx1425.bvecontentservice.api.model
 
 import org.json.JSONObject
+import tk.zbx1425.bvecontentservice.api.HttpHelper
 import tk.zbx1425.bvecontentservice.api.ManagerConfig
 import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.api.Version
 import tk.zbx1425.bvecontentservice.chooseString
 import tk.zbx1425.bvecontentservice.io.PackLocalManager
+import tk.zbx1425.bvecontentservice.io.log.Log
 import tk.zbx1425.bvecontentservice.processRelUrl
 
 import java.io.Serializable
@@ -48,6 +50,7 @@ data class PackageMetadata(
     var AutoOpen: Boolean = false,
     var ForceView: Boolean = false,
     var Timestamp: Date = Date(),
+    var DevSpec_R: DevSpecMetadata? = null,
     var Source: SourceMetadata = SourceMetadata(""),
     var UpdateAvailable: Boolean = false,
     var DummyPack: Boolean = false
@@ -80,8 +83,19 @@ data class PackageMetadata(
         src.optBoolean("AutoOpen", false),
         src.optBoolean("ForceView", false),
         Date(src.getLong("TimeStamp") * 1000),
+        null,
         source
-    )
+    ) {
+        try {
+            val url = src.optString("DevSpec", "")
+            if (url == "") return
+            val response = HttpHelper.fetchString(source, processRelUrl(source, url)) ?: return
+            DevSpec_R = DevSpecMetadata(JSONObject(response), source)
+            Log.i("BCSDebug", Name + " Throttle " + DevSpec.Throttle + " Notice " + DevSpec.Notice)
+        } catch (ex: Exception) {
+            //Discard it. Server does not support DevSpec.
+        }
+    }
 
     constructor(localName: String) : this(
         File_REL = localName, Name_LO = PackLocalManager.trimEncryptedName(localName)
@@ -124,5 +138,9 @@ data class PackageMetadata(
             } else {
                 Description_REL
             }
+        }
+    val DevSpec: DevSpecMetadata
+        get() {
+            return DevSpec_R ?: Source.DevSpec
         }
 }

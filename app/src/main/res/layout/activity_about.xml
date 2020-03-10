@@ -62,6 +62,13 @@
             android:text="@string/about_info"
             android:textSize="18sp" />
 
+        <TextView
+            android:id="@+id/textUUID"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:gravity="center_horizontal" />
+
         <LinearLayout
             android:id="@+id/aboutHidden"
             android:layout_width="match_parent"

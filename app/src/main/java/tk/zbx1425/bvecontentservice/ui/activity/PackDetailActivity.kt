@@ -121,7 +121,7 @@ class PackDetailActivity : AppCompatActivity() {
         sourceMetadataPlaceholder.replaceView(MetadataView(this, metadata.Source))
         indexMetadataPlaceholder.replaceView(MetadataView(this, metadata.Source.Index))
         appMetadataPlaceholder.replaceView((MetadataView(this)))
-        noticePlaceholder.replaceView(DescriptionView(this, metadata.Source.DevSpec))
+        noticePlaceholder.replaceView(DescriptionView(this, metadata.DevSpec))
         descriptionPlaceholder.replaceView(DescriptionView(this, metadata))
         ImageLoader.setPackImageAsync(thumbnailView, metadata, false)
         Thread {
@@ -180,6 +180,10 @@ class PackDetailActivity : AppCompatActivity() {
             dlgAlert.setPositiveButton(android.R.string.yes) { _: DialogInterface, i: Int ->
                 if (i == DialogInterface.BUTTON_POSITIVE) {
                     PackDownloadManager.abortDownload(metadata)
+                    Toast.makeText(
+                        this, String.format(resources.getString(R.string.info_download_aborted), metadata.VSID),
+                        Toast.LENGTH_SHORT
+                    ).show()
                     updateUI()
                 }
             }

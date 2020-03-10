@@ -15,6 +15,7 @@
 
 package tk.zbx1425.bvecontentservice.ui.activity
 
+import Identification
 import android.content.DialogInterface
 import android.os.Bundle
 import android.text.InputType
@@ -46,6 +47,7 @@ class AboutActivity : AppCompatActivity() {
         setContentView(R.layout.activity_about)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         appMetadataPlaceholder.replaceView(MetadataView(this))
+        textUUID.text = Identification.deviceID
         if (getPreference("showLoadLog", false)){
             iconLayout.setOnClickListener {
                 clickTimes++
