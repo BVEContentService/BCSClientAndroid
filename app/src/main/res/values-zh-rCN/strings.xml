@@ -137,7 +137,7 @@ BCSC的开发过程中还用到了数不胜数的开源程序与资源，在此�
 
     <string name="text_goto_download">前往下载</string>
     <string name="pref_interceptrequest">大陆网络优化</string>
-    <string name="pref_interceptrequest_sum">仅在中国大陆地区必须打开</string>
+    <string name="pref_interceptrequest_sum">在中国大陆地区必须打开，以外则无需</string>
     <string name="pref_fontsize">部分字体大小</string>
     <string name="pref_fontsize_sum">调整部分文字的大小百分比</string>
 </resources>
