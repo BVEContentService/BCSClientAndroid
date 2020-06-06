@@ -15,12 +15,14 @@
 
 package tk.zbx1425.bvecontentservice.ui.activity
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -58,6 +60,7 @@ class LoaderActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         if (getPreference("showLoadLog", false)) {
             setContentView(R.layout.activity_loader)
         } else {
@@ -142,6 +145,15 @@ class LoaderActivity : AppCompatActivity() {
                         }
                         continueButton.visibility = View.GONE
                     }
+                    dlgAlert.setNeutralButton(R.string.info_update_manual) { _: DialogInterface, _: Int ->
+                        try {
+                            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(MetadataManager.updateMetadata!!.File))
+                            startActivity(browserIntent)
+                            finishAffinity()
+                        } catch (e: ActivityNotFoundException) {
+                            Toast.makeText(this, R.string.info_no_browser, Toast.LENGTH_LONG).show()
+                        }
+                    }
                     dlgAlert.setNegativeButton(android.R.string.no) { _: DialogInterface, _: Int ->
                         if (MetadataManager.updateMetadata?.Force == true) {
                             exitProcess(0)
@@ -192,7 +204,14 @@ class LoaderActivity : AppCompatActivity() {
     }
 
     fun callMainActivity() {
+        val appLinkAction = intent.action
+        val appLinkData = intent.data
+
         val intent = Intent(this, MainActivity::class.java)
+        if (Intent.ACTION_VIEW == appLinkAction) {
+            intent.action = Intent.ACTION_VIEW
+            intent.data = appLinkData
+        }
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
         startActivity(intent)
     }

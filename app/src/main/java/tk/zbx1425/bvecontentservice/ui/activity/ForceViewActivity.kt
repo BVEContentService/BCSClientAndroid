@@ -18,11 +18,13 @@ package tk.zbx1425.bvecontentservice.ui.activity
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
 import android.webkit.CookieManager
 import android.webkit.WebChromeClient
+import android.webkit.WebSettings
 import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_webview.*
@@ -52,6 +54,9 @@ class ForceViewActivity : AppCompatActivity() {
             finish()
         }
         webView.settings.javaScriptEnabled = getPreference("enableJavascript", true)
+        if (Build.VERSION.SDK_INT >= 21) {
+            webView.settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+        }
         if (guidedDownload) {
             webView.loadUrl(if (metadata.File_REL != "") metadata.File; else metadata.Homepage)
         } else {

@@ -20,7 +20,6 @@ object ManagerConfig {
     //Important strings that should get localized
     val strIndex = "Index"
     val strUpdate = "Update"
-    val strSpider = "Spider"
     val strResponseCache = "Response Cache"
     val strUGC = "UGC"
     val strSource = "Source"

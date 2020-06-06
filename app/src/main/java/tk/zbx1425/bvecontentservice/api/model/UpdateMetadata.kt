@@ -16,6 +16,7 @@
 package tk.zbx1425.bvecontentservice.api.model
 
 import org.json.JSONObject
+import tk.zbx1425.bvecontentservice.BuildConfig
 import tk.zbx1425.bvecontentservice.api.Version
 import tk.zbx1425.bvecontentservice.chooseString
 import tk.zbx1425.bvecontentservice.processRelUrl
@@ -29,8 +30,12 @@ data class UpdateMetadata(
     var ReportMethod: String,
     var Description_LO: String,
     var Description_EN: String,
+    var SpecialMsg_LO: String,
+    var SpecialMsg_EN: String,
+    var SpecialVer: Version,
     var Homepage: String,
     var Force: Boolean,
+    var CannotAutoUpdate: Boolean,
     val Source: SourceMetadata
 ) : Serializable {
     constructor (src: JSONObject, Source: SourceMetadata) : this(
@@ -40,8 +45,12 @@ data class UpdateMetadata(
         src.optString("ReportMethod"),
         src.getString("Description_LO"),
         src.getString("Description_EN"),
+        src.optString("SpecialMsg_LO"),
+        src.optString("SpecialMsg_EN"),
+        Version(src.optString("SpecialVer", "0.0")),
         src.optString("Homepage"),
         src.optBoolean("Force", false),
+        src.optBoolean("SpecialNoAuto", false),
         Source
     )
 
@@ -51,7 +60,12 @@ data class UpdateMetadata(
 
     val Description: String
         get() {
-            return chooseString(Description_LO, Description_EN)
+            return if (Version(BuildConfig.VERSION_NAME) < SpecialVer) {
+                chooseString(SpecialMsg_LO, SpecialMsg_EN) + "\n" +
+                        chooseString(Description_LO, Description_EN)
+            } else {
+                chooseString(Description_LO, Description_EN)
+            }
         }
 
     val File: String

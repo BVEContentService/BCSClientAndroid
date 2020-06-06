@@ -226,6 +226,7 @@ class PackDetailActivity : AppCompatActivity() {
     }
 
     private fun updateUI() {
+        Log.i("BCSUI", "PackDetail UI Updating")
         runOnUiThread {
             downloadButton.text =
                 if (PackDownloadManager.isDownloading(metadata)) {

@@ -16,15 +16,13 @@
 package tk.zbx1425.bvecontentservice.ui.activity
 
 import android.graphics.Bitmap
+import android.os.Build
 import android.os.Bundle
 import android.os.Message
 import android.view.KeyEvent
 import android.view.View
-import android.webkit.JavascriptInterface
-import android.webkit.WebChromeClient
-import android.webkit.WebView
+import android.webkit.*
 import android.webkit.WebView.WebViewTransport
-import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_webview.*
 import tk.zbx1425.bvecontentservice.R
@@ -53,6 +51,9 @@ class UGCActivity : AppCompatActivity() {
         webView.settings.javaScriptCanOpenWindowsAutomatically = true
         webView.settings.setSupportMultipleWindows(true)
         webView.loadUrl(UGCManager.getURL(metadata))
+        if (Build.VERSION.SDK_INT >= 21) {
+            webView.settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+        }
         webView.webChromeClient =
             MultiPageChromeClient(
                 this

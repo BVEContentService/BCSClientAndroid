@@ -1,7 +1,7 @@
 <resources>
     <string name="bullshit">請截圖。\n程式發生錯誤!\n%s\n請将此檔案送到程式製作組:\n%s</string>
     <string name="bullshit_eaten">程式剛剛發生錯誤。\n%s\n已自動將相應檔案送往製作組分析。</string>
-    <string name="app_name">BVE線路庫</string>
+    <string name="app_name">Hmmsim線路庫</string>
     <string name="tab_text_info">公告</string>
     <string name="tab_text_download">下載</string>
     <string name="tab_text_manage">管理</string>
@@ -27,8 +27,10 @@
     <string name="info_fetch_text_fail">未能獲取描述信息！\n%s\n%s</string>
     <string name="info_clear_temp">下載緩存已清空。</string>
     <string name="info_update_pack">有 %d 個路線可以更新！\n詳見管理頁。</string>
-    <string name="info_update_app">本程式可被更新。\n版本: %s\n%s</string>
+    <string name="info_update_app">本程式可被更新。\n版本: %s\n%s\n\n如自動更新失敗，請手動下載。</string>
+    <string name="info_update_manual">手動下載</string>
     <string name="info_no_network">似乎不能聯網。\n因此本程式無法下載路線。\n要想删除本地路線，還是可以的。</string>
+    <string name="info_no_browser">您似乎未安裝網路瀏覽器。\n請下載並安裝一個以供下載安裝包。</string>
     <string name="info_update_start">下載已開始。請耐心等待……</string>
     <string name="info_hmmsim_fail">未安裝 Hmmsim。</string>
     <string name="info_exit_again">再按一次退出程式。</string>
@@ -51,7 +53,7 @@
     <string name="text_apiurl">API</string>
     <string name="text_noinfo">沒有此類路線。</string>
     <string name="text_abuse">如出現侵權或其他不法行為，請聯系上傳者。如果您的訴求未被重視，您可聯系服務器維護團隊：</string>
-    <string name="text_developer">BVE內容服務系統用戶端\n(BVE線路庫)</string>
+    <string name="text_developer">BVE內容服務系統用戶端\n(Hmmsim線路庫)</string>
     <string name="text_ugc">更多</string>
     <string name="text_download">下載 %s</string>
     <string name="text_continue_download">繼續下載</string>
@@ -106,6 +108,8 @@ BVE 內容服務客戶端 (BCSC)\
 聯系方式: zbx1425@outlook.com\
 歡迎訪問項目網站: https://bvecontentservice.gitee.io 或 https://bvecontentservice.github.io\
 歡迎光臨個人網站: https://www.zbx1425.tk\
+\
+Hmmsim2 是由 Jeminie Interactive 開發的收費軟體。 http://jeminie.kr\
 \
 本程式為自由軟件；您可依據自由軟件基金會所發表的GNU通用公共授權條款，對本程序再次發布和/或修改；無論您依據的是此授權的第三版，或（您可選的）任壹此後發行的版本。\
 本程式是基於使用目的而加以發布，然而不負任何擔保責任；亦無對適售性或特定目的適用性所為的默示性擔保。詳情請參照GNU通用公共授權。\

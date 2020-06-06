@@ -1,7 +1,7 @@
 <resources>
     <string name="bullshit">請截圖。\n程式發生錯誤!\n%s\n請将此檔案送到程式製作組:\n%s</string>
     <string name="bullshit_eaten">程式剛剛發生錯誤。\n%s\n已自動將相應檔案送往製作組分析。</string>
-    <string name="app_name">BVE線路庫</string>
+    <string name="app_name">Hmmsim線路庫</string>
     <string name="tab_text_info">公告</string>
     <string name="tab_text_download">下載</string>
     <string name="tab_text_manage">管理</string>
@@ -27,8 +27,10 @@
     <string name="info_fetch_text_fail">呢個頁面暫時不可描述\n%s\n%s</string>
     <string name="info_clear_temp">已清空下載內容</string>
     <string name="info_update_pack">有 %d 個路線可以更新！\n詳見管理頁。</string>
-    <string name="info_update_app">程式可以更新啦！\n版本: %s\n%s</string>
+    <string name="info_update_app">程式可以更新啦！\n版本: %s\n%s\n\n如自動更新失敗，請手動下載。</string>
+    <string name="info_update_manual">手動下載</string>
     <string name="info_no_network">好似冇網絡，\n暫時冇得下載線路\n不過想删除已經下載嘅線路，仲係可以嘅</string>
+    <string name="info_no_browser">好似冇網路瀏覽器。\n請下載並安裝一個以供下載安裝包。</string>
     <string name="info_update_start">開始下載，俾啲心機等下</string>
     <string name="info_hmmsim_fail">你未安裝hmmsim本體</string>
     <string name="info_exit_again">㩒多一次退出程式</string>
@@ -51,7 +53,7 @@
     <string name="text_apiurl">API</string>
     <string name="text_noinfo">唔使望啦，乜都冇，望望隔籬啦！</string>
     <string name="text_abuse">如果出現侵權或其他不法行為，請聯系上傳者。如果你冇收到回覆，可以聯系程式製作組：</string>
-    <string name="text_developer">BVE內容服務系統用戶端\n(BVE線路庫)</string>
+    <string name="text_developer">BVE內容服務系統用戶端\n(Hmmsim線路庫)</string>
     <string name="text_ugc">更多</string>
     <string name="text_download">下載 %s</string>
     <string name="text_continue_download">繼續下載</string>
@@ -106,6 +108,8 @@ BVE 內容服務客戶端 (BCSC)\
 聯系方式: zbx1425@outlook.com\
 歡迎訪問項目網站: https://bvecontentservice.gitee.io 或 https://bvecontentservice.github.io\
 歡迎光臨個人網站: https://www.zbx1425.tk\
+\
+Hmmsim2 是由 Jeminie Interactive 開發嘅收費軟體。 http://jeminie.kr\
 \
 本程式喺自由軟件(可參閱維基百科詞條)，不過如果要對本程式二次配布或者修改，請參閱GPLv3條例後進行。\
 本程式是基於方便玩家嘅目的而發布，唔負任何擔保責任，亦唔對適售性或特定目的適用性所為的默示性擔保，詳情請參照GNU通用公共授權。\

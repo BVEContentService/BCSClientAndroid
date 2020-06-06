@@ -39,7 +39,6 @@ import tk.zbx1425.bvecontentservice.io.hThread
 import tk.zbx1425.bvecontentservice.io.log.Log
 import tk.zbx1425.bvecontentservice.nullify
 import tk.zbx1425.bvecontentservice.ui.InterceptedWebViewClient
-import tk.zbx1425.bvecontentservice.ui.activity.AutoSizeWebView
 import java.net.URL
 import java.util.*
 

@@ -9,6 +9,7 @@ import tk.zbx1425.bvecontentservice.ApplicationContext
 import tk.zbx1425.bvecontentservice.api.HttpHelper
 import tk.zbx1425.bvecontentservice.io.log.Log
 import tk.zbx1425.bvecontentservice.nullify
+import tk.zbx1425.bvecontentservice.ui.component.AutoSizeWebView
 
 open class InterceptedWebViewClient : WebViewClient() {
 
@@ -51,7 +52,9 @@ open class InterceptedWebViewClient : WebViewClient() {
     }
 
     override fun onPageFinished(view: WebView?, url: String?) {
-        view?.loadUrl("javascript:bcs.resize(document.body.getBoundingClientRect().height)")
+        if (view is AutoSizeWebView) {
+            view.measurePage()
+        }
         super.onPageFinished(view, url)
     }
 }

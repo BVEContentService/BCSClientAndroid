@@ -24,7 +24,9 @@ import tk.zbx1425.bvecontentservice.R
 import tk.zbx1425.bvecontentservice.api.MetadataManager
 import tk.zbx1425.bvecontentservice.io.PackListManager
 import tk.zbx1425.bvecontentservice.io.PackLocalManager
+import tk.zbx1425.bvecontentservice.io.log.L4jConfig
 import tk.zbx1425.bvecontentservice.io.network.ImageLoader
+import java.io.File
 
 class SettingFragment : PreferenceFragmentCompat() {
 
@@ -62,12 +64,17 @@ class SettingFragment : PreferenceFragmentCompat() {
     override fun onPreferenceTreeClick(preference: Preference?): Boolean {
         if (preference == null) return super.onPreferenceTreeClick(preference)
         when (preference.key) {
+            "fontSize" -> {
+                val fontSizePref = findPreference("fontSize") as SeekBarPreference
+                fontSizePref.value = 100
+            }
             "useIndexServer", "englishName", "useSourceSpider", "allPacks" -> {
                 updateElements()
             }
             "clearTemp" -> {
                 PackLocalManager.flushCache()
                 ImageLoader.initCache()
+                File(L4jConfig.logFile).delete()
                 Toast.makeText(
                     ApplicationContext.context,
                     R.string.info_clear_temp,

@@ -204,6 +204,7 @@ object PackDownloadManager {
                     cursor.close()
                 } else {
                     Log.e(LOGCAT_TAG, "Cannot move cursor, maybe finished")
+                    handlerMap[metadata.VSID]?.first?.invoke(false)
                 }
             }
         }, CALLBACK_INTERVAL)
@@ -216,7 +217,7 @@ object PackDownloadManager {
         try {
             dm.remove(id)
             handlerMap[metadata.VSID]?.first?.invoke(false)
-            Log.i(LOGCAT_TAG, "Download aborted " + metadata.VSID)
+            Log.i(LOGCAT_TAG, "Download aborted " + metadata.VSID + "id" + id)
             return true
         } catch (ex: Exception) {
             ex.printStackTrace()
@@ -238,15 +239,19 @@ object PackDownloadManager {
                         or DownloadManager.STATUS_PENDING or DownloadManager.STATUS_PAUSED
             )
         )
+        //Log.i("BCSDebug", "Querying Id for "+metadata.VSID)
         while (cursor.moveToNext()) {
             val targetVSID = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_DESCRIPTION))
             if (targetVSID == metadata.VSID) {
                 val id = cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_ID))
+                val state = cursor.getInt(cursor.getColumnIndex((DownloadManager.COLUMN_STATUS)))
                 cursor.close()
+                //Log.i("BCSDebug", "Query resulted in "+id+" state "+state)
                 return id
             }
         }
         cursor.close()
+        //Log.i("BCSDebug", "Query suggested Not downloading")
         return -1
     }
 
@@ -263,8 +268,13 @@ object PackDownloadManager {
                 if (it) {
                     AndPermission.with(ApplicationContext.context).install()
                         .file(tempFile)
-                        .rationale { context, data, executor -> executor.execute() }
+                        .rationale { context, data, executor ->
+                            Log.i("BCSDebug", "AndPermission Installation Rationale Triggered")
+                            executor.execute()
+                        }
+                        .onGranted { Log.i("BCSDebug", "AndPermission Installation Granted") }
                         .onDenied {
+                            Log.e("BCSDebug", "AndPermission Installation Denied")
                             Toast.makeText(
                                 ApplicationContext.context, String.format(
                                     ApplicationContext.context.resources.getString(R.string.permission_fail),
@@ -309,7 +319,7 @@ object PackDownloadManager {
         try {
             val out: OutputStream = FileOutputStream(dst)
             try { // Transfer bytes from in to out
-                val buf = ByteArray(1024)
+                val buf = ByteArray(4096)
                 var len: Int
                 while (src.read(buf).also { len = it } > 0) {
                     out.write(buf, 0, len)

@@ -39,6 +39,7 @@ import tk.zbx1425.bvecontentservice.io.showPreviousCrash
 import tk.zbx1425.bvecontentservice.ui.SectionsPagerAdapter
 import tk.zbx1425.bvecontentservice.ui.activity.AboutActivity
 import tk.zbx1425.bvecontentservice.ui.activity.LoaderActivity
+import tk.zbx1425.bvecontentservice.ui.activity.PackDetailActivity
 import tk.zbx1425.bvecontentservice.ui.activity.SettingActivity
 import tk.zbx1425.bvecontentservice.ui.component.InfoFragment
 import kotlin.system.exitProcess
@@ -52,13 +53,27 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        showPreviousCrash()
+        val appLinkAction = intent.action
+        val appLinkData = intent.data
+
         if (!MetadataManager.initialized) {
             requestPermission {
+                showPreviousCrash()
                 val intent = Intent(this, LoaderActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                if (Intent.ACTION_VIEW == appLinkAction) {
+                    intent.action = Intent.ACTION_VIEW
+                    intent.data = appLinkData
+                }
                 startActivity(intent)
                 finish()
+            }
+        } else if (Intent.ACTION_VIEW == appLinkAction) {
+            val packID = appLinkData?.getQueryParameter("id")
+            if (MetadataManager.packMap.containsKey(packID)) {
+                val intent = Intent(this, PackDetailActivity::class.java)
+                intent.putExtra("metadata", MetadataManager.packMap[packID])
+                startActivity(intent)
             }
         } else {
             setContentView(R.layout.activity_main)
